@@ -4,6 +4,7 @@
 #include "AnimInstances/WarriorCharacterAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Characters/WarriorBaseCharacter.h"
+#include "KismetAnimationLibrary.h"
 
 void UWarriorCharacterAnimInstance::NativeInitializeAnimation()
 {
@@ -27,4 +28,6 @@ void UWarriorCharacterAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaS
 	GroundSpeed=OwingCharacter->GetVelocity().Size2D();
 	//ABP状态机参数
 	bHasAcceleration=OwingMovementComponent->GetCurrentAcceleration().SizeSquared2D()> 0.f;
+
+	LocalMotionDirection=UKismetAnimationLibrary::CalculateDirection(OwingCharacter->GetVelocity(),OwingCharacter->GetActorRotation());
 }
