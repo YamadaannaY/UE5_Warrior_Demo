@@ -24,10 +24,9 @@ void UWarriorCharacterAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaS
 	{
 		return;
 	}
-	//ABP变量
 	GroundSpeed=OwingCharacter->GetVelocity().Size2D();
-	//ABP状态机参数
+	//避免开方计算以减少消耗
 	bHasAcceleration=OwingMovementComponent->GetCurrentAcceleration().SizeSquared2D()> 0.f;
-
+	//让OwingCharacter朝着速度矢量的方向进行旋转
 	LocalMotionDirection=UKismetAnimationLibrary::CalculateDirection(OwingCharacter->GetVelocity(),OwingCharacter->GetActorRotation());
 }

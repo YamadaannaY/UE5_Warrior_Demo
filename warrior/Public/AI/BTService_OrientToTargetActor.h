@@ -24,9 +24,9 @@ class WARRIOR_API UBTService_OrientToTargetActor : public UBTService
 	virtual FString GetStaticDescription() const override;
 	//~End UBTNode Interface
 
+	//如果该节点处于活动状态则每帧执行
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
-
-	//存储要orient的对象（以FName形式）
+	
 	UPROPERTY(EditAnywhere,Category="Target")
 	FBlackboardKeySelector InTargetActorKey;
 	

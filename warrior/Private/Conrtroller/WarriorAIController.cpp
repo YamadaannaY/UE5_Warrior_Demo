@@ -18,7 +18,7 @@ AWarriorAIController::AWarriorAIController(const FObjectInitializer& ObjectIniti
 	AISenseConfig_Sight->DetectionByAffiliation.bDetectNeutrals=false;  // 不检测中立单位
 	AISenseConfig_Sight->SightRadius=5000.f; // 视野半径
 	AISenseConfig_Sight->LoseSightRadius=0.f; // 丢失目标距离（通常应大于 SightRadius，这里设 0 意味着一旦出视野就立刻丢失）
-	AISenseConfig_Sight->PeripheralVisionAngleDegrees=90.f; // 视野角度（0° = 只能正前方一条线，通常会设置为 90-120°）
+	AISenseConfig_Sight->PeripheralVisionAngleDegrees=180.f; // 视野角度（0° = 只能正前方一条线，通常会设置为 90-120°）
 
 	SetPerceptionComponent(*EnemyPerceptionComponent);
 	EnemyPerceptionComponent=CreateDefaultSubobject<UAIPerceptionComponent>("EnemyAIPerceptionComponent");

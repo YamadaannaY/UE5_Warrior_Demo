@@ -37,7 +37,7 @@ FString UBTService_OrientToTargetActor::GetStaticDescription() const
 	return 	FString::Printf(TEXT("Orient rotation to %s key %s"),*KeyDescription,*GetStaticServiceDescription());
 }
 
-//如果该节点处于活动状态则每帧执行
+
 void UBTService_OrientToTargetActor::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
