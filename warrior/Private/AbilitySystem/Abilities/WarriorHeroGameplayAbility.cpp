@@ -66,7 +66,7 @@ FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecH
 
 	if (InCurrentAttackTypeTag.IsValid())
 	{
-		//InCurrentAttackTypeTag为攻击类型，在轻击GA中用light创建spec，重击GA中用heavy创建spec
+		//InCurrentAttackTypeTag为攻击类型，在轻击GA中用Light创建spec，重击GA中用Heavy创建spec
 		EffectSpecHandle.Data->SetSetByCallerMagnitude(InCurrentAttackTypeTag,InUsedComboCount);
 	}
 	return EffectSpecHandle;

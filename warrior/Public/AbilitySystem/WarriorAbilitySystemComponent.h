@@ -15,17 +15,17 @@ class WARRIOR_API UWarriorAbilitySystemComponent : public UAbilitySystemComponen
 {
 	GENERATED_BODY()
 public:
-	//当绑定映射输入时，激活对应能力
+	//当绑定映射输入时，激活对应能力，作为CallBack函数被能力调用
 	void OnAbilityInputPressed(const FGameplayTag& InInputTag);
 
-	//空实现，还没有需要在能力结束时进行的逻辑。此处作为CallBack
+	//空实现，还没有需要在能力结束时进行的逻辑。作为CallBack函数被能力调用
 	void OnAbilityInputReleased(const FGameplayTag& InInputTag);
 
-	//生成所有equip weapon状态下能够实现的能力
+	//生成所有EquipWeapon状态下能够实现的能力
 	UFUNCTION(BlueprintCallable,Category="Warrior|Ability",meta=(ApplyLevel="1"))
 	void GrantHeroWeaponAbilities(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities,int32 ApplyLevel,TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles);
 
-	//删除所有equip weapon状态下能够实现的能力，用于unequip weapon 情景
+	//删除所有EquipWeapon状态下能够实现的能力，用于UnequipWeapon情景
 	UFUNCTION(BlueprintCallable,Category="Warrior|Ability")
 	void RemoveGrantedHeroWeaponAbilities(UPARAM(ref)TArray<FGameplayAbilitySpecHandle>& InSpecHandlesToRemove);
 };

@@ -30,7 +30,7 @@ void UBTService_OrientToTargetActor::InitializeFromAsset(UBehaviorTree& Asset)
 	}
 }
 
-//ServiceName下面的一行解释
+
 FString UBTService_OrientToTargetActor::GetStaticDescription() const
 {
 	const FString KeyDescription=InTargetActorKey.SelectedKeyName.ToString();

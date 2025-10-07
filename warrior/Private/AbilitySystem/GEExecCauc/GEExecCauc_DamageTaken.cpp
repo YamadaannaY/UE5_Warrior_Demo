@@ -7,15 +7,15 @@
 /** 绑定了GE，从**/
 
 struct FWarriorDamageCapture
-{	//等效于slow way中的捕获操作，声明要在属性集中寻找的的属性
+{	//等效于SlowWay中的捕获操作，声明要在属性集中寻找的的属性
 	DECLARE_ATTRIBUTE_CAPTUREDEF(AttackPower)
 	DECLARE_ATTRIBUTE_CAPTUREDEF(DefensePower)
 	DECLARE_ATTRIBUTE_CAPTUREDEF(DamageTaken)
 	FWarriorDamageCapture()
 	{
-		//等效于slow way 中为捕获属性进行规则定义的操作。
-		//从UWarriorAttributeSet中寻找特定属性，定义属于Source（player）还是Target（enemy），是否每次都计算新的值，false则是，true则只看第一次输入值
-		//定义后生成Def，表明定义。
+		//等效于SlowWay 中为捕获属性进行规则定义的操作。
+		//从UWarriorAttributeSet中寻找特定属性，定义属于Source（Player）还是Target（Enemy），是否每次都计算新的值，false则是，true则只看第一次输入值
+		//属性声明后往往要进行Define，对属性进行描述。
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UWarriorAttributeSet,AttackPower,Source,false)
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UWarriorAttributeSet,DefensePower,Target,false)
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UWarriorAttributeSet,DamageTaken,Target,false)
@@ -25,7 +25,7 @@ struct FWarriorDamageCapture
 //静态工具函数，用于获取FWarriorDamageCapture对象,调用Def;
 static const FWarriorDamageCapture& GetWarriorDamageCapture()
 {
-	static FWarriorDamageCapture WarriorDamageCapture;;
+	static FWarriorDamageCapture WarriorDamageCapture;
 	return WarriorDamageCapture;
 }
 
@@ -49,7 +49,6 @@ UGEExecCalc_DamageTaken::UGEExecCalc_DamageTaken()
 	RelevantAttributesToCapture.Add(GetWarriorDamageCapture().AttackPowerDef);
 	RelevantAttributesToCapture.Add(GetWarriorDamageCapture().DefensePowerDef);
 	RelevantAttributesToCapture.Add(GetWarriorDamageCapture().DamageTakenDef);
-
 }
 
 //FGameplayEffectCustomExecutionParameters包含了正在执行的GA的上下文，比如施法者、目标、捕获的属性等。
@@ -66,7 +65,7 @@ void UGEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCustom
 	EvaluateParameters.SourceTags=EffectSpec.CapturedSourceTags.GetAggregatedTags();
 	EvaluateParameters.TargetTags=EffectSpec.CapturedTargetTags.GetAggregatedTags();
 	
-	//存储属性值
+	//自定义值来存储属性值
 	float SourceAttackPower=0.f;
 	//AttemptCalculateCapturedAttributeMagnitude用于捕获属性集中属性并存储
 	//尝试取出属性值并赋给存储值
@@ -79,7 +78,7 @@ void UGEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCustom
 	//SetByCaller→是一种动态参数传递方式，调用时由 Ability/代码来设置，动态变化的值用此方法存储->蓝图实现动态赋值
 	for (const TPair<FGameplayTag,float>& TagMagnitude:EffectSpec.SetByCallerTagMagnitudes)
 	{
-		//在GA函数中SetByCallerTagMagnitudes绑定Tag与GA，GA蓝图中调用进行了赋值
+		//在GE.Data中SetByCallerTagMagnitudes绑定Tag与对应的属性，GA蓝图中调用进行属性赋值
 		if (TagMagnitude.Key.MatchesTagExact(WarriorGamePlayTags::Shared_SetByCaller_BaseDamage))
 		{
 			BaseDamage=TagMagnitude.Value;

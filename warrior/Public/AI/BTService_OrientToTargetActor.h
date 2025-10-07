@@ -20,7 +20,7 @@ class WARRIOR_API UBTService_OrientToTargetActor : public UBTService
 	
 	//为了确保BTService知道它的KeySelector对应黑板里的哪个Key，获取UBlackboardData*BBAsset，并将KeySelector进行绑定
 	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
-	//获得一个Description
+	////ServiceName下面的一行StaticDescription
 	virtual FString GetStaticDescription() const override;
 	//~End UBTNode Interface
 

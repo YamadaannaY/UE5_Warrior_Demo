@@ -13,7 +13,7 @@ void UWarriorAbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& I
 	//所有ActivatableAbilitySpec遍历，也就是HeroStartUpData在HeroCharacter中被Give后的能力
 	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		//在HeroData的AbilitySpec创建过程中动态添加了Tag，此处进行检索
+		//在HeroData的AbilitySpec创建过程中AddTag，此处进行检索
 		if (! AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InInputTag)) continue;
 
 		//激活能力（依赖输入，具有Tag）
@@ -42,7 +42,7 @@ void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities(const TArray<FWarr
 		AbilitySpec.Level = ApplyLevel;
 		//使用WeaponAbilities时利用Tag检索
 		AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.InputTag);
-		//存储所有建立好的WeaponAbilitySpec
+		//存储所有建立好的WeaponAbilitySpec的句柄。
 		OutGrantedAbilitySpecHandles.Add(GiveAbility(AbilitySpec));
 	}
 }
