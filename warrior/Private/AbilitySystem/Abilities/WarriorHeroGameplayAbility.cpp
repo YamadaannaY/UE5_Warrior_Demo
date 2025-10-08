@@ -46,7 +46,8 @@ FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecH
 {
 	check(EffectClass);
 	
-	//EffectContext 保存当前Effect的来源信息、发起者、附加对象等
+	//EffectContext 保存当前Effect的来源信息、发起者、附加对象等,Handle相当于ID，调取特定Context以获取这些信息
+	//ContextHandle固定流程
 	FGameplayEffectContextHandle ContextHandle=GetWarriorAbilitySystemComponentFromActorInfo()->MakeEffectContext();
 	ContextHandle.SetAbility(this);
 	ContextHandle.AddSourceObject(GetAvatarActorFromActorInfo());

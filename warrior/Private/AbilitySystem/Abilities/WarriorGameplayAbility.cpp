@@ -63,7 +63,7 @@ FActiveGameplayEffectHandle UWarriorGameplayAbility::NativeApplyEffectSpecHandle
 	
 }
 
-//封装上面的函数
+//封装函数NativeApplyEffectSpecHandleToTarget并返回输出引脚
 FActiveGameplayEffectHandle UWarriorGameplayAbility::BP_ApplyEffectSpecHandleToTarget(AActor* TargetActor,
 	const FGameplayEffectSpecHandle& InSpecHandle, EWarriorSuccessType& OutSuccessType) const 
 {

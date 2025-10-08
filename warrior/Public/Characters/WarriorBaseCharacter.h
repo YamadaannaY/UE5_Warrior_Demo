@@ -9,8 +9,9 @@
 #include "AbilitySystemInterface.h"
 #include "Interfaces/PawnCombatInterface.h"
 #include "WarriorBaseCharacter.generated.h"
-
+class UMotionWarpingComponent;
 class  UDataAsset_StartUpDataBase;
+
 UCLASS()
 //IAbilitySystemInterface:提供一个接口，让外部获得角色的ability system
 class WARRIOR_API AWarriorBaseCharacter : public ACharacter,public IAbilitySystemInterface,public IPawnCombatInterface,public IPawnUIInterface
@@ -48,6 +49,9 @@ protected:
 	//属性集
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="AbilitySystem")
 	UWarriorAttributeSet* WarriorAttributeSet;
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="MotionWarping")
+	UMotionWarpingComponent* MotionWarpingComponent;
 
 	//软引用的一个数据资产，存储角色初始数据（如不需要触发就拥有的OnGiven能力），
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="CharacterData",meta=(AllowPrivateAccess=true))

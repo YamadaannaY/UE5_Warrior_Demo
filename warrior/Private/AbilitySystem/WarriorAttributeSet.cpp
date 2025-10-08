@@ -59,7 +59,7 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 
 		//death
 		if (GetCurrentHealth()==0.f)
-		{	//将tag传给Data.Target.GetAvatarActor()
+		{	//将tag传给Data.Target.GetAvatarActor(),这个Tag适合用作触发GA中，将GA设置成OnTriggered,然后TriggerTag绑定此Tag，最终实现GA。
 			UWarriorFunctionLibrary::AddGameplayTagToActorIfNone(Data.Target.GetAvatarActor(),WarriorGamePlayTags::Shared_Status_Dead);
 		}
 	}
