@@ -19,7 +19,8 @@ class WARRIOR_API UPawnCombatComponent : public UPawnExtensionComponentBase
 {
 	GENERATED_BODY()
 public:
-	//蓝图函数：注册Weapon,即向CharacterCarriedWeaponMap中添加映射
+	//GA蓝图函数：注册Weapon,即向CharacterCarriedWeaponMap中添加映射
+	//基于SpawnWeapon_GA基类实现的所有角色Weapon生成GA都会调用此函数，即map中含有所有Weapon和Tag
 	UFUNCTION(BlueprintCallable,Category="Warrior|Combat")
 	void RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegister,AWarriorWeaponBase* InWeaponToRegister,bool bRegisterAsEquipped=false);
 
@@ -37,7 +38,7 @@ public:
 
 	//转换武器碰撞状态，设置一个Bool变量，true->QueryOnly false->NoCollision
 	UFUNCTION(BlueprintCallable,Category="Warrior|Combat")
-	void ToggleWeaponCollision(bool bShouldEnable,EToggleDamageType ToggleDamageType=EToggleDamageType::CurrentEquippedWeapon);
+	void ToggleWeaponCollision(bool bShouldEnable,EToggleDamageType ToggleDamageType);
 
 	//OnComponentBeginOverlap下自定义委托OnHitTarget的回调函数，通过ExecuteIfBound实现
 	virtual void OnHitTargetActor(AActor*HitActor);

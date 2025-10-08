@@ -4,6 +4,7 @@
 #include "WarriorFunctionLibrary.h"
 #include "abilitysystem/WarriorAbilitySystemComponent.h"
 #include "Characters/WarriorBaseCharacter.h"
+#include "Conrtroller/WarriorHeroController.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
 
@@ -65,5 +66,20 @@ UPawnCombatComponent* UWarriorFunctionLibrary::BP_GetPawnCombatComponentFromActo
 	UPawnCombatComponent* CombatComponent=NativeGetPawnCombatComponentFromActor(InActor);
 	OutValidType=CombatComponent ? EWarriorValidType::Valid : EWarriorValidType::Invalid;
 	return CombatComponent;
+}
+
+bool UWarriorFunctionLibrary::IsTargetPawnHostile(APawn* QueryPawn, APawn* TargetPawn)
+{
+	check(QueryPawn && TargetPawn);
+	//通过controller的接口父类获得TeamId
+	IGenericTeamAgentInterface* QueryTeamAgent=Cast<IGenericTeamAgentInterface>(QueryPawn->GetController());
+	IGenericTeamAgentInterface* TargetTeamAgent=Cast<IGenericTeamAgentInterface>(TargetPawn->GetController());
+
+	if (QueryTeamAgent && TargetTeamAgent)
+	{
+		//!= true
+		return QueryTeamAgent->GetGenericTeamId() != TargetTeamAgent->GetGenericTeamId();
+	}
+	return false;
 }
 

@@ -28,4 +28,7 @@ public:
 	//删除所有EquipWeapon状态下能够实现的能力，用于UnequipWeapon情景
 	UFUNCTION(BlueprintCallable,Category="Warrior|Ability")
 	void RemoveGrantedHeroWeaponAbilities(UPARAM(ref)TArray<FGameplayAbilitySpecHandle>& InSpecHandlesToRemove);
+
+	UFUNCTION(BlueprintCallable,Category="Warrior|Ability")
+	bool TryActivateAbilityByTag(FGameplayTag AbilityTagToActivate);
 };

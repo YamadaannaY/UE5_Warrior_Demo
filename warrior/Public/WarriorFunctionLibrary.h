@@ -45,5 +45,9 @@ public:
 	UFUNCTION(BlueprintCallable,Category="Warrior|Function Library",meta=(DisplayName="GetPawnCombatComponentFromActor",ExpandEnumAsExecs="OutValidType"))
 	static UPawnCombatComponent* BP_GetPawnCombatComponentFromActor(AActor* InActor, EWarriorValidType& OutValidType );
 
+	//判断攻击者与被攻击者是不是同一个ID
+	UFUNCTION(BlueprintPure,Category="Warrior|Function Library")
+	static bool IsTargetPawnHostile(APawn* QueryPawn,APawn* TargetPawn);
+
 	
 };

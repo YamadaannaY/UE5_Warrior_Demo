@@ -3,6 +3,7 @@
 
 #include "Items/Weapon/WarriorWeaponBase.h"
 #include "Components/BoxComponent.h"
+#include "WarriorFunctionLibrary.h"
 
 AWarriorWeaponBase::AWarriorWeaponBase()
 {
@@ -18,7 +19,7 @@ AWarriorWeaponBase::AWarriorWeaponBase()
 	//默认下无碰撞。
 	WeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
-	//当物体开始/结束重叠时，执行回调函数。
+	//当物体开始/结束重叠时，执行回调函数,回调函数调动自定义委托，委托执行绑定函数
 	WeaponCollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this,&ThisClass::OnCollisionBoxBeginOverlap);
 	WeaponCollisionBox->OnComponentEndOverlap.AddUniqueDynamic(this,&ThisClass::OnCollisionBoxEndOverlap);
 }
@@ -26,16 +27,14 @@ AWarriorWeaponBase::AWarriorWeaponBase()
 void AWarriorWeaponBase::OnCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//获得发起者，这里是角色
-	const APawn* WeaponOwningPawn=GetInstigator<APawn>();
+	//获得发起者，这里是角色或者Enemy单位
+	APawn* WeaponOwningPawn=GetInstigator<APawn>();
 	checkf(WeaponOwningPawn,TEXT("Forgot to assign an Instigator as te owning pawn for the weapon:%s "),*GetName());
-
-	if (const APawn* HitPawn = Cast<APawn>(OtherActor))
+	if (APawn* HitPawn = Cast<APawn>(OtherActor))
 	{
-		//不想让Enemy能够伤害彼此，所以需要判断pawn类不是同一个。
-		if (WeaponOwningPawn!=HitPawn)
+		//不让Enemy能够伤害彼此，所以需要id不同。
+		if (UWarriorFunctionLibrary::IsTargetPawnHostile(WeaponOwningPawn,HitPawn))
 		{
-			//执行此委托绑定的函数并且传入参数OtherActor，即碰撞对象。
 			OnWeaponHitTarget.ExecuteIfBound(OtherActor);
 		}
 	}
@@ -44,12 +43,14 @@ void AWarriorWeaponBase::OnCollisionBoxBeginOverlap(UPrimitiveComponent* Overlap
 void AWarriorWeaponBase::OnCollisionBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	const APawn* WeaponOwningPawn=GetInstigator<APawn>();
+	APawn* WeaponOwningPawn=GetInstigator<APawn>();
 	checkf(WeaponOwningPawn,TEXT("Forgot to assign an Instigator as te owning pawn for the weapon:%s "),*GetName());
-	if (const APawn* HitPawn = Cast<APawn>(OtherActor))
+	if (APawn* HitPawn = Cast<APawn>(OtherActor))
 	{
-		if (WeaponOwningPawn!=HitPawn)
+		//不想让Enemy能够伤害彼此，所以需要判断pawn类不是同一个。
+		if (UWarriorFunctionLibrary::IsTargetPawnHostile(WeaponOwningPawn,HitPawn))
 		{
+			//不让Enemy能够伤害彼此，所以需要id不同。
 			OnWeaponPulledFromTarget.ExecuteIfBound(OtherActor);
 		}
 	}

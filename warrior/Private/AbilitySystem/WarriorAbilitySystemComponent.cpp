@@ -63,3 +63,25 @@ void UWarriorAbilitySystemComponent::RemoveGrantedHeroWeaponAbilities(
 	}
 	InSpecHandlesToRemove.Empty();
 }
+
+bool UWarriorAbilitySystemComponent::TryActivateAbilityByTag(FGameplayTag AbilityTagToActivate)
+{
+	check(AbilityTagToActivate.IsValid());
+	TArray<FGameplayAbilitySpec*> FoundAbilitySpecs;
+	//用于需要调用具有相同标签多个技能时，比如有两个Enemy.Melee的GA，用这个函数可以调用所有具有MatchingTag的GA
+	GetActivatableGameplayAbilitySpecsByAllMatchingTags(AbilityTagToActivate.GetSingleTagContainer(),FoundAbilitySpecs);
+	if (!FoundAbilitySpecs.IsEmpty())
+	{
+		//所有满足条件的GA中按照下标随机选择一个。
+		//此处不完全随机，是有规律的随机数可能需要改进。
+		const int32 RandomAbilityIndex=FMath::RandRange(0,FoundAbilitySpecs.Num()-1);
+		FGameplayAbilitySpec* SpecToActivate=FoundAbilitySpecs[RandomAbilityIndex];
+
+		check(SpecToActivate);
+		if (!SpecToActivate->IsActive())
+		{
+			return  TryActivateAbility(SpecToActivate->Handle);
+		}
+	}
+	return false;
+}

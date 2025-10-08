@@ -9,12 +9,11 @@
 void UPawnCombatComponent::RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegister,
                                                AWarriorWeaponBase* InWeaponToRegister, const bool bRegisterAsEquipped)
 {
-	//在条件为false时被触发
 	checkf(!CharacterCarriedWeaponMap.Contains(InWeaponTagToRegister),
 		TEXT("A Tag named %s has already been added as carried weapon"),
 		*InWeaponTagToRegister.ToString());
 	check(InWeaponToRegister)
-
+	
 	CharacterCarriedWeaponMap.Emplace(InWeaponTagToRegister,InWeaponToRegister);
 	
 	//将自定义委托与函数绑定，会在监听动态多播委托的回调函数中判断此绑定情况（execute if bound）。
