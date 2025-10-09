@@ -31,7 +31,7 @@ protected:
 	UAISenseConfig_Sight* AISenseConfig_Sight;
 
 	UFUNCTION()
-	virtual void  OnEnemyPerceptionUpdated( AActor* Actor, FAIStimulus Stimulus);
+	virtual void OnEnemyPerceptionUpdated( AActor* Actor, FAIStimulus Stimulus);
 
 private:
 	UPROPERTY(EditDefaultsOnly,Category="Detour Crowd Avoidance Config")

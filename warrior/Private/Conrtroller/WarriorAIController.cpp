@@ -32,10 +32,11 @@ AWarriorAIController::AWarriorAIController(const FObjectInitializer& ObjectIniti
 //设置ETeamAttitude
 ETeamAttitude::Type AWarriorAIController::GetTeamAttitudeTowards(const AActor& Other) const
 {
-	//设置
+	//找到范围内符合条件pawn类进行判断
 	const APawn* PawnToCheck=Cast<const APawn>(&Other);
+	//使用其接口进行id判断
 	const IGenericTeamAgentInterface* OtherTeamAgent=Cast<const IGenericTeamAgentInterface>(PawnToCheck->GetController());
-	//如果TeamId不同，则判断为Hostile。
+	//如果TeamId不同，则判断为Hostile
 	if (OtherTeamAgent && OtherTeamAgent->GetGenericTeamId()< GetGenericTeamId())
 	{
 		return ETeamAttitude::Hostile;

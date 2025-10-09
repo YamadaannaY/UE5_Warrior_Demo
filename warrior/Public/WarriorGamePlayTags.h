@@ -43,6 +43,7 @@ namespace  WarriorGamePlayTags
 	 *	调用时机：在角色普攻第三段赋予角色标签，此时在重击GA中检索此Tag，如果有，且触发重击则将重击计数直接赋值到最后一段	**/
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Status_JumpToFinisher);
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_Status_Dead);
+	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Enemy_Status_UnderAttack);
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Enemy_Status_Strafing);
 
 	
