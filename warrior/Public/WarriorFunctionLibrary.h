@@ -49,5 +49,7 @@ public:
 	UFUNCTION(BlueprintPure,Category="Warrior|Function Library")
 	static bool IsTargetPawnHostile(APawn* QueryPawn,APawn* TargetPawn);
 
-	
+	//计算二者角度差值，根据值判断DirectionTag以触发对应的Montage
+	UFUNCTION(BlueprintPure,Category="Warrior|Function Library")
+	static FGameplayTag ComputeHitReactDirectionTag(AActor* InAttacker,AActor* InVictim,float& OutAngleDifference);
 };
