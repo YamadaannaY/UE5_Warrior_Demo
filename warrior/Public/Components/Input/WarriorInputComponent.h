@@ -65,9 +65,10 @@ inline void UWarriorInputComponent::BindAbilityInputAction(const UDataAsset_Inpu
 	for (const FWarriorInputActionConfig& AbilityInputActionConfig:InInputConfig->AbilityInputActions)
 	{
 		if (!AbilityInputActionConfig.IsValid()) continue;
+		//ETriggerEvent决定了输入动作何时触发回调。
 		BindAction(AbilityInputActionConfig.InputAction,ETriggerEvent::Started,ContextObject,InputPressedFunc,
 			AbilityInputActionConfig.InputTag);
-		BindAction(AbilityInputActionConfig.InputAction,ETriggerEvent::Started,ContextObject,InputReleasedFunc,
+		BindAction(AbilityInputActionConfig.InputAction,ETriggerEvent::Completed,ContextObject,InputReleasedFunc,
 			AbilityInputActionConfig.InputTag);
 	}
 	

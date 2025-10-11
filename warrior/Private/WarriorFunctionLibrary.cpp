@@ -6,6 +6,7 @@
 #include "Characters/WarriorBaseCharacter.h"
 #include "Conrtroller/WarriorHeroController.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "WarriorDebugHelper.h"
 #include "WarriorGamePlayTags.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -127,5 +128,15 @@ FGameplayTag UWarriorFunctionLibrary::ComputeHitReactDirectionTag(AActor* InAtta
 	}
 	//默认返回前方tag触发Montage
 	return WarriorGamePlayTags::Shared_Status_HitReact_Front;
+}
+
+bool UWarriorFunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefender)
+{
+	check(InAttacker && InDefender);
+	const float DotResult=FVector::DotProduct(InAttacker->GetActorForwardVector(),InDefender->GetActorForwardVector());
+	/*const FString DebugString=FString::Printf(TEXT("Dot Result:%f %s"),DotResult,DotResult<-0.1f ? TEXT("Valid Block") : TEXT("InValid Block"));
+	Debug::Print(DebugString,DotResult<-0.1f ? FColor::Green : FColor::Red);*/
+	//从相对的-1到垂直的0都可以判定为成功阻挡
+	return DotResult<-0.1f;
 }
 

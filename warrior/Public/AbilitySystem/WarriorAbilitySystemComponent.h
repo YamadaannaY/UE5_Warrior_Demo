@@ -18,7 +18,7 @@ public:
 	//当绑定映射输入时，激活对应能力，作为CallBack函数被能力调用
 	void OnAbilityInputPressed(const FGameplayTag& InInputTag);
 
-	//空实现，还没有需要在能力结束时进行的逻辑。作为CallBack函数被能力调用
+	//适用于需要持续输入的IA结束时调用，取消其SpecHandle
 	void OnAbilityInputReleased(const FGameplayTag& InInputTag);
 
 	//生成所有EquipWeapon状态下能够实现的能力
