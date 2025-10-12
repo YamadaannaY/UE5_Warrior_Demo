@@ -29,7 +29,7 @@ void UWarriorFunctionLibrary::AddGameplayTagToActorIfNone(AActor* InActor, FGame
 	}
 }
 
-void UWarriorFunctionLibrary::RemoveGameplayFromActorIfFound(AActor* InActor, FGameplayTag TagToRemove)
+void UWarriorFunctionLibrary::RemoveGameplayTagFromActorIfFound(AActor* InActor, FGameplayTag TagToRemove)
 {
 	UWarriorAbilitySystemComponent* ASC=NativeGetWarriorASCFromActor(InActor);
 	if (ASC->HasMatchingGameplayTag(TagToRemove))
@@ -76,12 +76,12 @@ bool UWarriorFunctionLibrary::IsTargetPawnHostile(APawn* QueryPawn, APawn* Targe
 {
 	check(QueryPawn && TargetPawn);
 	//通过controller的接口父类获得TeamId
-	IGenericTeamAgentInterface* QueryTeamAgent=Cast<IGenericTeamAgentInterface>(QueryPawn->GetController());
-	IGenericTeamAgentInterface* TargetTeamAgent=Cast<IGenericTeamAgentInterface>(TargetPawn->GetController());
+	const IGenericTeamAgentInterface* QueryTeamAgent=Cast<IGenericTeamAgentInterface>(QueryPawn->GetController());
+	const IGenericTeamAgentInterface* TargetTeamAgent=Cast<IGenericTeamAgentInterface>(TargetPawn->GetController());
 
 	if (QueryTeamAgent && TargetTeamAgent)
 	{
-		//!= true
+		//true
 		return QueryTeamAgent->GetGenericTeamId() != TargetTeamAgent->GetGenericTeamId();
 	}
 	return false;
@@ -133,6 +133,7 @@ FGameplayTag UWarriorFunctionLibrary::ComputeHitReactDirectionTag(AActor* InAtta
 bool UWarriorFunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefender)
 {
 	check(InAttacker && InDefender);
+	//获得二者的前向向量差值。
 	const float DotResult=FVector::DotProduct(InAttacker->GetActorForwardVector(),InDefender->GetActorForwardVector());
 	/*const FString DebugString=FString::Printf(TEXT("Dot Result:%f %s"),DotResult,DotResult<-0.1f ? TEXT("Valid Block") : TEXT("InValid Block"));
 	Debug::Print(DebugString,DotResult<-0.1f ? FColor::Green : FColor::Red);*/

@@ -29,7 +29,7 @@ public:
 
 	//如果Actor有Matching Tag ,则删除GA
 	UFUNCTION(BlueprintCallable,Category="Warrior|Function Library")
-	static void RemoveGameplayFromActorIfFound(AActor* InActor,FGameplayTag TagToRemove);
+	static void RemoveGameplayTagFromActorIfFound(AActor* InActor,FGameplayTag TagToRemove);
 
 	//工具函数,检查是否Actor有TagToCheck，用于BP_DoesActorHaveTag
 	static bool NativeDoesActorHaveTag(AActor* InActor,FGameplayTag TagToCheck);
@@ -52,7 +52,8 @@ public:
 	//计算二者角度差值，根据值判断DirectionTag以触发对应的Montage
 	UFUNCTION(BlueprintPure,Category="Warrior|Function Library")
 	static FGameplayTag ComputeHitReactDirectionTag(AActor* InAttacker,AActor* InVictim,float& OutAngleDifference);
-
+	
+	//根据角度判断格挡是否生效
 	UFUNCTION(BlueprintPure,Category="Warrior|Function Library")
 	static bool IsValidBlock(AActor* InAttacker,AActor* InDefender);
 

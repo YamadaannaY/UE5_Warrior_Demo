@@ -17,9 +17,26 @@ void UWarriorAbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& I
 	{
 		//在HeroData的AbilitySpec创建过程中AddTag，此处进行检索
 		if (! AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InInputTag)) continue;
-
-		//激活能力（依赖输入，具有Tag）
-		TryActivateAbility(AbilitySpec.Handle);
+		//对于切换类型的能力
+		if (InInputTag.MatchesTag(WarriorGamePlayTags::InputTag_Toggleable))
+		{
+			//在Toggleable一类能力中，pressed的作用是切换Activate和Cancel
+			if (AbilitySpec.IsActive())
+			{
+				//激活蓝图中的OnEndAbility
+				CancelAbilityHandle(AbilitySpec.Handle);
+			}
+			//如果没有激活，切换激活
+			else
+			{
+				//激活能力（依赖输入，具有Tag）
+				TryActivateAbility(AbilitySpec.Handle);
+			}
+		}
+		else
+		{
+			TryActivateAbility(AbilitySpec.Handle);
+		}
 	}
 }
 
@@ -83,12 +100,13 @@ bool UWarriorAbilitySystemComponent::TryActivateAbilityByTag(FGameplayTag Abilit
 {
 	check(AbilityTagToActivate.IsValid());
 	TArray<FGameplayAbilitySpec*> FoundAbilitySpecs;
-	//用于需要调用具有相同标签多个技能时，比如有两个Enemy.Melee的GA，用这个函数可以调用所有具有MatchingTag的GA
+	//用于需要调用具有相同标签多个技能时，比如有两个具有Enemy.Melee Tag的GA，用这个函数可以调用所有具有MatchingTag的GASpec
+	//GetSingleTagContainer()把单个标签打包成集合，GetActivatableGameplayAbilitySpecsByAllMatchingTags要求使用Container接口进行标签匹配
 	GetActivatableGameplayAbilitySpecsByAllMatchingTags(AbilityTagToActivate.GetSingleTagContainer(),FoundAbilitySpecs);
 	if (!FoundAbilitySpecs.IsEmpty())
 	{
 		//所有满足条件的GA中按照下标随机选择一个。
-		//此处不完全随机，是有规律的随机数可能需要改进。
+		//Note:此处不完全随机，是有规律的随机数可能需要改进。
 		const int32 RandomAbilityIndex=FMath::RandRange(0,FoundAbilitySpecs.Num()-1);
 		FGameplayAbilitySpec* SpecToActivate=FoundAbilitySpecs[RandomAbilityIndex];
 
