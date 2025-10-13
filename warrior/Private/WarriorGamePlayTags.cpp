@@ -17,6 +17,7 @@ namespace  WarriorGamePlayTags
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_MustBeHeld_Block,"InputTag.MustBeHeld.Block");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Toggleable_TargetLock,"InputTag.Toggleable.TargetLock");
 	UE_DEFINE_GAMEPLAY_TAG(InputTag_Toggleable,"InputTag.Toggleable");
+	UE_DEFINE_GAMEPLAY_TAG(InputTag_SwitchTarget,"InputTag.SwitchTarget");
 	
 	//与玩家的GA绑定
 	UE_DEFINE_GAMEPLAY_TAG(Player_Ability_Equip_Axe,"Player.Ability.Equip.Axe");
@@ -35,6 +36,8 @@ namespace  WarriorGamePlayTags
 	UE_DEFINE_GAMEPLAY_TAG(Player_Event_Unequip_Axe,"Player.Event.Unequip.Axe");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Event_HitPause,"Player.Event.HitPause");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Event_SuccessfulBlock,"Player.Event.SuccessfulBlock");
+	UE_DEFINE_GAMEPLAY_TAG(Player_Event_SwitchTarget_Left,"Player.Event.SwitchTarget.Left");
+	UE_DEFINE_GAMEPLAY_TAG(Player_Event_SwitchTarget_Right,"Player.Event.SwitchTarget.Right");
 	
 	//状态Tag
 	UE_DEFINE_GAMEPLAY_TAG(Player_Status_JumpToFinisher,"Player.Status.JumpToFinisher");

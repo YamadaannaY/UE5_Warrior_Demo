@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/WarriorHeroGameplayAbility.h"
 #include "HeroGameplayAbility_TargetLock.generated.h"
+class UInputMappingContext;
 class UWarriorWidgetBase;
 /**
  * 
@@ -24,6 +25,9 @@ protected:
 	//这个函数在蓝图中与OnAbilityTaskTick委托连接，而委托被每帧广播，于是此函数每帧调用。
 	UFUNCTION(BlueprintCallable)
 	void OnTargetLockTick(float DeltaTime);
+
+	UFUNCTION(BlueprintCallable)
+	void SwitchTarget(const FGameplayTag& InSwitchDirectionTag);
 private:
 	//锁定最近的目标，如果没有目标就Cancel锁定能力
 	void TryLockOnTarget();
@@ -36,15 +40,27 @@ private:
 	
 	//清空所有目标，将最近目标的指针设为空
 	void CleanUp();
+
+	//在锁定目标状态下初始化MaxWalkSpeed,并缓存默认速度
+	void InitTargetLockMovement();
+
+	//将MaxWalkSpeed重置为缓存的默认速度
+	void ResetTargetLockMovement();
 	
 	//使用（UGameplayStatics::FindNearestActor）从所有可锁定目标中获得最近的目标
 	AActor* GetNearestTargetFromAvailableActors(const TArray<AActor*>& InAvailableActors);
+
+	void GetAvailableActorsAroundTarget(TArray<AActor*>& OutActorsOnLeft,TArray<AActor*>& OutActorsOnRight);
 
 	//绘画锁定的指示组件
 	void DrawTargetLockWidget();
 
 	//把3D世界坐标转换到UI屏幕上的位置，设置锁定图标的位置
 	void SetTargetLockWidgetPosition();
+
+	void InitTargetLockMappingContext();
+
+	void ResetTargetLockMappingContext();
 	
 	//可碰撞范围
 	UPROPERTY(EditDefaultsOnly,Category="TargetLock")
@@ -66,6 +82,16 @@ private:
 	UPROPERTY(EditDefaultsOnly,Category="TargetLock")
 	TSubclassOf<UWarriorWidgetBase> TargetLockWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly,Category="TargetLock")
+	float TargetLockRotationInterpSpeed=5.f;
+
+	UPROPERTY(EditDefaultsOnly,Category="TargetLock")
+	float TargetLockMaxWalkSpeed=150.f;
+	
+	UPROPERTY(EditDefaultsOnly,Category="TargetLock")
+	UInputMappingContext* TargetLockMappingContext;
+	
+
 	//锁定部件的实例对象
 	UPROPERTY()
 	UWarriorWidgetBase* DrawnTargetLockWidget;
@@ -81,5 +107,8 @@ private:
 	//锁定图标尺寸
 	UPROPERTY()
 	FVector2D TargetLockWidgetSize=FVector2D::ZeroVector;
+
+	UPROPERTY()
+	float CachedDefaultMaxWalkSpeed;
 	
 };

@@ -10,6 +10,8 @@
 #include "DataAssets/Input/DataAsset_InputConfig.h"
 #include "Components/Input/WarriorInputComponent.h"
 #include  "WarriorGamePlayTags.h"
+#include "AbilitySystemBlueprintLibrary.h"
+
 #include "WarriorDebugHelper.h"
 #include "DataAssets/StartUpData/DataAsset_StartUpDataBase.h"
 #include "Components/Combat/HeroCombatComponent.h"
@@ -56,16 +58,24 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	/**将具体的函数打上tag标签并说明触发方式**/
 	
 	//Native
+	//Triggered表明动作期间持续触发
+	
 	WarriorInputComponent->BindNativeInputAction(
 		InputConfigDataAsset,
 		WarriorGamePlayTags::InputTag_Move,
-		ETriggerEvent::Triggered,
-		this,&ThisClass::Input_Move);
-	WarriorInputComponent->BindNativeInputAction(
-		InputConfigDataAsset,
-		WarriorGamePlayTags::InputTag_Look,
-		ETriggerEvent::Triggered,
-		this,&ThisClass::Input_Look);
+		ETriggerEvent::Triggered,this,&ThisClass::Input_Move);
+	
+	WarriorInputComponent->BindNativeInputAction
+	(InputConfigDataAsset,WarriorGamePlayTags::InputTag_Look,
+		ETriggerEvent::Triggered,this,&ThisClass::Input_Look);
+	
+	WarriorInputComponent->BindNativeInputAction
+	(InputConfigDataAsset,WarriorGamePlayTags::InputTag_SwitchTarget,
+		ETriggerEvent::Triggered,this,&ThisClass::Input_SwitchTargetTriggered);
+	WarriorInputComponent->BindNativeInputAction
+	(InputConfigDataAsset,WarriorGamePlayTags::InputTag_SwitchTarget,
+		ETriggerEvent::Completed,this,&ThisClass::Input_SwitchTargetCompleted);
+	
 	//Ability
 	WarriorInputComponent->BindAbilityInputAction(
 		InputConfigDataAsset,
@@ -108,6 +118,22 @@ void AWarriorHeroCharacter::Input_Look(const FInputActionValue& InputActionValue
 	{
 		AddControllerPitchInput(-LookAxisVector.Y); 
 	}
+}
+
+void AWarriorHeroCharacter::Input_SwitchTargetTriggered(const FInputActionValue& InputActionValue)
+{
+	//鼠标输入值的向量。
+	SwitchDirection=InputActionValue.Get<FVector2D>();
+}
+
+void AWarriorHeroCharacter::Input_SwitchTargetCompleted(const FInputActionValue& InputActionValue)
+{
+	FGameplayEventData Data;
+	//水平方向大于0，即向右移动鼠标，则激活右切换，否则是左切换
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this,SwitchDirection.X>0.f ? WarriorGamePlayTags::Player_Event_SwitchTarget_Right : WarriorGamePlayTags::Player_Event_SwitchTarget_Left,
+		Data);
+
+	Debug::Print(TEXT("Switch Direction:")+SwitchDirection.ToString());
 }
 
 void AWarriorHeroCharacter::Input_AbilityInputPressed(FGameplayTag InInputTag)

@@ -2,6 +2,7 @@
 
 
 #include "AbilitySystem/Abilities/HeroGameplayAbility_TargetLock.h"
+#include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Characters/WarriorHeroCharacter.h"
 #include "Kismet/GameplayStatics.h"
@@ -13,8 +14,8 @@
 #include "WarriorFunctionLibrary.h"
 #include "WarriorGamePlayTags.h"
 #include "Components/SizeBox.h"
-
-
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UHeroGameplayAbility_TargetLock::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                                       const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -22,13 +23,18 @@ void UHeroGameplayAbility_TargetLock::ActivateAbility(const FGameplayAbilitySpec
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	TryLockOnTarget();
+	InitTargetLockMovement();
+	InitTargetLockMappingContext();
 }
 
 void UHeroGameplayAbility_TargetLock::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
+	ResetTargetLockMovement();
+	ResetTargetLockMappingContext();
 	CleanUp();
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -42,6 +48,43 @@ void UHeroGameplayAbility_TargetLock::OnTargetLockTick(float DeltaTime)
 	}
 	//每帧更新位置
 	SetTargetLockWidgetPosition();
+
+	const bool bShouldOverrideRotation=
+		!UWarriorFunctionLibrary::NativeDoesActorHaveTag(GetHeroCharacterFromActorInfo(),WarriorGamePlayTags::Player_Status_Rolling)
+	&&
+		!UWarriorFunctionLibrary::NativeDoesActorHaveTag(GetHeroCharacterFromActorInfo(),WarriorGamePlayTags::Player_Status_Blocking);
+
+	if (bShouldOverrideRotation)
+	{
+		const FRotator LookAtRot=UKismetMathLibrary::FindLookAtRotation(GetHeroCharacterFromActorInfo()->GetActorLocation(),CurrentLockedActor->GetActorLocation());
+		const FRotator CurrentControlRot=GetHeroControllerFromActorInfo()->GetControlRotation();
+		const FRotator TargetRot=FMath::RInterpTo(CurrentControlRot,LookAtRot,DeltaTime, TargetLockRotationInterpSpeed);
+		
+		GetHeroControllerFromActorInfo()->SetControlRotation(FRotator(TargetRot.Pitch,TargetRot.Yaw,0.f));
+		GetHeroCharacterFromActorInfo()->SetActorRotation(FRotator(0.f,TargetRot.Yaw,0.f));
+	}
+}
+
+void UHeroGameplayAbility_TargetLock::SwitchTarget(const FGameplayTag& InSwitchDirectionTag)
+{
+	GetAvailableActorsToLock();
+
+	TArray<AActor*> ActorsOnLeft;
+	TArray<AActor*> ActorsOnRight;
+	AActor* NewTargetToLock=nullptr;
+
+	GetAvailableActorsAroundTarget(ActorsOnLeft,ActorsOnRight);
+
+	if (InSwitchDirectionTag==WarriorGamePlayTags::Player_Event_SwitchTarget_Left)
+	{
+		NewTargetToLock=GetNearestTargetFromAvailableActors(ActorsOnLeft);
+	}
+	else
+	{
+		NewTargetToLock=GetNearestTargetFromAvailableActors(ActorsOnRight);
+	}
+	
+	if (NewTargetToLock)  {CurrentLockedActor=NewTargetToLock;}
 }
 
 void UHeroGameplayAbility_TargetLock::TryLockOnTarget()
@@ -67,6 +110,7 @@ void UHeroGameplayAbility_TargetLock::TryLockOnTarget()
 
 void UHeroGameplayAbility_TargetLock::GetAvailableActorsToLock()
 {
+	AvailableActorsToLock.Empty();
 	TArray<FHitResult> BoxTraceHits;
 	//从Start到End之间使用一个盒子（Box）体积做碰撞检测，检测指定类型的物体（ObjectTypes），返回所有命中的结果（MultiHit）。
 	/**
@@ -128,6 +172,20 @@ void UHeroGameplayAbility_TargetLock::CleanUp()
 	}
 	DrawnTargetLockWidget=nullptr;
 	TargetLockWidgetSize=FVector2D::ZeroVector;
+	CachedDefaultMaxWalkSpeed=0.f;
+}
+
+void UHeroGameplayAbility_TargetLock::InitTargetLockMovement()
+{
+	CachedDefaultMaxWalkSpeed=GetHeroCharacterFromActorInfo()->GetCharacterMovement()->MaxWalkSpeed;
+	GetHeroCharacterFromActorInfo()->GetCharacterMovement()->MaxWalkSpeed=TargetLockMaxWalkSpeed;
+}
+void UHeroGameplayAbility_TargetLock::ResetTargetLockMovement()
+{
+	if (CachedDefaultMaxWalkSpeed>0.f)
+	{
+		GetHeroCharacterFromActorInfo()->GetCharacterMovement()->MaxWalkSpeed=CachedDefaultMaxWalkSpeed;
+	}
 }
 
 AActor* UHeroGameplayAbility_TargetLock::GetNearestTargetFromAvailableActors(const TArray<AActor*>& InAvailableActors)
@@ -136,6 +194,35 @@ AActor* UHeroGameplayAbility_TargetLock::GetNearestTargetFromAvailableActors(con
 	float ClosestDistance=0.f;
 	//找到最近的Actor
 	return UGameplayStatics::FindNearestActor(GetHeroCharacterFromActorInfo()->GetActorLocation(),InAvailableActors,ClosestDistance);
+}
+
+void UHeroGameplayAbility_TargetLock::GetAvailableActorsAroundTarget(TArray<AActor*>& OutActorsOnLeft,
+	TArray<AActor*>& OutActorsOnRight)
+{
+	if (!CurrentLockedActor || AvailableActorsToLock.IsEmpty())
+	{
+		CancelTargetLockAbility();
+		return;
+	}
+	const FVector PlayerLocation=GetHeroCharacterFromActorInfo()->GetActorLocation();
+	const FVector PlayerToCurrentNormalized=(CurrentLockedActor->GetActorLocation()-PlayerLocation).GetSafeNormal();
+
+	for (AActor* AvailableActor : AvailableActorsToLock)
+	{
+		if (!AvailableActor || AvailableActor==CurrentLockedActor) continue;
+		const FVector PlayerToAvailableNormalized=(AvailableActor->GetActorLocation()-PlayerLocation).GetSafeNormal();
+
+		const FVector CrossResult=FVector::CrossProduct(PlayerToCurrentNormalized,PlayerToAvailableNormalized);
+
+		if (CrossResult.Z>0.f)
+		{
+			OutActorsOnRight.AddUnique(AvailableActor);
+		}
+		else
+		{
+			OutActorsOnLeft.AddUnique(AvailableActor);
+		}
+	}
 }
 
 void UHeroGameplayAbility_TargetLock::DrawTargetLockWidget()
@@ -182,4 +269,28 @@ void UHeroGameplayAbility_TargetLock::SetTargetLockWidgetPosition()
 	ScreenPos-=(TargetLockWidgetSize/2.f);
 	//将图标左上角对齐ScreenPos，而我们希望居中，所以传入的值ScreenPos向左上对应移动一半的位置（将图标向左上拉）
 	DrawnTargetLockWidget->SetPositionInViewport(ScreenPos,false);
+}
+
+void UHeroGameplayAbility_TargetLock::InitTargetLockMappingContext()
+{
+	//获得LocalPlayer并获得UEnhancedInputLocalPlayerSubsystem
+	const ULocalPlayer* LocalPlayer=GetHeroControllerFromActorInfo()->GetLocalPlayer();
+	UEnhancedInputLocalPlayerSubsystem* Subsystem=ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
+	check(Subsystem);
+	//优先级应该高于武器的MappingContext，因为要覆盖其2D鼠标输入
+	Subsystem->AddMappingContext(TargetLockMappingContext,3);
+}
+
+void UHeroGameplayAbility_TargetLock::ResetTargetLockMappingContext()
+{
+	//这个判断的意义在于当我们激活能力状态下退出游戏时，会调用EndAbility，这时已经没有了HeroController，导致程序崩溃
+	if (!GetHeroControllerFromActorInfo())
+	{
+		return ;
+	}
+	const ULocalPlayer* LocalPlayer=GetHeroControllerFromActorInfo()->GetLocalPlayer();
+	UEnhancedInputLocalPlayerSubsystem* Subsystem=ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
+	check(Subsystem);
+
+	Subsystem->RemoveMappingContext(TargetLockMappingContext);
 }

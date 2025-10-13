@@ -20,6 +20,7 @@ namespace  WarriorGamePlayTags
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_MustBeHeld_Block);
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Toggleable_TargetLock);
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Toggleable);
+	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_SwitchTarget);
 
 	/**  Player Ability Tags：描述具体能力，告诉系统这是玩家身上的能力 调用时机：与GA中的AssetTags/BlockAbilities 绑定  **/ 
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Ability_Equip_Axe);
@@ -47,6 +48,8 @@ namespace  WarriorGamePlayTags
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Event_Unequip_Axe);
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Event_HitPause);
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Event_SuccessfulBlock);
+	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Event_SwitchTarget_Left);
+	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Event_SwitchTarget_Right);
 
 	/** status tag：用于赋予角色状态Tag 
 	 *	调用时机：在角色普攻第三段赋予角色标签，此时在重击GA中检索此Tag，如果有，且触发重击则将重击计数直接赋值到最后一段	**/

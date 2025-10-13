@@ -70,6 +70,11 @@ private:
 	void Input_Move(const FInputActionValue &InputActionValue);
 	//与InputTag_Look绑定的实际函数
 	void Input_Look(const FInputActionValue &InputActionValue);
+	
+	void Input_SwitchTargetTriggered(const FInputActionValue &InputActionValue);
+	void Input_SwitchTargetCompleted(const FInputActionValue &InputActionValue);
+
+	FVector2D SwitchDirection=FVector2D::ZeroVector;
 
 	//按下按键实现能力
 	void Input_AbilityInputPressed(FGameplayTag InInputTag);
