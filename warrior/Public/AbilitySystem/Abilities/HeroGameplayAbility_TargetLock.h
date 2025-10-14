@@ -95,6 +95,9 @@ private:
 	//锁定部件的实例对象
 	UPROPERTY()
 	UWarriorWidgetBase* DrawnTargetLockWidget;
+
+	UPROPERTY(EditDefaultsOnly,Category="TargetLock")
+	float TargetLockCameraOffsetDistance=20.f;
 	
 	//所有可锁定对象的数组
 	UPROPERTY()
