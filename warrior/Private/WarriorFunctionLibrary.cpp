@@ -7,6 +7,7 @@
 #include "Conrtroller/WarriorHeroController.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "WarriorDebugHelper.h"
+#include "GameplayEffectTypes.h"
 #include "WarriorGamePlayTags.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -81,9 +82,10 @@ bool UWarriorFunctionLibrary::IsTargetPawnHostile(APawn* QueryPawn, APawn* Targe
 
 	if (QueryTeamAgent && TargetTeamAgent)
 	{
-		//true
+		//Hostile
 		return QueryTeamAgent->GetGenericTeamId() != TargetTeamAgent->GetGenericTeamId();
 	}
+	//Friendly
 	return false;
 }
 
@@ -93,13 +95,13 @@ FGameplayTag UWarriorFunctionLibrary::ComputeHitReactDirectionTag(AActor* InAtta
 	check(InAttacker && InVictim);
 	//获取前向向量
 	const FVector VictimForward=InVictim->GetActorForwardVector();
-	//获取二者距离的单位方向向量
+	//获取二者之间的向量，末-初
 	const FVector VictimToAttackerNormalized=(InAttacker->GetActorLocation()-InVictim->GetActorLocation()).GetSafeNormal();
 	//计算弧度值
 	const float DotResult=FVector::DotProduct(VictimForward,VictimToAttackerNormalized);
 	//转化为角度
 	OutAngleDifference=UKismetMathLibrary::DegAcos(DotResult);
-	//获得点积
+	//获得叉积
 	const FVector CrossResult=FVector::CrossProduct(VictimForward,VictimToAttackerNormalized);
 	//点积的竖直方向向量决定了角度值的正负（根据点积右手定则，垂直向量的方向正负就是二者角度的正负取值）
 	if (CrossResult.Z<0.f)
@@ -133,11 +135,25 @@ FGameplayTag UWarriorFunctionLibrary::ComputeHitReactDirectionTag(AActor* InAtta
 bool UWarriorFunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefender)
 {
 	check(InAttacker && InDefender);
-	//获得二者的前向向量差值。
+	//获得二者前向向量弧度值。
 	const float DotResult=FVector::DotProduct(InAttacker->GetActorForwardVector(),InDefender->GetActorForwardVector());
 	/*const FString DebugString=FString::Printf(TEXT("Dot Result:%f %s"),DotResult,DotResult<-0.1f ? TEXT("Valid Block") : TEXT("InValid Block"));
 	Debug::Print(DebugString,DotResult<-0.1f ? FColor::Green : FColor::Red);*/
 	//从相对的-1到垂直的0都可以判定为成功阻挡
+	//0.1误差值，小于零即二者相对成立，格挡成功
 	return DotResult<-0.1f;
+}
+
+bool UWarriorFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator, AActor* InTargetActor,
+	const FGameplayEffectSpecHandle& InSpecHandle)
+{
+	UWarriorAbilitySystemComponent* SourceASC=NativeGetWarriorASCFromActor(InInstigator);
+	UWarriorAbilitySystemComponent* TargetASC=NativeGetWarriorASCFromActor(InTargetActor);
+
+	//将传入GESpecHandle应用到目标上，执行GE逻辑。
+	const FActiveGameplayEffectHandle ActiveGameplayEffectHandle=
+		SourceASC->ApplyGameplayEffectSpecToTarget(*InSpecHandle.Data,TargetASC);
+
+	return ActiveGameplayEffectHandle.WasSuccessfullyApplied();
 }
 

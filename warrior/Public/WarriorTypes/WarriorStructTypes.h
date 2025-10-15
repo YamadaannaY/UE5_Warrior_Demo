@@ -40,11 +40,11 @@ struct FWarriorHeroWeaponData
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	TSubclassOf<UWarriorHeroLinkedAnimLayer> WeaponAnimLayerToLink;
 
-	//要Add的Mapping Context，此context拥有所有用武器才能实现的能力，优先级设置为1高于默认context
+	//要Add的MIC，此Context拥有所有用武器才能实现IA，优先级设置为1高于默认MIC，在装备武器时进行覆盖
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	UInputMappingContext* WeaponInputMappingContext;
 
-	//存储所有在equip weapon 状态下角色应该拥有的能力。
+	//存储所有在EquipWeapon状态下角色应该拥有的GA。
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(TitleProperty="InputTag"))
 	TArray<FWarriorHeroAbilitySet> DefaultWeaponAbilities;
 

@@ -11,6 +11,7 @@
 class UPawnCombatComponent;
 struct FGameplayTag;
 class UWarriorAbilitySystemComponent;
+struct FGameplayEffectSpecHandle;
 
 /**
  * 
@@ -23,15 +24,15 @@ public:
 	//工具函数，获得Actor对应的ASC
 	static UWarriorAbilitySystemComponent* NativeGetWarriorASCFromActor(AActor* InActor);
 
-	//如果Actor没有Matching Tag ,则添加TagToAdd
+	//如果Actor没有TagToAdd,则添加
 	UFUNCTION(BlueprintCallable,Category="Warrior|Function Library")
 	static void AddGameplayTagToActorIfNone(AActor* InActor,FGameplayTag TagToAdd);
 
-	//如果Actor有Matching Tag ,则删除GA
+	//如果Actor有TagToRemove,则删除
 	UFUNCTION(BlueprintCallable,Category="Warrior|Function Library")
 	static void RemoveGameplayTagFromActorIfFound(AActor* InActor,FGameplayTag TagToRemove);
 
-	//工具函数,检查是否Actor有TagToCheck，用于BP_DoesActorHaveTag
+	//工具函数,检查是否Actor有TagToCheck
 	static bool NativeDoesActorHaveTag(AActor* InActor,FGameplayTag TagToCheck);
 
 	//蓝图函数，判断Tag是否被包含，参数为actor和Tag，返回Yes /No
@@ -56,5 +57,8 @@ public:
 	//根据角度判断格挡是否生效
 	UFUNCTION(BlueprintPure,Category="Warrior|Function Library")
 	static bool IsValidBlock(AActor* InAttacker,AActor* InDefender);
+
+	UFUNCTION(BlueprintCallable,Category="Warrior|Function Library")
+	static bool ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator,AActor* InTargetActor,const FGameplayEffectSpecHandle& InSpecHandle);
 
 };
