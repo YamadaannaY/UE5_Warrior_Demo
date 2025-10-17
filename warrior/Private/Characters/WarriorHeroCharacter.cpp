@@ -87,18 +87,18 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 void AWarriorHeroCharacter::Input_Move(const FInputActionValue& InputActionValue)
 {
 	const FVector2D MovementVector=InputActionValue.Get<FVector2D>();
-	//获得摄像机的朝向，并将其作为前进方向的旋转矢量，使得前进矢量修改为摄像机朝向的向前矢量
+	//在Move期间伴随输入值获取摄像机旋转量，用于改变前进方向
 	const FRotator MovementRotation(0.f,Controller->GetControlRotation().Yaw,0.f);
 	if (MovementVector.Y!=0.f)
 	{
+	 //获得旋转后方向的单位向量	
 		const FVector ForwardDirection=MovementRotation.RotateVector(FVector::ForwardVector);
-		//通过方向与方向矢量上值大小的加权获得Add
+		//确定方向，叠加输入值大小。
 		AddMovementInput(ForwardDirection,MovementVector.Y);
-		
 	}
 	if (MovementVector.X!=0.f)
 	{
-		//将摄像机朝向作为旋转矢量，使得X方向上矢量为摄像机朝向的左右方向矢量
+		//X方向也有输入值，获得摄像机当前x方向单位向量。
 		const FVector RightDirection=MovementRotation.RotateVector(FVector::RightVector);
 		AddMovementInput(RightDirection,MovementVector.X);
 	}
