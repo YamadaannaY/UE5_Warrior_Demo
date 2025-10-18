@@ -18,18 +18,21 @@ class WARRIOR_API UBTService_OrientToTargetActor : public UBTService
 
 	//~Begin UBTNode Interface
 	
-	//为了确保BTService知道它的KeySelector对应黑板里的哪个Key，获取UBlackboardData*BBAsset，并将KeySelector进行绑定
+	//！！为了确保BTService知道它的KeySelector对应黑板里的哪个Key，需要获取BlackboardData*BBAsset并将KeySelector进行绑定
 	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
-	////ServiceName下面的一行StaticDescription
+	//ServiceName下面的一行StaticDescription
 	virtual FString GetStaticDescription() const override;
+	
 	//~End UBTNode Interface
 
 	//如果该节点处于活动状态则每帧执行
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
-	
+
+	//Actor的Key值
 	UPROPERTY(EditAnywhere,Category="Target")
 	FBlackboardKeySelector InTargetActorKey;
-	
+
+	//旋转速度
 	UPROPERTY(EditAnywhere,Category="Target")
 	float RotationInterSpeed;
 	

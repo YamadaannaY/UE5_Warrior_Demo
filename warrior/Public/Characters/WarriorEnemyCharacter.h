@@ -18,21 +18,21 @@ class WARRIOR_API AWarriorEnemyCharacter : public AWarriorBaseCharacter
 public:
 	AWarriorEnemyCharacter();
 
-	// Begin IPawnCombatInterface Interface 
+	//~Begin IPawnCombatInterface Interface 
 
-	//Enemy下获得PawnCombatComponent
+	//重写接口函数，用于外部调用接口时使用
 	virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
 	
-	//End IPawnCombatInterface Interface
+	//~End IPawnCombatInterface Interface
 
-	//Begin IPawnUIInterface Interface**/
+	//~Begin IPawnUIInterface Interface**/
 
-	//重写接口的纯虚函数，用于Character自身获得UIComponent
+	//重写接口的纯虚函数，用于外部调用接口时使用
 	virtual UPawnUIComponent* GetPawnUIComponent() const override;
-	//这个函数作为给外部的接口，当外部调用EnmeyCharacter需要UI组件时使用
+	//这个函数给自己内部使用
 	virtual UEnemyUIComponent* GetEnemyUIComponent() const override;
 
-	//Begin IPawnUIInterface Interface**/
+	//~End IPawnUIInterface Interface**/
 
 protected:
 
@@ -44,7 +44,7 @@ protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="UI")
 	UEnemyUIComponent* EnemyUIComponent;
 
-	//这个组件不像Player的Widget，它绑定在Enemy->GetMesh()上，是一个具体可见的生命值组件。
+	//这个组件不像Player的UI，它绑定在Enemy->GetMesh()上，是一个具体可见的生命值Widget组件。
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="UI")
 	UWidgetComponent* EnemyHealthWidgetComponent;
 
@@ -61,6 +61,6 @@ private:
 
 public:
 
-	//外部接口下获得获取EnemyCombatComponent()
+	//获取自身EnemyCombatComponent()
 	FORCEINLINE UEnemyCombatComponent* GetEnemyCombatComponent() const {return EnemyCombatComponent;}
 };

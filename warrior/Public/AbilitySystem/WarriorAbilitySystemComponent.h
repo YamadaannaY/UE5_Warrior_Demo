@@ -8,7 +8,7 @@
 #include "WarriorAbilitySystemComponent.generated.h"
 
 /**
- * 
+ * 对许多GA可复用的函数一般写在ASCComponent中
  */
 UCLASS()
 class WARRIOR_API UWarriorAbilitySystemComponent : public UAbilitySystemComponent
@@ -21,7 +21,7 @@ public:
 	//适用于需要持续输入的IA结束时调用，取消其SpecHandle
 	void OnAbilityInputReleased(const FGameplayTag& InInputTag);
 
-	//生成所有EquipWeapon状态下能够实现的能力
+	//生成所有EquipWeapon状态下能够实现的GASpecHandle并存储到数组中
 	UFUNCTION(BlueprintCallable,Category="Warrior|Ability",meta=(ApplyLevel="1"))
 	void GrantHeroWeaponAbilities(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities,int32 ApplyLevel,TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles);
 

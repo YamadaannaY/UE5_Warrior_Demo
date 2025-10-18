@@ -17,7 +17,7 @@ class WARRIOR_API UWarriorGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 protected:
-	//Ability触发方式，默认为Triggered，需要input才可以触发的Ability。可以在defaults中修改。
+	//GA触发方式，默认为Triggered
 	UPROPERTY(EditDefaultsOnly,Category="Warrior|Ability")
 	EWarriorAbilityActivationPolicy AbilityActivationPolicy=EWarriorAbilityActivationPolicy::OnTriggered;
 
@@ -41,7 +41,7 @@ protected:
 	//将GE的SpecHandle传递给目标Actor，即作为施法者对目标造成影响（eg：造成伤害）
 	FActiveGameplayEffectHandle NativeApplyEffectSpecHandleToTarget(AActor* TargetActor,const FGameplayEffectSpecHandle& InSpecHandle) const;
 
-	//蓝图函数：传递SpecHandle给TargetActor
+	//蓝图函数：将SpecHandle应用到TargetActor上，直接激活GE
 	UFUNCTION(BlueprintCallable,Category="Warrior|Ability",meta=(DisplayName="Apply Gameplay Effect Spec Handle To Target Actor",ExpandEnumAsExecs="OutSuccessType"))
 	FActiveGameplayEffectHandle BP_ApplyEffectSpecHandleToTarget(AActor* TargetActor,const FGameplayEffectSpecHandle& InSpecHandle,EWarriorSuccessType& OutSuccessType) const ;
 };

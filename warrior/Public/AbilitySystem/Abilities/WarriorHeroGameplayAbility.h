@@ -33,6 +33,9 @@ public:
 	FGameplayEffectSpecHandle MakeHeroDamageEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass,float InWeaponBaseDamage,FGameplayTag InCurrentAttackTypeTag,int32 InUsedComboCount);
 	
 private:
+	//GAS下的生命周期十分复杂，ASC组件会访问Actor和Controller，拥有所有GA。而GA本身也需要持有Actor和Controller，容易造成
+	//交叉引用的问题，需要用弱指针进行预防。
+	
 	//缓存HeroCharacter
 	TWeakObjectPtr<AWarriorHeroCharacter> CachedWarriorHeroCharacter;
 	//缓存HeroController

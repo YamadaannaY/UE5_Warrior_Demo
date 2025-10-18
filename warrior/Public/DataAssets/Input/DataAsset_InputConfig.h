@@ -15,18 +15,18 @@ class WARRIOR_API UDataAsset_InputConfig : public UDataAsset
 {
 	GENERATED_BODY()
 public:
-	//Default面板中传入mapping context
+	//DA_Default面板中设置IMC
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	UInputMappingContext* DefaultMappingContext;
 
-	//Config结构体数组，存储所有本地Tag和InputAction
+	//Config结构体数组，存储依靠纯逻辑实现的本地IA与对应Tag（eg：Look、Move都是依靠向量计算完成操作）
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(TitleProperty="InputTag"))
 	TArray<FWarriorInputActionConfig> NativeInputActions;
 
-	//遍历存储了所有InputAction和对应Tag的NativeInputAction，如果找到输入的tag，就返回其InputAction。
+	//遍历存储了所有IA和对应Tag的NativeInputAction，如果找到输入的Tag，就返回其IA
 	UInputAction* FindNativeInputActionByTag(const FGameplayTag& InInputTag) const ;
-
+	
+	//存储所有GATag和对应IA
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(TitleProperty="InputTag"))
-	//存储所有ability的tag和对应InputAction
 	TArray<FWarriorInputActionConfig> AbilityInputActions;
 };

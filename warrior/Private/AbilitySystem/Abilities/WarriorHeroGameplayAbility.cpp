@@ -46,9 +46,10 @@ FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecH
 {
 	check(EffectClass);
 	
-	//EffectContext 保存当前Effect的来源信息、发起者、附加对象等,Handle相当于ID，调取特定Context以获取这些信息
-	//ContextHandle固定流程
+	//EffectContext 保存当前GE的来源信息、发起者、附加对象等,Handle相当于ID，调取特定Context以获取这些信息
+	//GEContextHandle固定流程
 	FGameplayEffectContextHandle ContextHandle=GetWarriorAbilitySystemComponentFromActorInfo()->MakeEffectContext();
+	//调用了这个函数的GA将会传入至Context
 	ContextHandle.SetAbility(this);
 	ContextHandle.AddSourceObject(GetAvatarActorFromActorInfo());
 	//第一个参数是 InstigatorActor（能力的发起者），第二个是 EffectCauser（造成伤害的来源，如武器，也可以是第一个参数）
@@ -60,15 +61,14 @@ FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecH
 		ContextHandle
 		);
 	
-	//SetByCaller可以在EffectClass中定义数值参数,然后在运行时动态赋值(蓝图中自定义)
-	//通过EffectSpecHandle.Data->SetSetByCallerMagnitude存储Tag和对应的属性值，
-	//在GEE中：TPair<FGameplayTag,float>& TagMagnitude:EffectSpec.SetByCallerTagMagnitudes调用了这个对应的pair
+	//SetSetByCallerMagnitude实现动态赋值，在蓝图中传入特定值。Tag作为键值进行检索
+	//在GEE中调用这些被设置值
 	EffectSpecHandle.Data->SetSetByCallerMagnitude(WarriorGamePlayTags::Shared_SetByCaller_BaseDamage,InWeaponBaseDamage);
 
 	if (InCurrentAttackTypeTag.IsValid())
 	{
-		//InCurrentAttackTypeTag为攻击类型，在轻击GA中用Light创建spec，重击GA中用Heavy创建spec
+		//InCurrentAttackTypeTag为攻击类型，在轻击GA中用LightType创建spec，重击GA中用HeavyType创建Spec
 		EffectSpecHandle.Data->SetSetByCallerMagnitude(InCurrentAttackTypeTag,InUsedComboCount);
 	}
-	return EffectSpecHandle;
+	return EffectSpecHandle;   
 }

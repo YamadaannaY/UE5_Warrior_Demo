@@ -38,7 +38,7 @@ void UEnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 	
 	else
 	{
-		//没有进行格挡或格挡失败，触发MeleeGA
+		//没有进行格挡或格挡失败，触发MeleeGA绑定的Event，
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetMyOwningPawn(),WarriorGamePlayTags::Shared_Event_MeleeHit,EventData);
 	}
 }

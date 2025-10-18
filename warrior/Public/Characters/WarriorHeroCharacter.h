@@ -24,23 +24,26 @@ protected:
 	
 	virtual void  BeginPlay() override;
 	
-	//建立输入映射，
+	//建立输入映射
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
 	AWarriorHeroCharacter();
 
-	//Begin IPawnCombatInterface Interface
+	//~Begin IPawnCombatInterface Interface
 	
 	//获得CombatComponent
 	virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
 	/**   End IPawnCombatInterface Interface **/
 	
-	//Begin IPawnUIInterface Interface**/
+	//~Begin IPawnUIInterface Interface**/
+
+	//外部接口用
 	virtual UPawnUIComponent* GetPawnUIComponent() const override;
+	//本地用
 	virtual UHeroUIComponent* GetHeroUIComponent() const override;
 
-	//Begin IPawnUIInterface Interface**/
+	//~End IPawnUIInterface Interface**/
 private:
 #pragma region Components
 	//相机臂
@@ -66,19 +69,21 @@ private:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="CharacterData",meta=(AllowPrivateAccess=true))
 	UDataAsset_InputConfig* InputConfigDataAsset;
 
-	//与InputTag_Move绑定的实际函数
+	//InputTag_Move在ETriggerEvent::Triggered状态下的回调函数
 	void Input_Move(const FInputActionValue &InputActionValue);
-	//与InputTag_Look绑定的实际函数
+	//InputTag_Look在ETriggerEvent::Triggered状态下的回调函数
 	void Input_Look(const FInputActionValue &InputActionValue);
 	
+	//InputTag_SwitchTarget在ETriggerEvent::Triggered状态下的回调函数
 	void Input_SwitchTargetTriggered(const FInputActionValue &InputActionValue);
+	//InputTag_SwitchTarget在ETriggerEvent::Completed状态下的回调函数
 	void Input_SwitchTargetCompleted(const FInputActionValue &InputActionValue);
 
 	FVector2D SwitchDirection=FVector2D::ZeroVector;
 
-	//按下按键实现能力
+	//输入时调用逻辑
 	void Input_AbilityInputPressed(FGameplayTag InInputTag);
-	//释放按键结束能力
+	//结束输入时调用逻辑
 	void Input_AbilityInputReleased(FGameplayTag InInputTag);
 #pragma endregion
 public:

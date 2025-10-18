@@ -40,11 +40,11 @@ struct FWarriorHeroWeaponData
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	TSubclassOf<UWarriorHeroLinkedAnimLayer> WeaponAnimLayerToLink;
 
-	//要Add的MIC，此Context拥有所有用武器才能实现IA，优先级设置为1高于默认MIC，在装备武器时进行覆盖
+	//要Add的IMC，此Context拥有所有用武器才能实现IA，优先级设置为1高于默认IMC，在装备武器时进行覆盖
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	UInputMappingContext* WeaponInputMappingContext;
 
-	//存储所有在EquipWeapon状态下角色应该拥有的GA。
+	//存储所有在EquipWeapon状态下角色应该拥有的GA
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(TitleProperty="InputTag"))
 	TArray<FWarriorHeroAbilitySet> DefaultWeaponAbilities;
 
@@ -52,12 +52,13 @@ struct FWarriorHeroWeaponData
 	//用于曲线表中
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	FScalableFloat WeaponBaseDamage;
-
+	
+	//软引用，使用异步加载加载图标
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	TSoftObjectPtr<UTexture2D> SoftWeaponIconTexture;
 };
 
-//存储tag和对应InputAction的结构体变量
+//存储Tag和对应IA的结构体变量
 USTRUCT(BlueprintType)
 struct FWarriorInputActionConfig
 {

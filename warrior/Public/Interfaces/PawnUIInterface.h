@@ -31,9 +31,9 @@ public:
 	//框架级别的统一入口，保证所有实现接口的类都有一个基础 UI。
 	virtual UPawnUIComponent* GetPawnUIComponent() const =0;
 
-	//特定角色下获取UIComponent的实现。
+	//Hero获取UIComponent的实现。
 	virtual UHeroUIComponent* GetHeroUIComponent() const;
 	
-	//特定角色下获取UIComponent的实现。
+	//Enemy获取UIComponent的实现。
 	virtual UEnemyUIComponent* GetEnemyUIComponent() const;
 };

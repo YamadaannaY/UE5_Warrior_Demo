@@ -9,7 +9,7 @@ namespace Debug
 	{
 		if (GEngine)
 		{
-			//如果项目启动，将，msg打印到屏幕
+			//如果项目启动，将msg信息打印到屏幕
 			GEngine->AddOnScreenDebugMessage(Inkey,7.f, Color, Msg);
 			UE_LOG(LogTemp,Warning,TEXT("%s"),*Msg);
 		}

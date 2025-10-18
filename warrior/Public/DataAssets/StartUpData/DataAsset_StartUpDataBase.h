@@ -26,7 +26,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly,Category="StartUpData")
 	TArray<TSubclassOf<UWarriorGameplayAbility>> ReactiveAbilities;
 
-	//需要在游戏开始被实现的GE
+	//需要在游戏开始被实现的GE，绑定了数据并插入曲线表值进行对应，目前有两个，一个StratUpGE：表示的是满状态下的数据，一个StaticGE:表示的是进行过程中的数据（在GEE中被改变）
 	UPROPERTY(EditDefaultsOnly,Category="StartUpData")
 	TArray<TSubclassOf<UGameplayEffect>> StartUpGameplayEffects;
 

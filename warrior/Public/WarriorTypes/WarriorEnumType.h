@@ -12,11 +12,12 @@ enum class EWarriorValidType :uint8
 	Invalid
 };
 
-//枚举，两个变量，需要输入触发与不需要
+//GA激活策略  
 UENUM(BlueprintType)
 enum class EWarriorAbilityActivationPolicy : uint8
-{
+{	//1.需要输入触发
 	OnTriggered,
+	//2.ASC.GiveAbility(Spec.Handle)后直接激活能力
 	OnGiven
 };
 

@@ -13,6 +13,7 @@
 
 AWarriorEnemyCharacter::AWarriorEnemyCharacter()
 {
+	//不随控制旋转而改变，依靠行为树实现旋转
 	bUseControllerRotationPitch=false;
 	bUseControllerRotationYaw=false;
 	bUseControllerRotationRoll=false;
@@ -20,9 +21,9 @@ AWarriorEnemyCharacter::AWarriorEnemyCharacter()
 	EnemyCombatComponent=CreateDefaultSubobject<UEnemyCombatComponent>(TEXT("EnemyCombatComponent"));
 	EnemyUIComponent=CreateDefaultSubobject<UEnemyUIComponent>(TEXT("EnemyUIComponent"));
 	EnemyHealthWidgetComponent=CreateDefaultSubobject<UWidgetComponent>(TEXT("EnemyHealthWidgetComponent"));
-	//将组件与Mesh绑定，其具有实体
+	//将Widget与Mesh绑定，其具有实体
 	EnemyHealthWidgetComponent->SetupAttachment(GetMesh());
-	
+	//面向移动方向旋转，同时不依赖Controller
 	GetCharacterMovement()->bOrientRotationToMovement=true;
 	GetCharacterMovement()->bUseControllerDesiredRotation=false;
 	GetCharacterMovement()->RotationRate=FRotator(0.0f,180.0f,0.0f);
@@ -50,6 +51,7 @@ void AWarriorEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 	if (UWarriorWidgetBase* HealthWidget=Cast<UWarriorWidgetBase>(EnemyHealthWidgetComponent->GetUserWidgetObject()))
 	{
+		//只在角色产生时对应产生Widget而非引擎初始化时创建，节省开销。
 		HealthWidget->InitEnemyCreatedWidget(this);
 	}
 }
@@ -57,6 +59,7 @@ void AWarriorEnemyCharacter::BeginPlay()
 void AWarriorEnemyCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+	//Controller Possess说明需要做出行动，此时o加载异步数据
 	InitEnemyStartUpData();
 }
 

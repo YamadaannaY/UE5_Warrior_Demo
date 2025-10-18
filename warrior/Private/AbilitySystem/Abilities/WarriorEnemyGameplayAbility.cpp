@@ -32,11 +32,11 @@ FGameplayEffectSpecHandle UWarriorEnemyGameplayAbility::MakeEnemyDamageEffectSpe
 	//第一个参数是 InstigatorActor（能力的发起者），第二个是 EffectCauser（造成伤害的来源，如武器，也可以是第一个参数）
 	ContextHandle.AddInstigator(GetAvatarActorFromActorInfo(),GetAvatarActorFromActorInfo());
 
+	//传入EffectClass、AbilityLevel、EffectContext获得EffectSpecHandle
 	FGameplayEffectSpecHandle EffectSpecHandle=GetWarriorAbilitySystemComponentFromActorInfo()->MakeOutgoingSpec(EffectClass,
 	GetAbilityLevel(),
 	ContextHandle
 	);
-
 	EffectSpecHandle.Data->SetSetByCallerMagnitude(WarriorGamePlayTags::Shared_SetByCaller_BaseDamage,
 		InDamageScalableFloat.GetValueAtLevel(GetAbilityLevel()));
 	return EffectSpecHandle;

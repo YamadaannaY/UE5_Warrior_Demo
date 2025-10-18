@@ -13,34 +13,32 @@ class UMotionWarpingComponent;
 class  UDataAsset_StartUpDataBase;
 
 UCLASS()
-//IAbilitySystemInterface:提供一个接口，让外部获得角色的ability system
+//IAbilitySystemInterface:提供一个接口，让外部获得角色的AbilitySystem
 class WARRIOR_API AWarriorBaseCharacter : public ACharacter,public IAbilitySystemInterface,public IPawnCombatInterface,public IPawnUIInterface
 {
 	GENERATED_BODY()
 public:
 	AWarriorBaseCharacter();
 	
-	// Begin IAbilitySystemInterface Interface
+	//~ Begin IAbilitySystemInterface Interface
 	
 	//Character下获得ASC
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override ;
-	//Begin IAbilitySystemInterface Interface
+	//~End IAbilitySystemInterface Interface
 	
-	//Begin IPawnCombatInterface Interface**/
+	//~Begin IPawnCombatInterface Interface**/
 	
 	//Character下获得CombatComponent
 	virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
+	//~End IPawnCombatInterface Interface**/
 	
-	//Begin IPawnCombatInterface Interface**/
-
-	//Begin IPawnUIInterface Interface**/
+	//~Begin IPawnUIInterface Interface**/
 	virtual UPawnUIComponent* GetPawnUIComponent() const override;
-	//Begin IPawnUIInterface Interface**/
-
+	//~End IPawnCombatInterface Interface**/
 protected:
-	//~ begin APawn Interface.
+	//~ Begin APawn Interface.
 	virtual void PossessedBy(AController* NewController) override;
-	//~ end APawn Interface.
+	//~ End APawn Interface.
 
 	//ASC组件
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="AbilitySystem")
@@ -49,7 +47,8 @@ protected:
 	//属性集
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="AbilitySystem")
 	UWarriorAttributeSet* WarriorAttributeSet;
-	
+
+	//运动扭曲组件，用于改正角色朝向
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="MotionWarping")
 	UMotionWarpingComponent* MotionWarpingComponent;
 

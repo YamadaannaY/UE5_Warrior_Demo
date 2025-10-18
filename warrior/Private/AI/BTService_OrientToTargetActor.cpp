@@ -10,12 +10,14 @@
 UBTService_OrientToTargetActor::UBTService_OrientToTargetActor()
 {	//Service Name 
 	NodeName = TEXT("Native Orient Rotation To Target Actor ");
-
+	
 	INIT_SERVICE_NODE_NOTIFY_FLAGS();
 
+	
 	RotationInterSpeed=5.f;
 	Interval=0.f;  // 多久检查一次黑板键值是否满足条件
-	RandomDeviation=0.5f; //在interval之上加了随机值，使得各个AI判断条件具有细微偏差，更加自然。
+	RandomDeviation=0.5f; //在interval之上加了随机值，使得各个AI判断条件具有浮动偏差，更加自然。
+	
 	//添加基础过滤器：KeySelector只能接受AActor类型对象
 	InTargetActorKey.AddObjectFilter(this,GET_MEMBER_NAME_CHECKED(ThisClass,InTargetActorKey),AActor::StaticClass());
 }
@@ -23,9 +25,10 @@ UBTService_OrientToTargetActor::UBTService_OrientToTargetActor()
 void UBTService_OrientToTargetActor::InitializeFromAsset(UBehaviorTree& Asset)
 {
 	Super::InitializeFromAsset(Asset);
-	
+	//获取所调用黑板的实例
 	if (const UBlackboardData* BBAsset=GetBlackboardAsset())
-	{	//ResolveSelectedKey会查找UBlackboardData，把Key名字解析成黑板Key的具体ID和类型。
+	{
+		//ResolveSelectedKey会查找UBlackboardData，把Key字面量解析成黑板Key的具体ID和类型。
 		InTargetActorKey.ResolveSelectedKey(*BBAsset);
 	}
 }
@@ -44,6 +47,7 @@ void UBTService_OrientToTargetActor::TickNode(UBehaviorTreeComponent& OwnerComp,
 	
 	//返回行为树绑定的BB中对应FName的值。
 	UObject* ActorObject=OwnerComp.GetBlackboardComponent()->GetValueAsObject(InTargetActorKey.SelectedKeyName);
+	//获取TargetActor
 	const AActor* TargetActor=Cast<AActor>(ActorObject);
 	//通过BT获得绑定的AIPawn
 	APawn* OwningPawn=OwnerComp.GetAIOwner()->GetPawn();

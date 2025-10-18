@@ -21,19 +21,25 @@ UWarriorAttributeSet::UWarriorAttributeSet()
 	InitDefensePower(1.f);
 }
 
-
 void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
 {
+	// FGameplayEffectModCallbackData：包含属性修改的上下文：被修改的目标 发起修改的源 整个GameplayEffect的上下文  本次执行的最终计算结果
 	if (!CachedPawnUIInterface.IsValid())
 	{
+		//第一次调用时，创建一个弱引用的UIInterface
 		CachedPawnUIInterface=TWeakInterfacePtr<IPawnUIInterface>(Data.Target.GetAvatarActor());
 	}
 	checkf(CachedPawnUIInterface.IsValid(),TEXT("%s did`t implement IPawnUIInterface "),*Data.Target.GetAvatarActor()->GetActorNameOrLabel());
-	UPawnUIComponent* PawnUIComponent=CachedPawnUIInterface->GetPawnUIComponent();
+
+	//通过接口获得UIComponent
+	const UPawnUIComponent* PawnUIComponent=CachedPawnUIInterface->GetPawnUIComponent();
 	checkf(PawnUIComponent,TEXT("could`t extract a PawnUIComponent from %s "),*Data.Target.GetAvatarActor()->GetActorNameOrLabel());
+
+	/**被修改的属性判断 **/
 	if(Data.EvaluatedData.Attribute == GetCurrentHealthAttribute())
 	{
 		const float NewCurrentHealth=FMath::Clamp(GetCurrentHealth(),0.f,GetMaxHealth());
+		//直接修改生命值，同时对应修改生命百分比
 		SetCurrentHealth(NewCurrentHealth);
 		PawnUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentHealth()/GetMaxHealth());
 	}
@@ -41,12 +47,13 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 	{
 		const float NewCurrentRage=FMath::Clamp(GetCurrentRage(),0.f,GetMaxRage());
 		SetCurrentRage(NewCurrentRage);
-		if (UHeroUIComponent*HeroUIComponent=CachedPawnUIInterface->GetHeroUIComponent())
+		if (const UHeroUIComponent*HeroUIComponent=CachedPawnUIInterface->GetHeroUIComponent())
 		{
 			HeroUIComponent->OnCurrentRageChanged.Broadcast(GetCurrentRage()/GetMaxRage());
 		}
 		
 	}
+	//根据造成的伤害修改当前生命值，附加伤害计算后的死亡逻辑判断
 	if (Data.EvaluatedData.Attribute==GetDamageTakenAttribute())
 	{
 		const float OldHealth=GetCurrentHealth();
@@ -57,10 +64,11 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 		Debug::Print(DebugString,FColor::Green);*/
 		PawnUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentHealth()/GetMaxHealth());
 
-		//death
+		//Death：触发GA_Dead
 		if (GetCurrentHealth()==0.f)
-		{	//将tag传给Data.Target.GetAvatarActor(),这个Tag适合用作触发GA中，将GA设置成OnTriggered,然后TriggerTag绑定此Tag，最终实现GA。
-			UWarriorFunctionLibrary::AddGameplayTagToActorIfNone(Data.Target.GetAvatarActor(),WarriorGamePlayTags::Shared_Status_Dead);
+		{	//将Tag添加到Data.Target.GetAvatarActor()即敌方单位上
+			UWarriorFunctionLibrary::AddGameplayTagToActorIfNone
+			(Data.Target.GetAvatarActor(),WarriorGamePlayTags::Shared_Status_Dead);
 		}
 	}
 }

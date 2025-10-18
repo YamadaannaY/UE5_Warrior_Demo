@@ -4,7 +4,6 @@
 #include "AbilitySystem/WarriorAttributeSet.h"
 #include "WarriorDebugHelper.h"
 #include "WarriorGamePlayTags.h"
-/** 绑定了GE，从**/
 
 struct FWarriorDamageCapture
 {	//等效于SlowWay中的捕获操作，声明要在属性集中寻找的的属性
@@ -14,8 +13,8 @@ struct FWarriorDamageCapture
 	FWarriorDamageCapture()
 	{
 		//等效于SlowWay 中为捕获属性进行规则定义的操作。
-		//从UWarriorAttributeSet中寻找特定属性，定义属于Source（Player）还是Target（Enemy），是否每次都计算新的值，false则是，true则只看第一次输入值
-		//属性声明后往往要进行Define，对属性进行描述。
+		//从UWarriorAttributeSet中寻找特定属性，定义属于Source（Player）还是Target（Enemy），是否每次都计算新的值，False则是，True则只看第一次输入值
+		//属性声明后往往要进行Define，对属性进行描述，生成Def后缀属性
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UWarriorAttributeSet,AttackPower,Source,false)
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UWarriorAttributeSet,DefensePower,Target,false)
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UWarriorAttributeSet,DamageTaken,Target,false)
@@ -32,7 +31,7 @@ static const FWarriorDamageCapture& GetWarriorDamageCapture()
 
 UGEExecCalc_DamageTaken::UGEExecCalc_DamageTaken()
 {
-	/*Slow way to doing capture
+	/*	Slow way to doing capture
 	//指向UWarriorAttributeSet类中AttackPower属性的一个反射指针,即捕获此属性
 	FProperty* AttackPowerProperty=FindFieldChecked<FProperty>(UWarriorAttributeSet::StaticClass(),
 		GET_MEMBER_NAME_CHECKED(UWarriorAttributeSet,AttackPower));
@@ -51,12 +50,12 @@ UGEExecCalc_DamageTaken::UGEExecCalc_DamageTaken()
 	RelevantAttributesToCapture.Add(GetWarriorDamageCapture().DamageTakenDef);
 }
 
-//FGameplayEffectCustomExecutionParameters包含了正在执行的GA的上下文，比如施法者、目标、捕获的属性等。
+//FGameplayEffectCustomExecutionParameters包含了正在执行的GE的上下文，比如施法者、目标、捕获的属性等。
 //OutExecutionOutput → 输出参数，用来写入最终的计算结果（比如最终伤害、添加的修饰符等）。
 void UGEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
 	FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
-	//获得当前正在执行的GA的Spec(eg:轻击GA，重击GA)
+	//获得当前正在执行的EffectSpec
 	const FGameplayEffectSpec& EffectSpec=ExecutionParams.GetOwningSpec();
 
 	//SourceTags → 施法者身上的标签集合
@@ -71,14 +70,20 @@ void UGEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCustom
 	//尝试取出属性值并赋给存储值
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(GetWarriorDamageCapture().AttackPowerDef, EvaluateParameters,SourceAttackPower);
 	//Debug::Print(TEXT("SourceAttackPower"),SourceAttackPower);
-
+	
+	float TargetDefensePower=0.f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(GetWarriorDamageCapture().DefensePowerDef, EvaluateParameters,TargetDefensePower);
+	//Debug::Print(TEXT("TargetDefensePower"),TargetDefensePower);
+	
+	//这些值由蓝图传入
 	float BaseDamage=0.f;
 	int32 UsedLightAttackComboCount=0;
 	int32 UsedHeavyAttackComboCount=0;
-	//SetByCaller→是一种动态参数传递方式，调用时由 Ability/代码来设置，动态变化的值用此方法存储->蓝图实现动态赋值
+	//SetSetByCallerMagnitude→是一种动态参数传递方式，调用时由 Ability/代码来设置SetByCallerMagnitude
+	//动态变化的值用此方法存储
 	for (const TPair<FGameplayTag,float>& TagMagnitude:EffectSpec.SetByCallerTagMagnitudes)
 	{
-		//在GE.Data中SetByCallerTagMagnitudes绑定Tag与对应的属性，GA蓝图中调用进行属性赋值
+		//在GE.Data中SetByCallerTagMagnitudes绑定Tag与对应的属性，GA蓝图中调用进行属性赋值，Tag进行检索
 		if (TagMagnitude.Key.MatchesTagExact(WarriorGamePlayTags::Shared_SetByCaller_BaseDamage))
 		{
 			BaseDamage=TagMagnitude.Value;
@@ -94,16 +99,9 @@ void UGEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCustom
 			UsedHeavyAttackComboCount=TagMagnitude.Value;
 			//Debug::Print(TEXT("UsedHeavyAttackComboCount"),UsedHeavyAttackComboCount);
 		}
-
 	}
 	
-	float TargetDefensePower=0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(GetWarriorDamageCapture().DefensePowerDef, EvaluateParameters,TargetDefensePower);
-	//Debug::Print(TEXT("TargetDefensePower"),TargetDefensePower);
-
-
 	/*处理动态获得的属性 */
-
 	//轻击段数基础上的伤害系数增比
 	if (UsedLightAttackComboCount != 0)
 	{

@@ -17,7 +17,7 @@ void UWarriorAbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& I
 	{
 		//在HeroData的AbilitySpec创建过程中AddTag，此处进行检索
 		if (! AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InInputTag)) continue;
-		//对于切换类型的能力
+		//对于切换类型的能力进行专门判断
 		if (InInputTag.MatchesTag(WarriorGamePlayTags::InputTag_Toggleable))
 		{
 			//在Toggleable一类能力中，pressed的作用是切换Activate和Cancel
@@ -48,7 +48,7 @@ void UWarriorAbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag& 
 	{
 		return;
 	}
-	//InputTag_MustBeHeld被激活时，如果Spec对应的能力正在被激活且此回调被触发（Completed），则尝试Cancel
+	//如果InputTag_MustBeHeld对应的GASpec正在被激活且此回调被触发（Completed）（即结束触发），则CancelGA
 	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
 		if (AbilitySpec.GetDynamicSpecSourceTags() .HasTagExact(InInputTag) && AbilitySpec.IsActive())
@@ -58,7 +58,9 @@ void UWarriorAbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag& 
 	}
 }
 
-void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities, int32 ApplyLevel,TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles)
+void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities
+(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities,
+	int32 ApplyLevel,TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles)
 {
 	if (InDefaultWeaponAbilities.IsEmpty())
 	{
@@ -68,13 +70,14 @@ void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities(const TArray<FWarr
 	for (const FWarriorHeroAbilitySet& AbilitySet:InDefaultWeaponAbilities)
 	{
 		if (!AbilitySet.IsValid()) continue;
-		//设置Spec固定三步流程
+		//Spec创建固定三步流程：GA、Source、level
 		FGameplayAbilitySpec AbilitySpec(AbilitySet.AbilityToGrant);
 		AbilitySpec.SourceObject=GetAvatarActor();
 		AbilitySpec.Level = ApplyLevel;
+		
 		//使用WeaponAbilities时利用Tag检索
 		AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.InputTag);
-		//存储所有建立好的WeaponAbilitySpec的句柄。
+		//存储所有建立好的WeaponAbilitySpec的句柄,这是为了便于删除。
 		OutGrantedAbilitySpecHandles.Add(GiveAbility(AbilitySpec));
 	}
 }
@@ -82,6 +85,7 @@ void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities(const TArray<FWarr
 void UWarriorAbilitySystemComponent::RemoveGrantedHeroWeaponAbilities(
 	TArray<FGameplayAbilitySpecHandle>& InSpecHandlesToRemove)
 {
+	//InSpecHandlesToRemove即OutGrantedAbilitySpecHandles，在蓝图中链接
 	if (InSpecHandlesToRemove.IsEmpty())
 	{
 		return;
@@ -89,7 +93,7 @@ void UWarriorAbilitySystemComponent::RemoveGrantedHeroWeaponAbilities(
 	for (const FGameplayAbilitySpecHandle& SpecHandle:InSpecHandlesToRemove)
 	{
 		if (SpecHandle.IsValid())
-		{
+		{	//Removes the specified ability
 			ClearAbility(SpecHandle);
 		}
 	}
