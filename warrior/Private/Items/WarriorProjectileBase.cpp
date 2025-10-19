@@ -76,6 +76,7 @@ void AWarriorProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, 
 	FGameplayEventData Data;
 	Data.Instigator=this;
 	Data.Target=HitPawn;
+	
 	if (bIsValidBlock)
 	{
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitPawn,WarriorGamePlayTags::Player_Event_SuccessfulBlock,Data);
@@ -96,12 +97,13 @@ void AWarriorProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* Overl
 void AWarriorProjectileBase::HandleApplyProjectileDamage(APawn* InHitPawn,const FGameplayEventData& InPayLoad)
 {
 	checkf(ProjectileDamageEffectSpecHandle.IsValid(),TEXT("Forgot to assign a valid spec to handle the projectile:%s"),*GetActorNameOrLabel());
+	
 	const bool bWasApplied=UWarriorFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor
 	(GetInstigator(),InHitPawn,ProjectileDamageEffectSpecHandle);
 	
 	if (bWasApplied)
 	{
-		//如果将DamageEffectSpecHandle传入的DealDamageEffect应用，则为InHitPawn发送标签，触发GA：HitReact
+		//如果将DamageEffectSpecHandle传入的DealDamageEffect应用，则为InHitPawn发送标签，触发HitReact并传入PayLoad
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor
 		(InHitPawn,WarriorGamePlayTags::Shared_Event_HitReact,InPayLoad);
 	}

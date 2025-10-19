@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "WarriorBaseCharacter.h"
 #include "Components/Combat/HeroCombatComponent.h"
-#include "Components/UI/HeroUIComponent.h"
 #include "WarriorHeroCharacter.generated.h"
+
 struct FInputActionValue;
 class UDataAsset_InputConfig;
 class InputActionValue;
@@ -14,33 +14,31 @@ class UHeroCombatComponent;
 class UHeroUIComponent;
  /*
  */
+
 UCLASS()
 class WARRIOR_API AWarriorHeroCharacter : public AWarriorBaseCharacter
 {
 	GENERATED_BODY()
 protected:
-	//判断：如果有StratUpData且同步加载成功(StartUpData软引用)，则生成所有能力。
 	virtual void PossessedBy(AController* NewController) override;
-	
 	virtual void  BeginPlay() override;
 	
 	//建立输入映射
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 public:
 	AWarriorHeroCharacter();
 
 	//~Begin IPawnCombatInterface Interface
 	
-	//获得CombatComponent
+	//重写接口函数，指向具体类，为接口用
 	virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
 	/**   End IPawnCombatInterface Interface **/
 	
 	//~Begin IPawnUIInterface Interface**/
 
-	//外部接口用
+	//重写接口函数，指向具体类，为接口用
 	virtual UPawnUIComponent* GetPawnUIComponent() const override;
-	//本地用
 	virtual UHeroUIComponent* GetHeroUIComponent() const override;
 
 	//~End IPawnUIInterface Interface**/
@@ -62,31 +60,32 @@ private:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="UI",meta=(AllowPrivateAccess=true))
 	UHeroUIComponent* HeroUIComponent;
 
+	//SwitchTarget的输入映射
+	FVector2D SwitchDirection=FVector2D::ZeroVector;
+
 #pragma endregion
 
 #pragma region Input
-	//InputAction、tag的配置数据资产
+	//InputAction、Tag的配置数据资产,为Player独有，因为只有Player具有输入映射
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="CharacterData",meta=(AllowPrivateAccess=true))
 	UDataAsset_InputConfig* InputConfigDataAsset;
 
-	//InputTag_Move在ETriggerEvent::Triggered状态下的回调函数
+	//InputTag_Move在ETriggerEvent::Triggered状态下的回调
 	void Input_Move(const FInputActionValue &InputActionValue);
-	//InputTag_Look在ETriggerEvent::Triggered状态下的回调函数
+	//InputTag_Look在ETriggerEvent::Triggered状态下的回调
 	void Input_Look(const FInputActionValue &InputActionValue);
 	
-	//InputTag_SwitchTarget在ETriggerEvent::Triggered状态下的回调函数
+	//InputTag_SwitchTarget在ETriggerEvent::Triggered状态下的回调
 	void Input_SwitchTargetTriggered(const FInputActionValue &InputActionValue);
-	//InputTag_SwitchTarget在ETriggerEvent::Completed状态下的回调函数
+	//InputTag_SwitchTarget在ETriggerEvent::Completed状态下的回调
 	void Input_SwitchTargetCompleted(const FInputActionValue &InputActionValue);
 
-	FVector2D SwitchDirection=FVector2D::ZeroVector;
-
-	//输入时调用逻辑
+	//映射输入时调用
 	void Input_AbilityInputPressed(FGameplayTag InInputTag);
-	//结束输入时调用逻辑
+	//结束映射输入时调用
 	void Input_AbilityInputReleased(FGameplayTag InInputTag);
 #pragma endregion
 public:
-	//接口函数，获得HeroCombatComponent
+	//接口函数重写
 	FORCEINLINE UHeroCombatComponent* GetHeroCombatComponent() const { return HeroCombatComponent; }
 };

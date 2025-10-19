@@ -57,13 +57,8 @@ protected:
 	TSoftObjectPtr<UDataAsset_StartUpDataBase> CharacterStartUpData;
 
 public:
-	//强制内联，减少调用开销，用于高频使用的小函数，相比inline更加强制，且跨平台统一
-	//为接口准备的函数，通过接口调用函数获得GAS系统数据
-	
 	//Character下获得WarriorAbilitySystemComponent()
 	FORCEINLINE UWarriorAbilitySystemComponent* GetWarriorAbilitySystemComponent() const { return WarriorAbilitySystemComponent; }
 	//Character下获得AttributeSet
 	FORCEINLINE UWarriorAttributeSet* GetWarriorAttributeSet() const { return WarriorAttributeSet; }
-	
-	
 };

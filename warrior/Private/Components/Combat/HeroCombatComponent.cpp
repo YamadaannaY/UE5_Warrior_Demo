@@ -9,6 +9,7 @@
 
 AWarriorHeroWeapon* UHeroCombatComponent::GetHeroCarriedWeaponByTags(FGameplayTag InWeaponTag) const
 {
+	//向下转换，需要保证类型正确。
 	return Cast<AWarriorHeroWeapon>(GetCharacterCarriedWeaponByTag(InWeaponTag));
 }
 
@@ -32,17 +33,20 @@ void UHeroCombatComponent::OnHitTargetActor(AActor* HitActor)
 	}
 	//确保不会多次添加
 	OverLappedActors.AddUnique(HitActor);
-	//Metadata for a tag-based Gameplay Event,用于GE的data，每个GE及其Spec都会持有
+	
+	//Metadata for a tag-based Gameplay Event,作为Event数据，也就是节点返回的PayLoad
 	FGameplayEventData Data;
 	Data.Instigator=GetMyOwningPawn();
 	Data.Target=HitActor;
-	//蓝图WaitGameplayEvent中Tag作为监听条件，将这个event发送给蓝图节点，Data.Target=HitActor->break出来的target
+	
+	//蓝图WaitGameplayEvent中Tag作为监听条件，将这个Event发送给节点
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetMyOwningPawn(),WarriorGamePlayTags::Shared_Event_MeleeHit,Data);
+	//FGameplayEventData()默认构造，因为这个Event的意义在于触发，作用于自己，不需要额外的Data
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetMyOwningPawn(),WarriorGamePlayTags::Player_Event_HitPause,FGameplayEventData());
 
 }
 
 void UHeroCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor)
 {
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwingPawn<APawn>(),WarriorGamePlayTags::Player_Event_HitPause,FGameplayEventData());
+	/*UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwingPawn<APawn>(),WarriorGamePlayTags::Player_Event_HitPause,FGameplayEventData());*/
 }

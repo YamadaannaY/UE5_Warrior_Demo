@@ -38,6 +38,7 @@ void UBTTask_RotateToFaceTarget::InitializeFromAsset(UBehaviorTree& Asset)
 
 uint16 UBTTask_RotateToFaceTarget::GetInstanceMemorySize() const
 {
+	//获得为缓存对象分配的内存
 	return sizeof(FRotatorToFaceTargetTaskMemory);
 }
 
@@ -50,7 +51,7 @@ FString UBTTask_RotateToFaceTarget::GetStaticDescription() const
 EBTNodeResult::Type UBTTask_RotateToFaceTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	UObject* ActorObject=OwnerComp.GetBlackboardComponent()->GetValueAsObject(InTargetToFaceKey.SelectedKeyName);
-	//Player
+	//PlayerActor
 	AActor* TargetActor=Cast<AActor>(ActorObject);
 	//AIPawn
 	APawn* OwningPawn=OwnerComp.GetAIOwner()->GetPawn();
@@ -81,6 +82,7 @@ void UBTTask_RotateToFaceTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 	FRotatorToFaceTargetTaskMemory* Memory= CastInstanceNodeMemory<FRotatorToFaceTargetTaskMemory>(NodeMemory);
 	if (!Memory->IsValid())
 	{
+		//用于标记一个潜在的异步任务状态，并通知任务系统进行清理和状态转换。
 		FinishLatentTask(OwnerComp,EBTNodeResult::Failed);
 	}
 	if (HasReachingAnglePrecision(Memory->OwingPawn.Get(),Memory->TargetActor.Get()))
@@ -98,12 +100,15 @@ void UBTTask_RotateToFaceTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 
 bool UBTTask_RotateToFaceTarget::HasReachingAnglePrecision(APawn* QueryPawn, AActor* TargetActor) const
 {
+	//只看XY平面
 	const float Distance = FVector::Dist2D(QueryPawn->GetActorLocation(), TargetActor->GetActorLocation());
 	if (Distance <= 50.f) return true; // 距离太近直接结束.防止因为距离太近被认为是重叠导致OwnerToTargetNormalized几乎是0出现bug
 	
 	const FVector OwnerForward=QueryPawn->GetActorForwardVector();
 	const FVector OwnerToTargetNormalized=(TargetActor->GetActorLocation()-QueryPawn->GetActorLocation()).GetSafeNormal2D();
+	
 	const float DotResult=FVector::DotProduct(OwnerForward.GetSafeNormal2D(),OwnerToTargetNormalized);
 	const float AngleDiff=UKismetMathLibrary::DegAcos(DotResult);
+	
 	return AngleDiff<=AnglePrecision;
 }

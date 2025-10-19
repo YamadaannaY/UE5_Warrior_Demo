@@ -19,10 +19,10 @@ class WARRIOR_API UPawnUIComponent : public UPawnExtensionComponentBase
 	GENERATED_BODY()
 
 public:
-	//~专用于多播委托，用于蓝图中绑定事件，
+	//~BlueprintAssignable 专用于多播委托，用于蓝图中绑定事件，
 
-	//当前生命百分比变化的委托，一旦PostGameplayEffectExecute中相关生命值部分改变就BroadCast，
-	//在蓝图中BindEventTo，触发此Event
+	//当前生命百分比变化的委托，一旦属性集中PostGameplayEffectExecute中生命值部分改变就BroadCast
+	//在蓝图中BindEventTo，广播触发此Event
 	UPROPERTY(BlueprintAssignable)
 	FOnPercentChangedDelegate OnCurrentHealthChanged;
 };

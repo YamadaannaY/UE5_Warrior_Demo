@@ -16,7 +16,7 @@ void UPawnCombatComponent::RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegis
 	
 	CharacterCarriedWeaponMap.Emplace(InWeaponTagToRegister,InWeaponToRegister);
 	
-	//将自定义委托与函数绑定，会在监听动态多播委托的回调函数中判断此绑定情况（execute if bound）。
+	//将自定义委托与函数绑定，会在监听动态多播委托的回调函数中判断此绑定情况（Execute if bound）。
 	InWeaponToRegister->OnWeaponHitTarget.BindUObject(this,&ThisClass::OnHitTargetActor);
 	InWeaponToRegister->OnWeaponPulledFromTarget.BindUObject(this,&ThisClass::OnWeaponPulledFromTargetActor);
 	
@@ -31,7 +31,7 @@ AWarriorWeaponBase*  UPawnCombatComponent::GetCharacterCarriedWeaponByTag(const 
 {
 	if (CharacterCarriedWeaponMap.Contains(InWeaponToGet))
 	{
-		//使用二重指针包装WeaponBase，目的是不让此指针修改weapon，但是允许我们通过*FoundWeapon修改weapon
+		//使用二重指针包装WeaponBase，目的是不让此指针修改Weapon，但我们可以手动通过*FoundWeapon修改weapon
 		if (AWarriorWeaponBase* const*FoundWeapon=CharacterCarriedWeaponMap.Find(InWeaponToGet))
 		{
 			return *FoundWeapon;
@@ -54,18 +54,19 @@ void UPawnCombatComponent::ToggleWeaponCollision(bool bShouldEnable, EToggleDama
 	//确定伤害类型，如果是Weapon，设置碰撞状态
 	if (ToggleDamageType==EToggleDamageType::CurrentEquippedWeapon)
 	{
-		const AWarriorWeaponBase*WeaponToToggle=GetCharacterCurrentEquippedWeapon();
+		const AWarriorWeaponBase* WeaponToToggle=GetCharacterCurrentEquippedWeapon();
 		check(WeaponToToggle);
+		
 		//控制是否允许碰撞产生的bool变量
 		if (bShouldEnable)
 		{
-			//QueryOnly可以被检测到，也就是触发重叠事件等，但是不会有物理模拟反应，比如碰撞。
+			//QueryOnly可以被检测到，也就是触发重叠事件等，但是不会有实际物理反应，比如碰撞
 			WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		}
 		else
 		{
 			WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			//被攻击对象的临时存储数组，防止多次伤害同一个对象（非必要时），在碰撞切换时清空
+			//在碰撞切换时清空
 			OverLappedActors.Empty();
 		}
 	}
@@ -73,9 +74,11 @@ void UPawnCombatComponent::ToggleWeaponCollision(bool bShouldEnable, EToggleDama
 
 void UPawnCombatComponent::OnHitTargetActor(AActor* HitActor)
 {
+	//子类具体实现
 }
 
 
 void UPawnCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor)
 {
+	//子类具体实现
 }

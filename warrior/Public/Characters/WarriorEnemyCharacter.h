@@ -20,16 +20,15 @@ public:
 
 	//~Begin IPawnCombatInterface Interface 
 
-	//重写接口函数，用于外部调用接口时使用
+	//重写接口函数，指向具体类
 	virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
 	
 	//~End IPawnCombatInterface Interface
 
 	//~Begin IPawnUIInterface Interface**/
 
-	//重写接口的纯虚函数，用于外部调用接口时使用
+	//重写接口函数，指向具体类，为接口用
 	virtual UPawnUIComponent* GetPawnUIComponent() const override;
-	//这个函数给自己内部使用
 	virtual UEnemyUIComponent* GetEnemyUIComponent() const override;
 
 	//~End IPawnUIInterface Interface**/
@@ -44,7 +43,7 @@ protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="UI")
 	UEnemyUIComponent* EnemyUIComponent;
 
-	//这个组件不像Player的UI，它绑定在Enemy->GetMesh()上，是一个具体可见的生命值Widget组件。
+	//这个组件绑定在Enemy->GetMesh()上，是一个具体可见的Widget组件。
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="UI")
 	UWidgetComponent* EnemyHealthWidgetComponent;
 

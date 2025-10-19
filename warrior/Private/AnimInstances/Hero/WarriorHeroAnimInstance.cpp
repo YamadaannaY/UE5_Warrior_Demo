@@ -17,12 +17,12 @@ void UWarriorHeroAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSecond
 	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
 	if (bHasAcceleration)
 	{
-		IdleElpasedTime=0.f;
+		IdleElapsedTime=0.f;
 		bShouldEnterRelaxState=false;
 	}
 	else
 	{
-		IdleElpasedTime+=DeltaSeconds;
-		bShouldEnterRelaxState=(IdleElpasedTime>=EnterRelaxStateThreshold);
+		IdleElapsedTime+=DeltaSeconds;
+		bShouldEnterRelaxState=(IdleElapsedTime>=EnterRelaxStateThreshold);
 	}
 }

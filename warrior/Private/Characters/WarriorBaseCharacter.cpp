@@ -44,7 +44,7 @@ void AWarriorBaseCharacter:: PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	if (WarriorAbilitySystemComponent)
 	{
-		//必须初始化让ASC知道控制的角色是谁，Owner = 谁拥有这个能力 // Avatar = 谁执行这个能力，通常都是this
+		//必须初始化让ASC知道控制的角色是谁，Owner = 谁拥有这个能力 // Avatar = 谁执行这个能力，通常都是this，这里决定了后续两个值的指向
 		WarriorAbilitySystemComponent->InitAbilityActorInfo(this,this);
 		
 		//如果CharacterStartUpData不存在，此处成为断点并在Log中返回信息

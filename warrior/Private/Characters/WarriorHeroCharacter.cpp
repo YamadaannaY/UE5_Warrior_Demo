@@ -1,6 +1,5 @@
 // Yu
 
-
 #include "Characters/WarriorHeroCharacter.h"
 #include  "Components/CapsuleComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -11,8 +10,7 @@
 #include "Components/Input/WarriorInputComponent.h"
 #include  "WarriorGamePlayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
-
-#include "WarriorDebugHelper.h"
+#include "Components/UI/HeroUIComponent.h"
 #include "DataAssets/StartUpData/DataAsset_StartUpDataBase.h"
 #include "Components/Combat/HeroCombatComponent.h"
 
@@ -23,10 +21,10 @@ void AWarriorHeroCharacter::PossessedBy(AController* NewController)
 	//若起始数据不为空
 	if (!CharacterStartUpData.IsNull())
 	{
-		//如果软引用同步加载并赋值成功
+		//由于Player一开始就被Controller Possess，且十分重要，所以进行同步加载
 		if (UDataAsset_StartUpDataBase* LoadedData=CharacterStartUpData.LoadSynchronous())
 		{
-			//将StartupData中存储的能力赋予ASC
+			//加载完毕将GASpec赋予ASC
 			LoadedData->GiveToAbilitySystemComponent(WarriorAbilitySystemComponent);
 		}
 	}
@@ -42,14 +40,14 @@ void AWarriorHeroCharacter::BeginPlay()
 void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	checkf(InputConfigDataAsset,TEXT("Forgot to assign a valid data asset as input config"))
-	//单机中local player指的是被Controller控制的pawn
+	//Local player指的是被本地Controller控制的pawn
 	ULocalPlayer* LocalPlayer=GetController<APlayerController>()->GetLocalPlayer();
 	
-	//获得可供LocalPlayer使用的EnhancedInputSubsystem
+	//获得LocalPlayer使用的EnhancedInputSubsystem
 	UEnhancedInputLocalPlayerSubsystem* Subsystem=ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
 	check(Subsystem);
 	
-	//传入mapping context以存储所有的动作映射
+	//传入IMC以存储所有的动作映射，默认IMC优先级最低
 	Subsystem->AddMappingContext(InputConfigDataAsset->DefaultMappingContext,0);
 	
 	//if false,return nullptr
@@ -58,8 +56,7 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	/**将具体的函数打上tag标签并说明触发方式**/
 	
 	//Native
-	//Triggered表明动作期间持续触发
-	
+	//Triggered表明有输入时触发
 	WarriorInputComponent->BindNativeInputAction(
 		InputConfigDataAsset,
 		WarriorGamePlayTags::InputTag_Move,
@@ -73,10 +70,12 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	(InputConfigDataAsset,WarriorGamePlayTags::InputTag_SwitchTarget,
 		ETriggerEvent::Triggered,this,&ThisClass::Input_SwitchTargetTriggered);
 	WarriorInputComponent->BindNativeInputAction
+	//输入完成时要判断Tag后缀
 	(InputConfigDataAsset,WarriorGamePlayTags::InputTag_SwitchTarget,
 		ETriggerEvent::Completed,this,&ThisClass::Input_SwitchTargetCompleted);
 	
 	//Ability
+	//两个CallBack,分别在开始输入和结束输入时触发。
 	WarriorInputComponent->BindAbilityInputAction(
 		InputConfigDataAsset,
 		this,
@@ -87,18 +86,18 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 void AWarriorHeroCharacter::Input_Move(const FInputActionValue& InputActionValue)
 {
 	const FVector2D MovementVector=InputActionValue.Get<FVector2D>();
-	//在Move期间伴随输入值获取摄像机旋转量，用于改变前进方向
+	//获得摄像机水平方向的欧拉角旋转
 	const FRotator MovementRotation(0.f,Controller->GetControlRotation().Yaw,0.f);
 	if (MovementVector.Y!=0.f)
 	{
-	 //获得旋转后方向的单位向量	
+		 //旋转到的欧拉角度的前后向单位向量
 		const FVector ForwardDirection=MovementRotation.RotateVector(FVector::ForwardVector);
-		//确定方向，叠加输入值大小。
+		//ForwardDirection * MovementVector.Y
 		AddMovementInput(ForwardDirection,MovementVector.Y);
 	}
 	if (MovementVector.X!=0.f)
 	{
-		//X方向也有输入值，获得摄像机当前x方向单位向量。
+		//X方向也有输入值，获得摄像机当前左右方向单位向量。
 		const FVector RightDirection=MovementRotation.RotateVector(FVector::RightVector);
 		AddMovementInput(RightDirection,MovementVector.X);
 	}
@@ -116,13 +115,14 @@ void AWarriorHeroCharacter::Input_Look(const FInputActionValue& InputActionValue
 	}
 	if (LookAxisVector.Y!=0.f)
 	{
+		//使得Y映射向下时摄像机向上，符合直觉
 		AddControllerPitchInput(-LookAxisVector.Y); 
 	}
 }
 
 void AWarriorHeroCharacter::Input_SwitchTargetTriggered(const FInputActionValue& InputActionValue)
 {
-	//鼠标输入值的向量。
+	//鼠标输入映射的向量大小。
 	SwitchDirection=InputActionValue.Get<FVector2D>();
 }
 
@@ -133,7 +133,7 @@ void AWarriorHeroCharacter::Input_SwitchTargetCompleted(const FInputActionValue&
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this,SwitchDirection.X>0.f ? WarriorGamePlayTags::Player_Event_SwitchTarget_Right : WarriorGamePlayTags::Player_Event_SwitchTarget_Left,
 		Data);
 
-	Debug::Print(TEXT("Switch Direction:")+SwitchDirection.ToString());
+	//Debug::Print(TEXT("Switch Direction:")+SwitchDirection.ToString());
 }
 
 void AWarriorHeroCharacter::Input_AbilityInputPressed(FGameplayTag InInputTag)
@@ -151,7 +151,7 @@ AWarriorHeroCharacter::AWarriorHeroCharacter()
 {
 	//set Capsule 大小
 	GetCapsuleComponent()->InitCapsuleSize(42.f,96.f);
-	//角色不跟随控制器（本游戏中是鼠标）旋转
+	//角色不跟随控制器（鼠标）旋转
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;

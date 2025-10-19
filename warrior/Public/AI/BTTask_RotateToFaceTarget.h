@@ -24,6 +24,7 @@ struct FRotatorToFaceTargetTaskMemory
 	//将弱指针释放，在成功将值传入HasReachingAnglePrecision时使用
 	void Reset()
 	{
+		// Reset the weak pointer back to the null state
 		OwingPawn.Reset();
 		TargetActor.Reset();
 	}

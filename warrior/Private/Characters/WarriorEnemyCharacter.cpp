@@ -59,7 +59,7 @@ void AWarriorEnemyCharacter::BeginPlay()
 void AWarriorEnemyCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	//Controller Possess说明需要做出行动，此时o加载异步数据
+	//Possess即AIC加载，此时开始加载异步数据
 	InitEnemyStartUpData();
 }
 
@@ -77,7 +77,7 @@ void AWarriorEnemyCharacter::InitEnemyStartUpData() const
 			{
 				if (UDataAsset_StartUpDataBase* LoadedData=CharacterStartUpData.Get())
 				{
-					//加载成功将其所有能力Spec赋予ASC
+					//加载成功将其所有GASpec赋予ASC
 					LoadedData->GiveToAbilitySystemComponent(WarriorAbilitySystemComponent);
 				}
 			}

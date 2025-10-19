@@ -18,11 +18,15 @@ class WARRIOR_API UWarriorCharacterAnimInstance : public UWarriorBaseAnimInstanc
 	GENERATED_BODY()
 
 public:
+	//~Begin AnimInstance Interface
+	
 	//初始化OwingCharacter和 OwingMovementComponent
 	virtual void NativeInitializeAnimation() override;
 
-	//在动画线程中计算GroundSpeed和bHasAcceleration，因为这两个值只在动画中被需要，所以不需要在游戏进程中实时需要
+	//在GameThread执行，可能受游戏逻辑阻塞,而在专用的WorkerThread执行，不受GameThread卡顿影响，同时也减小了游戏线程负担
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
+
+	//~End AnimInstance Interface
 	
 protected:
 	UPROPERTY()

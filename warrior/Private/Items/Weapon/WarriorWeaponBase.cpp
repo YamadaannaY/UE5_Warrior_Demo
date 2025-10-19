@@ -27,9 +27,10 @@ AWarriorWeaponBase::AWarriorWeaponBase()
 void AWarriorWeaponBase::OnCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//获得发起者，这里是角色或者Enemy单位
+	//获得发起者，这里是角色或者EnemyAPawn
 	APawn* WeaponOwningPawn=GetInstigator<APawn>();
 	checkf(WeaponOwningPawn,TEXT("Forgot to assign an Instigator as te owning pawn for the weapon:%s "),*GetName());
+
 	if (APawn* HitPawn = Cast<APawn>(OtherActor))
 	{
 		//不让Enemy能够伤害彼此，所以需要id不同。

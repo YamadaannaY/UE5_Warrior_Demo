@@ -8,8 +8,6 @@
 #include "WarriorTypes/WarriorEnumType.h"
 #include "PawnCombatComponent.generated.h"
 
-
-
 class AWarriorWeaponBase;
 /**
  * 
@@ -19,20 +17,19 @@ class WARRIOR_API UPawnCombatComponent : public UPawnExtensionComponentBase
 {
 	GENERATED_BODY()
 public:
-	//GA蓝图函数：注册Weapon,即向CharacterCarriedWeaponMap中添加映射
-	//基于SpawnWeapon_GA基类实现的所有角色Weapon生成GA都会调用此函数，即map中含有所有Weapon和Tag
+	//向CharacterCarriedWeaponMap中添加映射
 	UFUNCTION(BlueprintCallable,Category="Warrior|Combat")
 	void RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegister,AWarriorWeaponBase* InWeaponToRegister,bool bRegisterAsEquipped=false);
 
-	//通过Tag的方式获得CharacterCarriedWeaponMap中存储的武器
+	//Tag作为键值寻找CharacterCarriedWeaponMap中存储的武器
 	UFUNCTION(BlueprintCallable,Category="Warrior|Combat")
 	AWarriorWeaponBase* GetCharacterCarriedWeaponByTag(FGameplayTag InWeaponToGet) const;
 
-	//设置蓝图读写，以在蓝图中可控此Tag，当装备Weapon时添加这个额外标签到weapon中，卸下时删除标签
+	//在蓝图中进行Tag添加
 	UPROPERTY(BlueprintReadWrite,Category="Warrior|Combat`")
 	FGameplayTag CurrentEquippedWeaponTag;
 
-	//获得当前装备的武器
+	//通过CurrentEquippedWeaponTag检索当前装备的Weapon
 	UFUNCTION(Blueprintable,Category="Warrior|Combat")
 	AWarriorWeaponBase* GetCharacterCurrentEquippedWeapon() const;
 
@@ -40,9 +37,9 @@ public:
 	UFUNCTION(BlueprintCallable,Category="Warrior|Combat")
 	void ToggleWeaponCollision(bool bShouldEnable,EToggleDamageType ToggleDamageType);
 
-	//OnComponentBeginOverlap下自定义委托OnHitTarget的回调函数，通过ExecuteIfBound实现
+	//OnComponentBeginOverlap回调函数中自定义委托OnHitTarget的回调函数
 	virtual void OnHitTargetActor(AActor*HitActor);
-	//OnComponentEndOverlap下自定义委托OnWeaponPulledFromTarget的回调函数，通过ExecuteIfBound实现
+	//OnComponentEndOverlap回调函数中自定义委托OnWeaponPulledFromTarget的回调函数
 	virtual void OnWeaponPulledFromTargetActor(AActor* InteractedActor);
 	
 protected:
@@ -51,8 +48,7 @@ protected:
 	TArray<AActor*>	OverLappedActors;
 	
 private:
-	//map映射：key：tag value：武器
-	//使用指针作为对象，可以通过改变指针更改map中的内容。
+	//Map映射：key：tag value：武器
 	UPROPERTY()
 	TMap<FGameplayTag,AWarriorWeaponBase*> CharacterCarriedWeaponMap;
 	

@@ -19,14 +19,14 @@ public:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	UInputMappingContext* DefaultMappingContext;
 
-	//Config结构体数组，存储依靠纯逻辑实现的本地IA与对应Tag（eg：Look、Move都是依靠向量计算完成操作）
+	//Config结构体数组，存储依靠纯逻辑实现的本地IA与对应Tag（eg：Look、Move都是依靠映射输入加上向量计算完成操作，没有动画、GE等。）
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(TitleProperty="InputTag"))
 	TArray<FWarriorInputActionConfig> NativeInputActions;
 
-	//遍历存储了所有IA和对应Tag的NativeInputAction，如果找到输入的Tag，就返回其IA
-	UInputAction* FindNativeInputActionByTag(const FGameplayTag& InInputTag) const ;
-	
 	//存储所有GATag和对应IA
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(TitleProperty="InputTag"))
 	TArray<FWarriorInputActionConfig> AbilityInputActions;
+
+	//遍历存储了所有IA和对应Tag的NativeInputAction，如果找到输入的Tag，就返回其IA
+	UInputAction* FindNativeInputActionByTag(const FGameplayTag& InInputTag) const ;
 };

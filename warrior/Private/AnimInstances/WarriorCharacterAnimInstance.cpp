@@ -25,8 +25,8 @@ void UWarriorCharacterAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaS
 		return;
 	}
 	GroundSpeed=OwingCharacter->GetVelocity().Size2D();
-	//避免开方计算以减少消耗
+	//避免开方计算，直接计算这个向量的平方长度以减少消耗
 	bHasAcceleration=OwingMovementComponent->GetCurrentAcceleration().SizeSquared2D()> 0.f;
-	//让OwingCharacter朝着速度矢量的方向进行旋转
+	//让OwingCharacter朝着速度的方向进行朝向旋转
 	LocalMotionDirection=UKismetAnimationLibrary::CalculateDirection(OwingCharacter->GetVelocity(),OwingCharacter->GetActorRotation());
 }
