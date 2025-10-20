@@ -8,7 +8,7 @@
 #include "Components/UI/EnemyUIComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Widgets/WarriorWidgetBase.h"
-#include "WarriorDebugHelper.h"
+#include "Components/BoxComponent.h"
 #include "Engine/AssetManager.h"
 
 AWarriorEnemyCharacter::AWarriorEnemyCharacter()
@@ -20,9 +20,22 @@ AWarriorEnemyCharacter::AWarriorEnemyCharacter()
 	
 	EnemyCombatComponent=CreateDefaultSubobject<UEnemyCombatComponent>(TEXT("EnemyCombatComponent"));
 	EnemyUIComponent=CreateDefaultSubobject<UEnemyUIComponent>(TEXT("EnemyUIComponent"));
+	
 	EnemyHealthWidgetComponent=CreateDefaultSubobject<UWidgetComponent>(TEXT("EnemyHealthWidgetComponent"));
 	//将Widget与Mesh绑定，其具有实体
 	EnemyHealthWidgetComponent->SetupAttachment(GetMesh());
+
+	//将Box与Mesh绑定，初始化为无碰撞，并将OnComponentBeginOverlap绑定回调
+	LeftHandCollisionBox=CreateDefaultSubobject<UBoxComponent>("LeftHandCollisionBox");
+	LeftHandCollisionBox->SetupAttachment(GetMesh());
+	LeftHandCollisionBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	LeftHandCollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this,&ThisClass::OnBodyCollisionBoxBeginOverlap);
+	
+	RightHandCollisionBox=CreateDefaultSubobject<UBoxComponent>("RightHandCollisionBox");
+	RightHandCollisionBox->SetupAttachment(GetMesh());
+	RightHandCollisionBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	RightHandCollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this,&ThisClass::OnBodyCollisionBoxBeginOverlap);
+	
 	//面向移动方向旋转，同时不依赖Controller
 	GetCharacterMovement()->bOrientRotationToMovement=true;
 	GetCharacterMovement()->bUseControllerDesiredRotation=false;
@@ -46,6 +59,24 @@ UEnemyUIComponent* AWarriorEnemyCharacter::GetEnemyUIComponent() const
 	return EnemyUIComponent;
 }
 
+#if WITH_EDITOR
+void AWarriorEnemyCharacter::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+	
+	// 当LeftHandCollisionBoxAttachBoneName属性变化时，立即将左手Box附着到新的骨骼
+	if (PropertyChangedEvent.GetMemberPropertyName()==GET_MEMBER_NAME_CHECKED(ThisClass,LeftHandCollisionBoxAttachBoneName))
+	{
+		LeftHandCollisionBox->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetIncludingScale,LeftHandCollisionBoxAttachBoneName);
+	}
+	// 当 RightHandCollisionBoxAttachBoneName属性变化时，立即将右手Box附着到新的骨骼
+	if (PropertyChangedEvent.GetMemberPropertyName()==GET_MEMBER_NAME_CHECKED(ThisClass,RightHandCollisionBoxAttachBoneName))
+	{
+		RightHandCollisionBox->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetIncludingScale,RightHandCollisionBoxAttachBoneName);
+	}
+}
+#endif
+
 void AWarriorEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -54,6 +85,12 @@ void AWarriorEnemyCharacter::BeginPlay()
 		//只在角色产生时对应产生Widget而非引擎初始化时创建，节省开销。
 		HealthWidget->InitEnemyCreatedWidget(this);
 	}
+}
+
+void AWarriorEnemyCharacter::OnBodyCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+	const FHitResult& SweepResult)
+{
 }
 
 void AWarriorEnemyCharacter::PossessedBy(AController* NewController)
