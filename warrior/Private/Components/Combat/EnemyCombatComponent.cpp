@@ -2,11 +2,11 @@
 
 
 #include "Components/Combat/EnemyCombatComponent.h"
-#include "WarriorDebugHelper.h"
+#include "Characters/WarriorEnemyCharacter.h"
 #include  "WarriorGamePlayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "WarriorFunctionLibrary.h"
-
+#include "Components/BoxComponent.h"
 
 
 void UEnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
@@ -40,5 +40,32 @@ void UEnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 	{
 		//没有进行格挡或格挡失败，触发MeleeGA绑定的Event
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetMyOwningPawn(),WarriorGamePlayTags::Shared_Event_MeleeHit,EventData);
+	}
+}
+
+void UEnemyCombatComponent::ToggleBodyCollisionBoxCollision(bool bShouldEnable, EToggleDamageType ToggleDamageType)
+{
+	AWarriorEnemyCharacter* OwningEnemyCharacter=Cast<AWarriorEnemyCharacter>(GetOwner());
+	check(OwningEnemyCharacter);
+
+	UBoxComponent* LeftHandCollisionBox=OwningEnemyCharacter->GetLeftHandCollisionBox();
+	UBoxComponent* RightHandCollisionBox=OwningEnemyCharacter->GetRightHandCollisionBox();
+	check(LeftHandCollisionBox && RightHandCollisionBox);
+
+	switch (ToggleDamageType)
+	{
+	case EToggleDamageType::LeftHand:
+		LeftHandCollisionBox->SetCollisionEnabled(bShouldEnable?ECollisionEnabled::Type::QueryOnly :ECollisionEnabled::Type::NoCollision);
+		break;
+	case EToggleDamageType::RightHand:
+		RightHandCollisionBox->SetCollisionEnabled(bShouldEnable?ECollisionEnabled::Type::QueryOnly :ECollisionEnabled::Type::NoCollision);
+		break;
+	default:
+		 break;
+	}
+
+	if (!bShouldEnable)
+	{
+		OverLappedActors.Empty();
 	}
 }

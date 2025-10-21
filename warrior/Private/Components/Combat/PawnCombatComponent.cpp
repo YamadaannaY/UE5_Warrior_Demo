@@ -54,21 +54,12 @@ void UPawnCombatComponent::ToggleWeaponCollision(bool bShouldEnable, EToggleDama
 	//确定伤害类型，如果是Weapon，设置碰撞状态
 	if (ToggleDamageType==EToggleDamageType::CurrentEquippedWeapon)
 	{
-		const AWarriorWeaponBase* WeaponToToggle=GetCharacterCurrentEquippedWeapon();
-		check(WeaponToToggle);
-		
-		//控制是否允许碰撞产生的bool变量
-		if (bShouldEnable)
-		{
-			//QueryOnly可以被检测到，也就是触发重叠事件等，但是不会有实际物理反应，比如碰撞
-			WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		}
-		else
-		{
-			WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			//在碰撞切换时清空
-			OverLappedActors.Empty();
-		}
+		ToggleCurrentEquippedWeaponCollision(bShouldEnable);
+	}
+	//碰撞伤害类型不是武器就是双手，为Boss的DamageType，此时对其进行Type切换
+	else
+	{
+		ToggleBodyCollisionBoxCollision(bShouldEnable,ToggleDamageType);
 	}
 }
 
@@ -81,4 +72,28 @@ void UPawnCombatComponent::OnHitTargetActor(AActor* HitActor)
 void UPawnCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor)
 {
 	//子类具体实现
+}
+
+void UPawnCombatComponent::ToggleCurrentEquippedWeaponCollision(bool bShouldEnable)
+{
+	const AWarriorWeaponBase* WeaponToToggle=GetCharacterCurrentEquippedWeapon();
+	check(WeaponToToggle);
+		
+	//控制是否允许碰撞产生的bool变量
+	if (bShouldEnable)
+	{
+		//QueryOnly可以被检测到，也就是触发重叠事件等，但是不会有实际物理反应，比如碰撞
+		WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+	else
+	{
+		WeaponToToggle->GetWeaponCollisionBox()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//在碰撞切换时清空
+		OverLappedActors.Empty();
+	}
+}
+
+void UPawnCombatComponent::ToggleBodyCollisionBoxCollision(bool bShouldEnable, EToggleDamageType ToggleDamageType)
+{
+	//
 }

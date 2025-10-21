@@ -43,6 +43,11 @@ public:
 	virtual void OnWeaponPulledFromTargetActor(AActor* InteractedActor);
 	
 protected:
+	//封装武器碰撞策略逻辑，以bool变量作为是否具有碰撞的判定
+	virtual void ToggleCurrentEquippedWeaponCollision(bool bShouldEnable);
+	//封装Box碰撞策略逻辑
+	virtual void ToggleBodyCollisionBoxCollision(bool bShouldEnable,EToggleDamageType ToggleDamageType);
+	
 	//存储OverLap的对象，避免一次攻击中对单个物体多次触发伤害，会在EndOverlap中被清空重置
 	UPROPERTY()
 	TArray<AActor*>	OverLappedActors;

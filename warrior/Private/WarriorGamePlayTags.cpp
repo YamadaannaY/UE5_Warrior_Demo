@@ -56,6 +56,8 @@ namespace  WarriorGamePlayTags
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Weapon,"Enemy.Weapon");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_Melee,"Enemy.Ability.Melee");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_Ranged,"Enemy.Ability.Ranged");
+	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_SummonEnemy,"Enemy.Ability.SummonEnemy");
+	UE_DEFINE_GAMEPLAY_TAG(Enemy_Event_SummonEnemy,"Enemy.Event.SummonEnemy");
 
 	/** Enemy Tag **/
 	UE_DEFINE_GAMEPLAY_TAG(Shared_Event_MeleeHit,"Shared.Event.MeleeHit");
