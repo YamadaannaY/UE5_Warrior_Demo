@@ -53,7 +53,7 @@ protected:
 	TArray<AActor*>	OverLappedActors;
 	
 private:
-	//Map映射：key：tag value：武器
+	//Map映射：key：Tag value：武器
 	UPROPERTY()
 	TMap<FGameplayTag,AWarriorWeaponBase*> CharacterCarriedWeaponMap;
 	

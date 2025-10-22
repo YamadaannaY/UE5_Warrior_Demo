@@ -18,26 +18,18 @@ void UWarriorAbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& I
 		//在HeroData的AbilitySpec创建过程中AddTag，此处进行检索
 		if (! AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InInputTag)) continue;
 		//对于切换类型的能力进行专门判断
-		if (InInputTag.MatchesTag(WarriorGamePlayTags::InputTag_Toggleable))
+		if (InInputTag.MatchesTag(WarriorGamePlayTags::InputTag_Toggleable) && AbilitySpec.IsActive())
 		{
-			//在Toggleable一类能力中，pressed的作用是切换Activate和Cancel
-			if (AbilitySpec.IsActive())
-			{
 				//激活蓝图中的OnEndAbility
 				CancelAbilityHandle(AbilitySpec.Handle);
 			}
 			//如果没有激活，切换激活
-			else
+		else
 			{
 				//激活能力（依赖输入，具有Tag）
 				TryActivateAbility(AbilitySpec.Handle);
 			}
 		}
-		else
-		{
-			TryActivateAbility(AbilitySpec.Handle);
-		}
-	}
 }
 
 

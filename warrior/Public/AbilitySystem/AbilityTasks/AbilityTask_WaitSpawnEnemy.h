@@ -36,8 +36,7 @@ public:
 		TSoftClassPtr<AWarriorEnemyCharacter> SoftEnemyClassToSpawn,
 		int32 NumToSpawn,
 		const FVector& SpawnOrigin,
-		float RandomSpawnRadius,
-		const FRotator& SpawnRotation);
+		float RandomSpawnRadius);
 
 	/**  UCLASS自动识别BlueprintAssignable，将这两个委托转换为蓝图节点的输出引脚  **/
 
@@ -56,7 +55,6 @@ private:
 	int32 CachedNumToSpawn;
 	float CachedRandomSpawnRadius;
 	FVector CachedSpawnOrigin;
-	FRotator CachedSpawnRotation;
 	TSoftClassPtr<AWarriorEnemyCharacter> CachedSoftEnemyClassToSpawn;
 	FDelegateHandle DelegateHandle;
 	

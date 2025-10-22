@@ -8,7 +8,7 @@
 
 UAbilityTask_WaitSpawnEnemy* UAbilityTask_WaitSpawnEnemy::WaitSpawnEnemy(UGameplayAbility* OwningAbility,
                                                                          FGameplayTag EventTag, TSoftClassPtr<AWarriorEnemyCharacter> SoftEnemyClassToSpawn, int32 NumToSpawn,
-                                                                         const FVector& SpawnOrigin, float RandomSpawnRadius, const FRotator& SpawnRotation)
+                                                                         const FVector& SpawnOrigin, float RandomSpawnRadius)
 {
 	//实例化一个Task蓝图节点，传入形参并用缓存值记录
 	UAbilityTask_WaitSpawnEnemy* Node=NewAbilityTask<UAbilityTask_WaitSpawnEnemy>(OwningAbility);
@@ -17,7 +17,6 @@ UAbilityTask_WaitSpawnEnemy* UAbilityTask_WaitSpawnEnemy::WaitSpawnEnemy(UGamepl
 	Node->CachedSoftEnemyClassToSpawn=SoftEnemyClassToSpawn;
 	Node->CachedSpawnOrigin=SpawnOrigin;
 	Node->CachedRandomSpawnRadius=RandomSpawnRadius;
-	Node->CachedSpawnRotation=SpawnRotation; 
 
 	return Node;
 }
@@ -98,8 +97,11 @@ void UAbilityTask_WaitSpawnEnemy::OnEnemyClassLoaded()
 		//确保角色不会卡在地面中
 		RandomLocation+=FVector(0.f,0.f,50.f);
 
+		//实时计算朝向
+		const FRotator SpawnFacingRotation=AbilitySystemComponent->GetAvatarActor()->GetActorForwardVector().ToOrientationRotator();
+
 		//在指定位置以指定旋转朝向生成Class类的单位
-		AWarriorEnemyCharacter* SpawnedEnemy=World->SpawnActor<AWarriorEnemyCharacter>(LoadedClass,RandomLocation,CachedSpawnRotation);
+		AWarriorEnemyCharacter* SpawnedEnemy=World->SpawnActor<AWarriorEnemyCharacter>(LoadedClass,RandomLocation,SpawnFacingRotation);
 		
 		if (SpawnedEnemy)
 		{
