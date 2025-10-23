@@ -27,9 +27,11 @@ AWarriorProjectileBase::AWarriorProjectileBase()
 	ProjectileCollisionBox->SetCollisionResponseToChannel(ECC_Pawn,ECR_Block);
 	ProjectileCollisionBox->SetCollisionResponseToChannel(ECC_WorldDynamic,ECR_Block);
 	ProjectileCollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Block);
+	
 	/**两种不同策略下的委托回调 **/
-	//对所有物体都是碰撞下产生逻辑
+	
 	ProjectileCollisionBox->OnComponentHit.AddUniqueDynamic(this,&ThisClass::OnProjectileHit);
+	
 	//如果设置了EProjectileDamagePolicy::OnBeginOverlap，则对角色的策略改变为重叠交互，也就是穿透其他环境（因为其他的是Block），但是对于角色有作用
 	ProjectileCollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this,&ThisClass::OnProjectileBeginOverlap);
 
@@ -86,12 +88,31 @@ void AWarriorProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, 
 		//Damage
 		HandleApplyProjectileDamage(HitPawn,Data);
 	}
+	//碰撞产生后销毁Projectile
 	Destroy();
 }
 
 void AWarriorProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (OverlappedActors.Contains(OtherActor))
+	{
+		return;
+	}
+
+	OverlappedActors.AddUnique(OtherActor);
+
+	if (APawn* HitPawn=Cast<APawn>(OtherActor))
+	{
+		FGameplayEventData Data;
+		Data.Instigator=GetInstigator();
+		Data.Target=HitPawn;
+		
+		if (UWarriorFunctionLibrary::IsTargetPawnHostile(GetInstigator(),HitPawn))
+		{
+			HandleApplyProjectileDamage(HitPawn,Data);
+		}
+	}
 }
 
 void AWarriorProjectileBase::HandleApplyProjectileDamage(APawn* InHitPawn,const FGameplayEventData& InPayLoad)

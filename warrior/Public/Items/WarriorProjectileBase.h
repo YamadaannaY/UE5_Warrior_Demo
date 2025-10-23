@@ -50,11 +50,11 @@ protected:
 	UPROPERTY(BlueprintReadOnly,Category="Projectile",meta=(ExposeOnSpawn="true"))
 	FGameplayEffectSpecHandle ProjectileDamageEffectSpecHandle;
 	
-	//伤害造成策略一绑定的逻辑函数
+	//伤害造成策略一绑定的逻辑函数，使得Projectile在碰撞后销毁
 	UFUNCTION()
 	virtual void OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit );
 
-	//伤害造成策略二绑定的逻辑函数
+	//伤害造成策略二绑定的逻辑函数，Projectile以重叠的形式进行伤害应用，同时不销毁Projectile，具体穿透性
 	UFUNCTION()
 	virtual void OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -65,4 +65,6 @@ protected:
 private:
 	//ApplyGE 到HitPawn
 	void HandleApplyProjectileDamage(APawn* InHitPawn,const FGameplayEventData& InPayLoad);
+
+	TArray<AActor*> OverlappedActors;
 };

@@ -12,10 +12,9 @@ void UWarriorAbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& I
 	{
 		return ;
 	}
-	//所有ActivatableAbilitySpec遍历，也就是HeroStartUpData在HeroCharacter中被Give后的能力
+	//对所有被GiveAbility的Ability进行遍历（可以被激活但尚未激活的能力，即HeroStartUpAbilitySets中带有Tag的GA）
 	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		//在HeroData的AbilitySpec创建过程中AddTag，此处进行检索
 		if (! AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InInputTag)) continue;
 		//对于切换类型的能力进行专门判断
 		if (InInputTag.MatchesTag(WarriorGamePlayTags::InputTag_Toggleable) && AbilitySpec.IsActive())

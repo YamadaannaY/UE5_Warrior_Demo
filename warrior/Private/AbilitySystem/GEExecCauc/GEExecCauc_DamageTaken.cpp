@@ -89,6 +89,9 @@ void UGEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCustom
 			BaseDamage=TagMagnitude.Value;
 			//Debug::Print(TEXT("BaseDamage"),BaseDamage);
 		}
+
+		//通过Tag确定攻击Type，然后获得其Value值，作为对应的伤害系数乘积
+		
 		if (TagMagnitude.Key.MatchesTagExact(WarriorGamePlayTags::Player_SetByCaller_AttackType_Light))
 		{
 			UsedLightAttackComboCount=TagMagnitude.Value;
