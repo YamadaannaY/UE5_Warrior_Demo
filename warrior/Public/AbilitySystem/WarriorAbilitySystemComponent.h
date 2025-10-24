@@ -23,7 +23,7 @@ public:
 
 	//生成所有EquipWeapon状态下能够实现的GASpecHandle并存储到数组中
 	UFUNCTION(BlueprintCallable,Category="Warrior|Ability",meta=(ApplyLevel="1"))
-	void GrantHeroWeaponAbilities(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities,int32 ApplyLevel,TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles);
+	void GrantHeroWeaponAbilities(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities,const TArray<FWarriorHeroSpecialAbilitySet>& InSpecialWeaponAbilities,int32 ApplyLevel,TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles);
 
 	//删除所有EquipWeapon状态下能够实现的能力，用于UnequipWeapon情景
 	UFUNCTION(BlueprintCallable,Category="Warrior|Ability")

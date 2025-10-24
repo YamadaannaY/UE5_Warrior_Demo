@@ -7,7 +7,7 @@
 #include "HeroUIComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEquippedWeaponChangedDelegate,TSoftObjectPtr<UTexture2D>,SoftWeaponIcon);
-
+ 
 /**
  * 
  */
@@ -20,7 +20,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnPercentChangedDelegate OnCurrentRageChanged;
 
-	//在蓝图中响应+广播
+	//在蓝图中响应广播
 	UPROPERTY(BlueprintCallable,BlueprintAssignable)
 	FOnEquippedWeaponChangedDelegate OnEquippedWeaponChanged;
 };

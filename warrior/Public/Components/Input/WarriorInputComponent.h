@@ -24,7 +24,7 @@ public:
 		UserObject* ContextObject,
 		CallbackFunc Func);
 
-
+	//两个CallBackFunc分别在两个BindAction中绑定
 	template<class UserObject,typename CallbackFunc>
 	void BindAbilityInputAction(
 		const UDataAsset_InputConfig* InInputConfig,
@@ -34,7 +34,6 @@ public:
 };
 
 //inline: 允许函数在头文件中被定义，且此头函数被多次包含时不会导致重复定义，而是链接时只保留一次
-
 template <class UserObject, typename CallbackFunc>
 inline void UWarriorInputComponent::BindNativeInputAction(const UDataAsset_InputConfig* InInputConfig,
 	const FGameplayTag& InInputTag, ETriggerEvent TriggerEvent, UserObject* ContextObject, CallbackFunc Func)

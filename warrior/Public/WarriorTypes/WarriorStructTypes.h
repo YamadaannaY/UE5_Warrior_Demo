@@ -29,6 +29,18 @@ struct FWarriorHeroAbilitySet
 	bool IsValid() const;
 };
 
+USTRUCT(BlueprintType)
+struct FWarriorHeroSpecialAbilitySet: public FWarriorHeroAbilitySet
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	TSoftObjectPtr<UMaterialInterface> AbilityIconMaterial;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(Categories="Player.Cooldown"))
+	FGameplayTag AbilityCooldownTag;
+};
+
 
 //存储HeroWeaponData，具有与其绑定的anim layer、MappingContext和Weapon Abilities
 USTRUCT(BlueprintType)
@@ -47,6 +59,10 @@ struct FWarriorHeroWeaponData
 	//存储所有在EquipWeapon状态下角色应该拥有的GA
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(TitleProperty="InputTag"))
 	TArray<FWarriorHeroAbilitySet> DefaultWeaponAbilities;
+
+	//存储所有特殊武器能力
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(TitleProperty="InputTag"))
+	TArray<FWarriorHeroSpecialAbilitySet> SpecialWeaponAbilities;
 
 	//FScalableFloat 是 Unreal Engine 的一个封装浮点数类型，它不仅存储一个普通的浮点值，还支持 数据表（DataTable）/曲线表（Curve
 	//用于曲线表中

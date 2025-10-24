@@ -34,7 +34,7 @@ void UWarriorAbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& I
 
 void UWarriorAbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag& InInputTag)
 {
-    //此函数只对所有InputTag_MustBeHeld下的Tag有效
+    //此函数只对所有InputTag_MustBeHeld下的Tag有效，因为Held类型的GA不会手动结束能力以达成持续效果
 	if (!InInputTag.IsValid() || !InInputTag.MatchesTag(WarriorGamePlayTags::InputTag_MustBeHeld))
 	{
 		return;
@@ -50,7 +50,7 @@ void UWarriorAbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag& 
 }
 
 void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities
-(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities,
+(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities,const TArray<FWarriorHeroSpecialAbilitySet>& InSpecialWeaponAbilities,
 	int32 ApplyLevel,TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles)
 {
 	if (InDefaultWeaponAbilities.IsEmpty())
@@ -69,6 +69,18 @@ void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities
 		//使用WeaponAbilities时利用Tag检索
 		AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.InputTag);
 		//存储所有建立好的WeaponAbilitySpec的句柄,这是为了便于删除。
+		OutGrantedAbilitySpecHandles.Add(GiveAbility(AbilitySpec));
+	}
+
+	for (const FWarriorHeroSpecialAbilitySet& AbilitySet:InSpecialWeaponAbilities)
+	{
+		if (!AbilitySet.IsValid()) continue;
+		//Spec创建固定三步流程：GA、Source、level
+		FGameplayAbilitySpec AbilitySpec(AbilitySet.AbilityToGrant);
+		AbilitySpec.SourceObject=GetAvatarActor();
+		AbilitySpec.Level = ApplyLevel;
+		
+		AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.InputTag);
 		OutGrantedAbilitySpecHandles.Add(GiveAbility(AbilitySpec));
 	}
 }
