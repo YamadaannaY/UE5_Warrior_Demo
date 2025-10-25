@@ -46,7 +46,7 @@ FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecH
 {
 	check(EffectClass);
 	
-	//EffectContext 保存当前GE的来源信息、发起者、附加对象等,Handle相当于ID，调取特定Context以获取这些信息
+	//EffectContext 保存当前GE的来源信息、发起者、附加对象等,作为SpecHandle的参数，Handle相当于ID，
 	//GEContextHandle固定流程
 	FGameplayEffectContextHandle ContextHandle=GetWarriorAbilitySystemComponentFromActorInfo()->MakeEffectContext();
 	//调用了这个函数的GA将会传入至Context
@@ -71,4 +71,22 @@ FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecH
 		EffectSpecHandle.Data->SetSetByCallerMagnitude(InCurrentAttackTypeTag,InUsedComboCount);
 	}
 	return EffectSpecHandle;   
+}
+
+bool UWarriorHeroGameplayAbility::GetAbilityRemainingCoolDownByTag(FGameplayTag InCooldownTag, float& TotalCooldownTime,
+	float& RemainingCooldownTime)
+{
+	check(InCooldownTag.IsValid());
+	// 1. 创建冷却效果查询
+	FGameplayEffectQuery CooldownQuery=FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(InCooldownTag.GetSingleTagContainer());
+	// 2. 获取所有匹配的冷却效果的时间和持续时间
+	TArray<TPair<float,float>> TimeRemainingAndDuration=GetAbilitySystemComponentFromActorInfo()->GetActiveEffectsTimeRemainingAndDuration(CooldownQuery);
+	// 3. 调用获得的两个时间值作输出引脚传给cooldown委托
+	if (!TimeRemainingAndDuration.IsEmpty())
+	{
+		RemainingCooldownTime=TimeRemainingAndDuration[0].Key;
+		TotalCooldownTime=TimeRemainingAndDuration[0].Value;
+	}
+	//判断是否还有冷却时间
+	return RemainingCooldownTime>0.f;
 }

@@ -10,6 +10,7 @@
 #include "GameplayEffectTypes.h"
 #include "WarriorGamePlayTags.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "WarriorTypes/WarriorCountDownAction.h"
 
 
 
@@ -156,5 +157,48 @@ bool UWarriorFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(AActor*
 		SourceASC->ApplyGameplayEffectSpecToTarget(*InSpecHandle.Data,TargetASC);
 
 	return ActiveGameplayEffectHandle.WasSuccessfullyApplied();
+}
+
+void UWarriorFunctionLibrary::CountDown(const UObject* WorldContextObject, float TotalTime, float UpdateInterval,
+	float& OutRemainingTime, EWarriorCountDownActionInput CountDownInput,
+	UPARAM(DisplayName="Output")EWarriorCountDownActionOutput& CountDownOutput, FLatentActionInfo LatenInfo)
+{
+	UWorld* World=nullptr;
+	
+	//获得传入WorldContextObject对应的World
+	if (GEngine)
+	{
+		World=GEngine->GetWorldFromContextObject(WorldContextObject,EGetWorldErrorMode::LogAndReturnNull);
+	}
+
+	if (!World)
+	{
+		return;
+	}
+	//FLatentActionManager是引擎中管理所有延迟操作的全局管理器。每个UWorld都有一个。它的作用是存储、更新和清理所有正在进行的延迟操作。
+	FLatentActionManager& LatenActionManager=World->GetLatentActionManager();
+
+	//LatentInfo.CallbackTarget：通常是调用这个延迟函数的对象，用于确定操作的作用域。
+	//LatentInfo.UUID：一个唯一标识符，用于区分同一对象上的不同延迟操作。
+	FWarriorCountDownAction* FoundAction=LatenActionManager.FindExistingAction<FWarriorCountDownAction>(LatenInfo.CallbackTarget,LatenInfo.UUID);
+
+	//如果输入引脚是Start
+	if (CountDownInput==EWarriorCountDownActionInput::Start)
+	{
+		CountDownOutput = EWarriorCountDownActionOutput::Updated; // 用于将上一次冷却后output的completed状态重置为初始状态
+		if (!FoundAction)
+		{
+			//没有创建好的延迟Action类，则new一个特定的延迟操作类
+			LatenActionManager.AddNewAction(LatenInfo.CallbackTarget,LatenInfo.UUID,new FWarriorCountDownAction(TotalTime,UpdateInterval,OutRemainingTime,CountDownOutput,LatenInfo));
+		}
+	}
+	//如果输入引脚是Cancel且存在延迟Action类，则取消这个Action，用于卸下武器时同步移除倒计时和技能图标
+	if (CountDownInput==EWarriorCountDownActionInput::Cancel)
+	{
+		if (FoundAction)
+		{
+			FoundAction->CancelAction();
+		}
+	}
 }
 

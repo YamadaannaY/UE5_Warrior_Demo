@@ -35,3 +35,20 @@ enum class EToggleDamageType :uint8
 	LeftHand,
 	RightHand
 };
+//CoolDown的输入引脚
+UENUM()
+enum class EWarriorCountDownActionInput: uint8
+{
+	Start,
+	Cancel
+};
+
+//CoolDown的输出引脚
+UENUM()
+enum class EWarriorCountDownActionOutput: uint8
+{
+	Updated,
+	Completed,
+	Cancelled
+};
+

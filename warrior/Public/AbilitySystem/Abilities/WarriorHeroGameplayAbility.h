@@ -31,6 +31,10 @@ public:
 	//这个函数的作用是 生成一个针对武器攻击的 GameplayEffectSpecHandle,用于应用GameplayEffect到目标,实现伤害或者其他效果。
 	UFUNCTION(BlueprintPure,Category="Warrior|Ability")
 	FGameplayEffectSpecHandle MakeHeroDamageEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass,float InWeaponBaseDamage,FGameplayTag InCurrentAttackTypeTag,int32 InUsedComboCount);
+
+	//根据对应的CooldownTag找到SpecialGA，获得此GA的总冷却时间和剩余冷却时间
+	UFUNCTION(BlueprintCallable,Category="Warrior|Ability")
+	bool GetAbilityRemainingCoolDownByTag(FGameplayTag InCooldownTag,float& TotalCooldownTime,float& RemainingCooldownTime);
 	
 private:
 	//GAS下的生命周期十分复杂，ASC组件会访问Actor和Controller，拥有所有GA。而GA本身也需要持有Actor和Controller，容易造成

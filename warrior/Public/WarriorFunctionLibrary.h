@@ -61,4 +61,9 @@ public:
 	UFUNCTION(BlueprintCallable,Category="Warrior|Function Library")
 	static bool ApplyGameplayEffectSpecHandleToTargetActor(AActor* InInstigator,AActor* InTargetActor,const FGameplayEffectSpecHandle& InSpecHandle);
 
+	//静态函数，找到倒计时逻辑函数（如果没有则创建一个）并进行包装
+	//property说明：蓝图可调用，声明是一个延时函数，指定在哪个世界上下文执行操作，告诉引擎LatenInfo参数是用于内部管理延迟状态的特殊参数，将两个枚举类型展开为执行引脚，没有引用的为输入引脚，有引用的为输出（注：常量引用也是输入引脚）
+	UFUNCTION(BlueprintCallable,Category="Warrior|Function Library",meta=(Latent,WorldContext="WorldContextObject",LatentInfo="LatenInfo",ExpandEnumAsExecs="CountDownInput|CountDownOutput",TotalTime="1.0",UpdateInterval="0.1"))
+	static void CountDown(const UObject* WorldContextObject,float TotalTime,float UpdateInterval,float& OutRemainingTime,EWarriorCountDownActionInput CountDownInput,
+		UPARAM(DisplayName="Output") EWarriorCountDownActionOutput& CountDownOutput,FLatentActionInfo LatenInfo);
 };
