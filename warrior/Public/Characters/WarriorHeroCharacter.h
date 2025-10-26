@@ -60,15 +60,15 @@ private:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="UI",meta=(AllowPrivateAccess=true))
 	UHeroUIComponent* HeroUIComponent;
 
-	//SwitchTarget的输入映射
-	FVector2D SwitchDirection=FVector2D::ZeroVector;
-
 #pragma endregion
 
 #pragma region Input
 	//InputAction、Tag的配置数据资产,为Player独有，因为只有Player具有输入映射
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="CharacterData",meta=(AllowPrivateAccess=true))
 	UDataAsset_InputConfig* InputConfigDataAsset;
+
+	UPROPERTY()
+	FVector2D SwitchDirection=FVector2D::ZeroVector;
 
 	//InputTag_Move在ETriggerEvent::Triggered状态下的回调
 	void Input_Move(const FInputActionValue &InputActionValue);
@@ -80,9 +80,10 @@ private:
 	//InputTag_SwitchTarget在ETriggerEvent::Completed状态下的回调
 	void Input_SwitchTargetCompleted(const FInputActionValue &InputActionValue);
 
-	//映射输入时调用
+	void Input_PickUp_Stone_Started(const FInputActionValue &InputActionValue);
+	//映射输入时调用，通过Tag寻找GA，如果找到就激活，或是ToggleAble能力，在状态间进行切换
 	void Input_AbilityInputPressed(FGameplayTag InInputTag);
-	//结束映射输入时调用
+	//结束映射输入时调用，只有需要持续输入因此没有手动在GA结尾设置EndAbility的能力需要
 	void Input_AbilityInputReleased(FGameplayTag InInputTag);
 #pragma endregion
 public:

@@ -3,8 +3,11 @@
 
 #include "AbilitySystem/Abilities/WarriorGameplayAbility.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "WarriorFunctionLibrary.h"
 #include "AbilitySystem/WarriorAbilitySystemComponent.h"
 #include "Components/Combat/PawnCombatComponent.h"
+#include "WarriorFunctionLibrary.h"
+#include "WarriorGamePlayTags.h"
 
 
 UPawnCombatComponent* UWarriorGameplayAbility::GetPawnCombatComponentFromActorInfo() const
@@ -58,7 +61,6 @@ FActiveGameplayEffectHandle UWarriorGameplayAbility::NativeApplyEffectSpecHandle
 	return GetWarriorAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*InSpecHandle.Data,TargetASC);
 }
 
-//封装函数NativeApplyEffectSpecHandleToTarget并返回输出引脚
 FActiveGameplayEffectHandle UWarriorGameplayAbility::BP_ApplyEffectSpecHandleToTarget(AActor* TargetActor,
 	const FGameplayEffectSpecHandle& InSpecHandle, EWarriorSuccessType& OutSuccessType) const 
 {
@@ -66,4 +68,37 @@ FActiveGameplayEffectHandle UWarriorGameplayAbility::BP_ApplyEffectSpecHandleToT
 	//GE是否成功应用.
 	OutSuccessType=ActiveGameplayEffectHandle.WasSuccessfullyApplied() ? EWarriorSuccessType::Successful : EWarriorSuccessType::Failed;
 	return ActiveGameplayEffectHandle;
+}
+
+
+void UWarriorGameplayAbility::ApplyGameplayEffectSpecHandleToHitResult(const FGameplayEffectSpecHandle& InSpecHandle,
+	const TArray<FHitResult>& InHitResults)
+{
+	if (InHitResults.IsEmpty())
+	{
+		return ;
+	}
+	
+	APawn* OwningPawn=Cast<APawn>(GetAvatarActorFromActorInfo());
+	
+	for (const FHitResult& HitResult : InHitResults)
+	{
+		//对于所有的HitResult,获得Actor转为Pawn，用于IsTargetPawnHostile查询敌对关系，如果是敌则应用伤害GE
+		if(APawn* HitPawn=Cast<APawn>(HitResult.GetActor()))
+		{
+			if (UWarriorFunctionLibrary::IsTargetPawnHostile(OwningPawn,HitPawn))
+			{
+				FActiveGameplayEffectHandle ActiveGameplayEffectHandle=NativeApplyEffectSpecHandleToTarget(HitPawn,InSpecHandle);
+
+				if (ActiveGameplayEffectHandle.WasSuccessfullyApplied())
+				{
+					FGameplayEventData EventData;
+					EventData.Instigator=OwningPawn;
+					EventData.Target=HitPawn;
+					//触发对象的受击GA
+					UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitPawn,WarriorGamePlayTags::Shared_Event_HitReact,EventData);
+				}
+			}
+		}
+	}
 }

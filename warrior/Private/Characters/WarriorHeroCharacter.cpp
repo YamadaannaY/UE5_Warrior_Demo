@@ -74,6 +74,10 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	(InputConfigDataAsset,WarriorGamePlayTags::InputTag_SwitchTarget,
 		ETriggerEvent::Completed,this,&ThisClass::Input_SwitchTargetCompleted);
 	
+	WarriorInputComponent->BindNativeInputAction
+	(InputConfigDataAsset,WarriorGamePlayTags::InputTag_PickUp_Stone,
+		ETriggerEvent::Started,this,&ThisClass::Input_PickUp_Stone_Started);
+	
 	//Ability
 	//两个CallBack,分别在开始输入和结束输入时触发。
 	WarriorInputComponent->BindAbilityInputAction(
@@ -134,6 +138,13 @@ void AWarriorHeroCharacter::Input_SwitchTargetCompleted(const FInputActionValue&
 		Data);
 
 	//Debug::Print(TEXT("Switch Direction:")+SwitchDirection.ToString());
+}
+
+void AWarriorHeroCharacter::Input_PickUp_Stone_Started(const FInputActionValue& InputActionValue)
+{
+	FGameplayEventData Data;
+	//输入映射会触发WaitGamePlayEvent，将Stone的效果GE赋予Player
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this,WarriorGamePlayTags::Player_Event_ConsumeStones,Data);
 }
 
 void AWarriorHeroCharacter::Input_AbilityInputPressed(FGameplayTag InInputTag)

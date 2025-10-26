@@ -279,9 +279,9 @@ void UHeroGameplayAbility_TargetLock::SetTargetLockWidgetPosition()
 				}
 			});
 	}
-	//由于X、Y是图标长度的最大值，即指向了左上角，
+	//由于X、Y是图标长度的最大值，即指向了左上角（在FVector2D中y轴向下是加，x轴向右是加）
 	ScreenPos-=(TargetLockWidgetSize/2.f);
-	//将图标左上角对齐ScreenPos，而我们希望居中，所以传入的值ScreenPos向左上对应移动一半的位置（将图标向左上拉）
+	//将图标左上角对齐ScreenPos，而我们希望居中，所以传入的值ScreenPos向左上对应移动一半的位置（将图标整体向左上拉）
 	DrawnTargetLockWidget->SetPositionInViewport(ScreenPos,false);
 }
 

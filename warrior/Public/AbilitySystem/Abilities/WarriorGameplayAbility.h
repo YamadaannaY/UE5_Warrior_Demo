@@ -44,4 +44,8 @@ protected:
 	//蓝图函数：将SpecHandle应用到TargetActor上，直接激活GE
 	UFUNCTION(BlueprintCallable,Category="Warrior|Ability",meta=(DisplayName="Apply Gameplay Effect Spec Handle To Target Actor",ExpandEnumAsExecs="OutSuccessType"))
 	FActiveGameplayEffectHandle BP_ApplyEffectSpecHandleToTarget(AActor* TargetActor,const FGameplayEffectSpecHandle& InSpecHandle,EWarriorSuccessType& OutSuccessType) const ;
+
+	//AOE攻击(在重击技能GA中调用)：对所有HitResult的对象应用伤害GE，并触发其受击GA
+	UFUNCTION(BlueprintPure,Category="Warrior|Ability")
+	void ApplyGameplayEffectSpecHandleToHitResult(const FGameplayEffectSpecHandle& InSpecHandle,const TArray<FHitResult>& InHitResults);
 };
