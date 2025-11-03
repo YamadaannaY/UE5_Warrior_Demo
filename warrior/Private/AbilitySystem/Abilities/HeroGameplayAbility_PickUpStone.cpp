@@ -4,12 +4,15 @@
 #include "AbilitySystem/Abilities/HeroGameplayAbility_PickUpStone.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Characters/WarriorHeroCharacter.h"
+#include "Components/UI/HeroUIComponent.h"
 #include "PickUps/WarriorStoneBase.h"
 
 void UHeroGameplayAbility_PickUpStone::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                                        const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                        const FGameplayEventData* TriggerEventData)
 {
+
+	GetHeroUIComponentFromActorInfo()->OnStoneInteracted.Broadcast(true);
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }
 
@@ -17,6 +20,7 @@ void UHeroGameplayAbility_PickUpStone::EndAbility(const FGameplayAbilitySpecHand
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
+	GetHeroUIComponentFromActorInfo()->OnStoneInteracted.Broadcast(false);
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -39,13 +43,19 @@ void UHeroGameplayAbility_PickUpStone::CollectStones()
 		 true
 		 );
 
-	//将所有符合Stone类型的碰撞对象加入数组
+	//将所有符合Stone类型的碰撞对象加入数组,同时判断是否有Stone在适用范围内，如果有就继续收集，如果没有就直接清当前存储数组
+	uint8 StoneNum=0;
 	for (const FHitResult& TraceHit:TraceHits)
 	{
 		if (AWarriorStoneBase* FoundStone=Cast<AWarriorStoneBase>(TraceHit.GetActor()))
 		{
 			CollectedStones.AddUnique(FoundStone);
+			StoneNum++;
 		}
+	}
+	if (StoneNum==0)
+	{
+		CollectedStones.Empty();
 	}
 
 	if (CollectedStones.IsEmpty())
@@ -62,7 +72,7 @@ void UHeroGameplayAbility_PickUpStone::ConsumeStones()
 		return;
 	}
 
-	//对所有数组中的Stone调用Consume（应用GE）
+	//对所有数组中的Stone调用Consume（应用GE）,其中Destroy所有Actor，即自动清空数组
 	for (AWarriorStoneBase* Stone:CollectedStones)
 	{
 		if (Stone)
@@ -70,6 +80,4 @@ void UHeroGameplayAbility_PickUpStone::ConsumeStones()
 			Stone->Consume(GetWarriorAbilitySystemComponentFromActorInfo(),GetAbilityLevel());
 		}
 	}
-	//消耗完后需要清空数组
-	CollectedStones.Empty();
 }

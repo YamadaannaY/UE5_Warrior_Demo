@@ -23,12 +23,14 @@ protected:
 
 	//~End GameplayAbility Interface
 
+	//收集Hit范围内所有Stone类型的Actor
 	UFUNCTION(BlueprintCallable)
 	void CollectStones();
 
+	//消耗所有Stone
 	UFUNCTION(BlueprintCallable)
 	void ConsumeStones();
-
+	
 private:
 	UPROPERTY(EditDefaultsOnly)
 	float BoxTraceDistance=50.f;
@@ -36,6 +38,7 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	FVector TraceBoxSize=FVector(100.f);
 
+	//Dynamic
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TEnumAsByte<	EObjectTypeQuery> > StoneTraceChannel;
 
