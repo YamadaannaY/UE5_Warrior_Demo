@@ -7,25 +7,23 @@
 void UWarriorGameInstance::Init()
 {
 	Super::Init();
-
+	//绑定委托，分别在预加载Map和加载Map完毕之后执行回调
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this,&ThisClass::OnPreLoadMap);
-	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this,&UWarriorGameInstance::OnDestinationWorldLoaded);
 }
 
 void UWarriorGameInstance::OnPreLoadMap(const FString& MapName)
 {
+	//加载屏幕显示参数
 	FLoadingScreenAttributes LoadingScreenAttributes;
+	//当加载完毕后自动完成，至少加载2s，最后是一个自带默认的加载Widget，具有基础进度条
 	LoadingScreenAttributes.bAutoCompleteWhenLoadingCompletes=true;
 	LoadingScreenAttributes.MinimumLoadingScreenDisplayTime=2.f;
 	LoadingScreenAttributes.WidgetLoadingScreen=FLoadingScreenAttributes::NewTestLoadingScreenWidget();
 
+	//将这个屏幕参数设置为加载屏幕
 	GetMoviePlayer()->SetupLoadingScreen(LoadingScreenAttributes);
 }
 
-void UWarriorGameInstance::OnDestinationWorldLoaded(UWorld* LoadedWorld)
-{
-	GetMoviePlayer()->StopMovie();
-}
 
 TSoftObjectPtr<UWorld> UWarriorGameInstance::GetGameLevelByTag(FGameplayTag InTag) const 
 {
