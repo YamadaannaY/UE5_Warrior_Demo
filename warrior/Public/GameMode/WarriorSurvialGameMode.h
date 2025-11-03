@@ -8,6 +8,7 @@
 
 class AWarriorEnemyCharacter;
 
+//State
 UENUM(BlueprintType)
 enum class EWarriorSurvivalGameModeState:uint8
 {
@@ -19,12 +20,13 @@ enum class EWarriorSurvivalGameModeState:uint8
 	PlayerDied,
 };
 
+//DT每一行最主要的参数结构体，记录了要生成的Enemy相关信息
 USTRUCT(BlueprintType)
 struct FWarriorEnemyWaveSpawnerInfo
 {
 	GENERATED_BODY()
 
-	//软引用,在新波次之前异步加载
+	//软引用Class为字符串路径,在每一新波次之前异步加载
 	UPROPERTY(EditAnywhere)
 	TSoftClassPtr<AWarriorEnemyCharacter> SoftEnemyClassToSpawn;
 
@@ -37,17 +39,16 @@ struct FWarriorEnemyWaveSpawnerInfo
 	int8 MaxPerSpawnCount=3;
 };
 
-//实现Mode DT的内容行
+//配置Row的所有参数
 USTRUCT(BlueprintType)
 struct FWarriorEnemyWaveSpawnerTableRow:	public FTableRowBase
 {
 	GENERATED_BODY()
-
-	//存储单波次内的所有EnemyClass类型及其配置信息
+	
 	UPROPERTY(EditAnywhere)
 	TArray<FWarriorEnemyWaveSpawnerInfo> EnemyWaveSpawnerDefinitions;
 
-	//此波次内一共要生成多少Enemy
+	//此波次内总生成Enemy数
 	UPROPERTY(EditAnywhere)
 	int32 TotalEnemyToSpawnThisWave=1;
 	
@@ -64,10 +65,16 @@ class WARRIOR_API AWarriorSurvivalGameMode : public AWarriorGameMode
 {
 	GENERATED_BODY()
 protected:
+	//~ Begin AWarriorGameMode Interface
+	
+	//设置初始State，获取编辑器中DT的配置数量，预加载第一波的EnemyClass
 	virtual void BeginPlay() override;
+	//每一帧都对State进行判断
 	virtual void Tick(float DeltaTime) override;
-	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage);
-
+	//最先调用，明确当前游戏难度
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+	
+	//~ End AWarriorGameMode Interface
 
 private:
 
@@ -88,10 +95,10 @@ private:
 	//将加载好的敌方单位在指定位置进行生成
 	int32 TrySpawnWaveEnemies();
 	
-	//是否继续生成，判断是否达到波次生成地方单位数量要求
+	//判断是否达到波次生成敌方单位数量要求
 	bool ShouldKeepSpawnEnemies() const;
 	
-	//用于在当前波次内敌人全部被消灭且此波次要生成的总敌方单位数还未达标时调用
+	//改变计数，是否进入WaveCompleted状态的标准判断
 	UFUNCTION()
 	void OnEnemyDestroyed(AActor* DestroyedActor);
 	/**内部使用函数 **/
@@ -104,7 +111,7 @@ private:
 	UPROPERTY(BlueprintAssignable,BlueprintCallable)
 	FOnSurvivalGameModeStateChanged OnSurvivalGameModeStateChanged;
 
-	//DT对象，在DT实例中配置各波次的EnemyClass、TotalCount等等
+	//DT对象，在DT实例中配置各波次数据，主要为FWarriorEnemyWaveSpawnerTableRow内容
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="WaveDefinition",meta=(AllowPrivateAccess=true))
 	UDataTable* EnemyWaveSpawnerDataTable;
 
@@ -116,15 +123,15 @@ private:
 	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly,Category="WaveDefinition",meta=(AllowPrivateAccess=true))
 	int32 CurrentWavesCount=1;
 
-	//当前存在的敌方单位个数
+	//记录当前存在于关卡中的所有Enemy，由Spawn和Destroy改变，是否进入WaveCompleted状态的标准
 	UPROPERTY()
 	int32 CurrentSpawnEnemiesCounter=0;
 
-	//此波次总共生成的敌方单位
+	//此波次总共生成的敌方单位，是否进入WaveCompleted状态的标准
 	UPROPERTY()
 	int32 TotalSpawnEnemiesThisWaveCounter=0;
 
-	//存储了所有的TargetPoint Actor,在其位置上进行敌方单位生成
+	//存储了所有的TargetPointActor,在其位置上进行敌方单位生成
 	UPROPERTY()
 	TArray<AActor*> TargetPointsArray;
 

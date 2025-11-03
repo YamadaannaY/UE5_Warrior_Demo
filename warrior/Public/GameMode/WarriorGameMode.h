@@ -15,6 +15,7 @@ class WARRIOR_API AWarriorGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
+	//设置每帧执行Mode中逻辑
 	AWarriorGameMode();
 
 protected:
@@ -22,5 +23,6 @@ protected:
 	EWarriorGameDifficulty CurrentGameDifficulty;
 
 public:
+	//获取存储的游戏难度
 	FORCEINLINE EWarriorGameDifficulty GetCurrentGameDifficulty() const {return CurrentGameDifficulty;} 
 };

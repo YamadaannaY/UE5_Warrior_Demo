@@ -7,7 +7,7 @@
 void UWarriorGameInstance::Init()
 {
 	Super::Init();
-	//绑定委托，分别在预加载Map和加载Map完毕之后执行回调
+	//绑定委托，在预加载Map之后执行回调
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this,&ThisClass::OnPreLoadMap);
 }
 

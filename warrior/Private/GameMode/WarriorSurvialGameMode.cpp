@@ -9,9 +9,6 @@
 #include "NavigationSystem.h"
 #include "WarriorFunctionLibrary.h"
 
-/** GameMode流程： 在最开始为WaitSpawnNewWave状态，异步加载下一波次对象，然后进入波次间隔时间，此时为SpawningNewWave，再进入敌方单位生成时间，
- *  此时InProgress，进行加载对象的实例化。再是等待时间InProgress，完成所有后进入WaveCompleted，这里有一段缓冲时间，用来加载下一波次敌方单位。		**/
-
 void AWarriorSurvivalGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -61,7 +58,7 @@ void AWarriorSurvivalGameMode::Tick(float DeltaTime)
 		if (TimePassedSinceStart>=WaveCompletedWaitTime)
 		{
 			TimePassedSinceStart=0.f;
-			CurrentWavesCount++;
+			//CurrentWavesCount++;
 			
 			//判断是否完成所有波次，是则AllWaveDone，否则WaitSpawnNewWave，进入下一波次循环
 			if (HasFinishedAllWaves())
@@ -69,7 +66,7 @@ void AWarriorSurvivalGameMode::Tick(float DeltaTime)
 				SetCurrentGameModeState(EWarriorSurvivalGameModeState::AllWaveDone);
 			}
 			else
-			{
+			{	CurrentWavesCount++;
 				SetCurrentGameModeState(EWarriorSurvivalGameModeState::WaitSpawnNewWave);
 				PreLoadNextWaveSpawnEnemies();
 			}
@@ -80,8 +77,8 @@ void AWarriorSurvivalGameMode::Tick(float DeltaTime)
 void AWarriorSurvivalGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
-	
 	EWarriorGameDifficulty SavedGameDifficulty;
+
 	if (UWarriorFunctionLibrary::TryLoadSavedGameDifficulty(SavedGameDifficulty))
 	{
 		CurrentGameDifficulty=SavedGameDifficulty;
@@ -96,8 +93,7 @@ void AWarriorSurvivalGameMode::SetCurrentGameModeState(EWarriorSurvivalGameModeS
 
 bool AWarriorSurvivalGameMode::HasFinishedAllWaves() const
 {
-	//这个判断在自增操作之后，所以实际CurrentWavesCount会比真正参与判断的当前波次数大1
-	return CurrentWavesCount>TotalWavesToSpawn;
+	return CurrentWavesCount>=TotalWavesToSpawn;
 }
 
 void AWarriorSurvivalGameMode::PreLoadNextWaveSpawnEnemies()
@@ -166,37 +162,41 @@ int32 AWarriorSurvivalGameMode::TrySpawnWaveEnemies()
 
 		for (int32 i=0;i<NumToSpawn;i++)
 		{
-			//随机找一个位置
+			//随机找一个匹配TargetPoints
 			const int32 RandomTargetPointIndex=FMath::RandRange(0,TargetPointsArray.Num()-1);
 			const FVector SpawnOrigin=TargetPointsArray[RandomTargetPointIndex]->GetActorLocation();
+			
 			//只返回TargetPoint前向向量的纯方向旋转，其他两个分量取默认值
 			const FRotator SpawnRotation=TargetPointsArray[RandomTargetPointIndex]->GetActorForwardVector().ToOrientationRotator();
-			//将这个生成位置进一步随机化
+
+			//将匹配TargetPoints的位置随机化，同时抬高z轴避免陷入地面
 			FVector RandomLocation;
 			UNavigationSystemV1::K2_GetRandomLocationInNavigableRadius(this,SpawnOrigin,RandomLocation,400.f);
-			//将生成位置抬高，避免陷入地面
 			RandomLocation+=FVector(0.f,0.f,150.f);
 			
-			//根据位置和旋转、UClass信息生成Enemy
+			//根据位置和旋转、具体的UClass对象生成Enemy类
 			AWarriorEnemyCharacter* SpawnEnemy=GetWorld()->SpawnActor<AWarriorEnemyCharacter>(LoadedEnemyClass,RandomLocation,SpawnRotation,SpawnParam);
 
-			//当Enemy被击杀时，回调OnEnemyDestroyed
+			//当Enemy生成时绑定回调，
 			if (SpawnEnemy)
 			{
 				SpawnEnemy->OnDestroyed.AddUniqueDynamic(this,&ThisClass::OnEnemyDestroyed);
+				//记录当前生成的Enemy个数
 				EnemiesSpawnedThisTime++;
+				//判断波次完成
 				TotalSpawnEnemiesThisWaveCounter++;
 			}
+			//如果达到当前波次个数，提前退出循环避免多生成
 			if (!ShouldKeepSpawnEnemies())
 			{
 				return EnemiesSpawnedThisTime;
 			}
 		}
-		
 	}
 	return EnemiesSpawnedThisTime;;
 }
 
+//在OnEnemyDestroyed中用于判断，在单次生成没有达到关卡要求个数时，敌方单位被击杀就生成新的，直到满足总个数
 bool AWarriorSurvivalGameMode::ShouldKeepSpawnEnemies() const
 {
 	return TotalSpawnEnemiesThisWaveCounter < GetCurrentWaveSpawnerTableRow()->TotalEnemyToSpawnThisWave;
@@ -226,8 +226,8 @@ void AWarriorSurvivalGameMode::RegisterSpawnedEnemies(const TArray<AWarriorEnemy
 	{
 		if (SpawnedEnemy)
 		{
+			//增加计数，使得波次不进入Completed，同时赋予其减少计数的能力，将其作为Completed的标准
 			CurrentSpawnEnemiesCounter++;
-			
 			SpawnedEnemy->OnDestroyed.AddUniqueDynamic(this,&ThisClass::OnEnemyDestroyed);
 		}
 	}
