@@ -22,7 +22,7 @@ void UWarriorAbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& I
 				//激活蓝图中的OnEndAbility
 				CancelAbilityHandle(AbilitySpec.Handle);
 			}
-			//如果没有激活，切换激活
+		//如果没有激活，切换激活
 		else
 			{
 				//激活能力（依赖输入，具有Tag）
@@ -88,7 +88,7 @@ void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities
 void UWarriorAbilitySystemComponent::RemoveGrantedHeroWeaponAbilities(
 	TArray<FGameplayAbilitySpecHandle>& InSpecHandlesToRemove)
 {
-	//InSpecHandlesToRemove即OutGrantedAbilitySpecHandles，在蓝图中链接
+	//InSpecHandlesToRemove即OutGrantedAbilitySpecHandles
 	if (InSpecHandlesToRemove.IsEmpty())
 	{
 		return;
@@ -116,8 +116,8 @@ bool UWarriorAbilitySystemComponent::TryActivateAbilityByTag(FGameplayTag Abilit
 		//Note:此处不完全随机，是有规律的随机数可能需要改进。
 		const int32 RandomAbilityIndex=FMath::RandRange(0,FoundAbilitySpecs.Num()-1);
 		FGameplayAbilitySpec* SpecToActivate=FoundAbilitySpecs[RandomAbilityIndex];
-
 		check(SpecToActivate);
+		
 		if (!SpecToActivate->IsActive())
 		{
 			return  TryActivateAbility(SpecToActivate->Handle);

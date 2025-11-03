@@ -10,9 +10,11 @@
 #include "Components/Input/WarriorInputComponent.h"
 #include  "WarriorGamePlayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "WarriorDebugHelper.h"
 #include "Components/UI/HeroUIComponent.h"
 #include "DataAssets/StartUpData/DataAsset_StartUpDataBase.h"
 #include "Components/Combat/HeroCombatComponent.h"
+#include "GameMode/WarriorGameMode.h"
 
 
 void AWarriorHeroCharacter::PossessedBy(AController* NewController)
@@ -24,8 +26,34 @@ void AWarriorHeroCharacter::PossessedBy(AController* NewController)
 		//由于Player一开始就被Controller Possess，且十分重要，所以进行同步加载
 		if (UDataAsset_StartUpDataBase* LoadedData=CharacterStartUpData.LoadSynchronous())
 		{
+			int32 AbilityApplyLevel=1;
+			
+			if (AWarriorGameMode* BaseGameMode=GetWorld()->GetAuthGameMode<AWarriorGameMode>())
+			{
+				switch (BaseGameMode->GetCurrentGameDifficulty())
+				{
+				case EWarriorGameDifficulty::Easy:
+					AbilityApplyLevel=4;
+					/*Debug::Print(TEXT("easy"));*/
+					break;
+				case EWarriorGameDifficulty::Normal:
+					AbilityApplyLevel=3;
+					/*Debug::Print(TEXT("normal"));*/
+					break;
+				case EWarriorGameDifficulty::Hard:
+					AbilityApplyLevel=2;
+					/*Debug::Print(TEXT("hard"));*/
+					break;
+				case EWarriorGameDifficulty::VeryHard:
+					AbilityApplyLevel=1;
+					/*Debug::Print(TEXT("very hard"));*/
+					break;
+				default:
+					break;
+				}
+			}
 			//加载完毕将GASpec赋予ASC
-			LoadedData->GiveToAbilitySystemComponent(WarriorAbilitySystemComponent);
+			LoadedData->GiveToAbilitySystemComponent(WarriorAbilitySystemComponent,AbilityApplyLevel);
 		}
 	}
 	//将属性集添加到ASC中
@@ -70,7 +98,7 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	(InputConfigDataAsset,WarriorGamePlayTags::InputTag_SwitchTarget,
 		ETriggerEvent::Triggered,this,&ThisClass::Input_SwitchTargetTriggered);
 	WarriorInputComponent->BindNativeInputAction
-	//输入完成时要判断Tag后缀
+
 	(InputConfigDataAsset,WarriorGamePlayTags::InputTag_SwitchTarget,
 		ETriggerEvent::Completed,this,&ThisClass::Input_SwitchTargetCompleted);
 	
@@ -94,7 +122,7 @@ void AWarriorHeroCharacter::Input_Move(const FInputActionValue& InputActionValue
 	const FRotator MovementRotation(0.f,Controller->GetControlRotation().Yaw,0.f);
 	if (MovementVector.Y!=0.f)
 	{
-		 //旋转到的欧拉角度的前后向单位向量
+		 //旋转到的欧拉角度单位向量
 		const FVector ForwardDirection=MovementRotation.RotateVector(FVector::ForwardVector);
 		//ForwardDirection * MovementVector.Y
 		AddMovementInput(ForwardDirection,MovementVector.Y);
@@ -136,7 +164,6 @@ void AWarriorHeroCharacter::Input_SwitchTargetCompleted(const FInputActionValue&
 	//水平方向大于0，即向右移动鼠标，则激活右切换，否则是左切换
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this,SwitchDirection.X>0.f ? WarriorGamePlayTags::Player_Event_SwitchTarget_Right : WarriorGamePlayTags::Player_Event_SwitchTarget_Left,
 		Data);
-
 	//Debug::Print(TEXT("Switch Direction:")+SwitchDirection.ToString());
 }
 

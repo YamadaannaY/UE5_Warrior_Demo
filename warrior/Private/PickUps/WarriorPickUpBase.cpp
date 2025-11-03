@@ -15,7 +15,6 @@ AWarriorPickUpBase::AWarriorPickUpBase()
 	SetRootComponent(PickUpCollisionSphere);
 	PickUpCollisionSphere->InitSphereRadius(50.f);
 	PickUpCollisionSphere->OnComponentBeginOverlap.AddUniqueDynamic(this,&ThisClass::OnPickUpCollisionSphereBeginOverlap);
-
 }
 
 void AWarriorPickUpBase::OnPickUpCollisionSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent,

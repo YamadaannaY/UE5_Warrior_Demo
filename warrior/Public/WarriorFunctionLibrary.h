@@ -8,6 +8,7 @@
 #include "WarriorTypes/WarriorEnumType.h"
 #include "WarriorFunctionLibrary.generated.h"
 
+class UWarriorGameInstance;
 class UPawnCombatComponent;
 struct FGameplayTag;
 class UWarriorAbilitySystemComponent;
@@ -66,4 +67,21 @@ public:
 	UFUNCTION(BlueprintCallable,Category="Warrior|Function Library",meta=(Latent,WorldContext="WorldContextObject",LatentInfo="LatenInfo",ExpandEnumAsExecs="CountDownInput|CountDownOutput",TotalTime="1.0",UpdateInterval="0.1"))
 	static void CountDown(const UObject* WorldContextObject,float TotalTime,float UpdateInterval,float& OutRemainingTime,EWarriorCountDownActionInput CountDownInput,
 		UPARAM(DisplayName="Output") EWarriorCountDownActionOutput& CountDownOutput,FLatentActionInfo LatenInfo);
+
+	//获取GameInstance
+	UFUNCTION(BlueprintPure,Category="Warrior|Function Library",meta=(WorldContext="WorldContextObject"))
+	static UWarriorGameInstance* GetWarriorGameInstance(const UObject* WorldContextObject);
+
+	//切换Input模式：UI和Game
+	UFUNCTION(BlueprintCallable,Category="Warrior|Function Library",meta=(WorldContext="WorldContextObject"))
+	static void ToggleInputMode(const UObject* WorldContextObject,EWarriorInputMode InInputMode);
+
+	//保存GameDifficulty到SavedCurrentDifficulty
+	UFUNCTION(BlueprintCallable,Category="Warrior|Function Library")
+	static void SaveCurrentGameDifficulty(EWarriorGameDifficulty InDifficultyToSave);
+	
+	//将SavedCurrentDifficulty加载为GameDifficulty
+	UFUNCTION(BlueprintCallable,Category="Warrior|Function Library")
+	static bool TryLoadSavedGameDifficulty(EWarriorGameDifficulty& OutSaveDifficulty);
 };
+

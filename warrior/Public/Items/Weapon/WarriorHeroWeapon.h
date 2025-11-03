@@ -24,7 +24,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AssignGrantedAbilitySpecHandles(const TArray<FGameplayAbilitySpecHandle> InSpecHandles);
 
-	//获得GrantedAbilitySpecHandles
+	//获得存储GrantedAbilitySpecHandles的数组
 	UFUNCTION(BlueprintPure)
 	TArray<FGameplayAbilitySpecHandle> GetGrantedAbilitySpecHandles() const;
 

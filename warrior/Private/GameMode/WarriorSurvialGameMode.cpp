@@ -7,6 +7,7 @@
 #include "Engine/TargetPoint.h"
 #include "Kismet/GameplayStatics.h"
 #include "NavigationSystem.h"
+#include "WarriorFunctionLibrary.h"
 
 /** GameMode流程： 在最开始为WaitSpawnNewWave状态，异步加载下一波次对象，然后进入波次间隔时间，此时为SpawningNewWave，再进入敌方单位生成时间，
  *  此时InProgress，进行加载对象的实例化。再是等待时间InProgress，完成所有后进入WaveCompleted，这里有一段缓冲时间，用来加载下一波次敌方单位。		**/
@@ -73,6 +74,17 @@ void AWarriorSurvivalGameMode::Tick(float DeltaTime)
 				PreLoadNextWaveSpawnEnemies();
 			}
 		}
+	}
+}
+
+void AWarriorSurvivalGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+	
+	EWarriorGameDifficulty SavedGameDifficulty;
+	if (UWarriorFunctionLibrary::TryLoadSavedGameDifficulty(SavedGameDifficulty))
+	{
+		CurrentGameDifficulty=SavedGameDifficulty;
 	}
 }
 

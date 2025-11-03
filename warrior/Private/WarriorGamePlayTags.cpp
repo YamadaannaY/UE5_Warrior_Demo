@@ -74,6 +74,7 @@ namespace  WarriorGamePlayTags
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_Melee,"Enemy.Ability.Melee");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_Ranged,"Enemy.Ability.Ranged");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_SummonEnemy,"Enemy.Ability.SummonEnemy");
+	UE_DEFINE_GAMEPLAY_TAG(Enemy_Ability_SpawnStone,"Enemy.Ability.SpawnStone");
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Event_SummonEnemy,"Enemy.Event.SummonEnemy");
 
 	/** Enemy Tag **/
@@ -94,6 +95,11 @@ namespace  WarriorGamePlayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(Player_Cooldown_SpecialWeaponAbility_Light,"Player.Cooldown.SpecialWeaponAbility.Light");
 	UE_DEFINE_GAMEPLAY_TAG(Player_Cooldown_SpecialWeaponAbility_Heavy,"Player.Cooldown.SpecialWeaponAbility.Heavy");
+
+
+	UE_DEFINE_GAMEPLAY_TAG(GameData_Level_SurvivalGameModeMap,"GameData.Level.SurvivalGameModeMap");
+	UE_DEFINE_GAMEPLAY_TAG(GameData_Level_MainMenuMap,"GameData.Level.MainMenuMap");
+	UE_DEFINE_GAMEPLAY_TAG(GameData_SaveGame_Slot_1,"GameData.SaveGame.Slot.1");
 
 	
 }

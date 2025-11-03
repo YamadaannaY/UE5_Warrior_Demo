@@ -11,6 +11,7 @@
 #include "Components/BoxComponent.h"
 #include "Engine/AssetManager.h"
 #include "WarriorFunctionLibrary.h"
+#include "GameMode/WarriorGameMode.h"
 
 
 AWarriorEnemyCharacter::AWarriorEnemyCharacter()
@@ -115,18 +116,45 @@ void AWarriorEnemyCharacter::InitEnemyStartUpData() const
 	{
 		return ;
 	}
-	//异步加载固定流程
-	//CreateLambda用于无参调用函数
-	UAssetManager::GetStreamableManager().RequestAsyncLoad(CharacterStartUpData.ToSoftObjectPath(),
-		FStreamableDelegate::CreateLambda(
-			[this]()
-			{
-				if (UDataAsset_StartUpDataBase* LoadedData=CharacterStartUpData.Get())
+
+	int32 AbilityApplyLevel=1;
+			
+	if (AWarriorGameMode* BaseGameMode=GetWorld()->GetAuthGameMode<AWarriorGameMode>())
+	{
+		switch (BaseGameMode->GetCurrentGameDifficulty())
+		{
+		case EWarriorGameDifficulty::Easy:
+			AbilityApplyLevel=1;
+			break;
+		case EWarriorGameDifficulty::Normal:
+			AbilityApplyLevel=2;
+			break;
+		case EWarriorGameDifficulty::Hard:
+			AbilityApplyLevel=3;
+			break;
+		case EWarriorGameDifficulty::VeryHard:
+			AbilityApplyLevel=4;
+			break;
+		default:
+			break;
+		}
+	}
+	
+	if (UDataAsset_StartUpDataBase* LoadedData=CharacterStartUpData.LoadSynchronous())
+	{
+		//异步加载固定流程
+		//CreateLambda用于无参调用函数
+		UAssetManager::GetStreamableManager().RequestAsyncLoad(CharacterStartUpData.ToSoftObjectPath(),
+			FStreamableDelegate::CreateLambda(
+				[this,AbilityApplyLevel]()
 				{
-					//加载成功将其所有GASpec赋予ASC
-					LoadedData->GiveToAbilitySystemComponent(WarriorAbilitySystemComponent);
+					if (UDataAsset_StartUpDataBase* LoadedData=CharacterStartUpData.Get())
+					{
+						//加载成功将其所有GASpec赋予ASC
+						LoadedData->GiveToAbilitySystemComponent(WarriorAbilitySystemComponent,AbilityApplyLevel);
+					}
 				}
-			}
-		)
-	);
+			)
+		);
+	}
 }

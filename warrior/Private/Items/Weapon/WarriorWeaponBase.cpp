@@ -16,7 +16,7 @@ AWarriorWeaponBase::AWarriorWeaponBase()
 	WeaponCollisionBox=CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponCollisionBox"));
 	WeaponCollisionBox->SetupAttachment(WeaponMesh);
 	WeaponCollisionBox->SetBoxExtent(FVector(20.f));
-	//默认下无碰撞。
+	//默认下无碰撞，在Montage中进行碰撞切换。
 	WeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	//当物体开始/结束重叠时，执行回调函数,回调函数调动自定义委托，委托执行绑定函数

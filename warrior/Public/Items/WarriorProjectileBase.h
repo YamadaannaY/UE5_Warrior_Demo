@@ -66,5 +66,6 @@ private:
 	//ApplyGE 到HitPawn
 	void HandleApplyProjectileDamage(APawn* InHitPawn,const FGameplayEventData& InPayLoad);
 
+	UPROPERTY()
 	TArray<AActor*> OverlappedActors;
 };

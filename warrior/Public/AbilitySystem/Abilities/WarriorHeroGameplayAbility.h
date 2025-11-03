@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/WarriorGameplayAbility.h"
 #include "WarriorHeroGameplayAbility.generated.h"
+class UHeroUIComponent;
 class UHeroCombatComponent;
 class AWarriorHeroCharacter;
 class AWarriorHeroController;
@@ -27,6 +28,10 @@ public:
 	//GA下获得HeroCombatComponent
 	UFUNCTION(BlueprintPure,Category="Warrior|Ability")
 	UHeroCombatComponent* GetHeroCombatComponentFromActorInfo();
+
+	//GA下获得HeroUIComponent
+	UFUNCTION(BlueprintPure,Category="Warrior|Ability")
+	UHeroUIComponent* GetHeroUIComponentFromActorInfo();
 
 	//这个函数的作用是 生成一个针对武器攻击的 GameplayEffectSpecHandle,用于应用GameplayEffect到目标,实现伤害或者其他效果。
 	UFUNCTION(BlueprintPure,Category="Warrior|Ability")

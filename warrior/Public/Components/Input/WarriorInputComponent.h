@@ -33,15 +33,14 @@ public:
 		CallbackFunc InputReleasedFunc);
 };
 
-//inline: 允许函数在头文件中被定义，且此头函数被多次包含时不会导致重复定义，而是链接时只保留一次
+/**inline: 允许函数在头文件中被定义，且此头函数被多次包含时不会导致重复定义，而是链接时只保留一次**/
+
 template <class UserObject, typename CallbackFunc>
 inline void UWarriorInputComponent::BindNativeInputAction(const UDataAsset_InputConfig* InInputConfig,
 	const FGameplayTag& InInputTag, ETriggerEvent TriggerEvent, UserObject* ContextObject, CallbackFunc Func)
 {
-	//如果参数为false，则终止并打印信息。
 	checkf(InInputConfig,TEXT("Input config data asset is null,can not proceed with binding"));
-
-	//如果在Config结构体中找到对应的IA，BindAction
+		
 	if (UInputAction* FoundAction=InInputConfig->FindNativeInputActionByTag(InInputTag))
 	{
 		BindAction(FoundAction,TriggerEvent,ContextObject,Func);
@@ -59,7 +58,8 @@ inline void UWarriorInputComponent::BindAbilityInputAction(const UDataAsset_Inpu
 	for (const FWarriorInputActionConfig& AbilityInputActionConfig:InInputConfig->AbilityInputActions)
 	{
 		if (!AbilityInputActionConfig.IsValid()) continue;
-		//ETriggerEvent决定了输入动作何时触发回调 Started表明按下按键时触发一次，Completed表明松开时触发一次。
+		
+		//ETriggerEvent决定了输入动作何时触发CallBack Started表明按下按键时触发一次，Completed表明松开时触发一次。
 		BindAction(AbilityInputActionConfig.InputAction,ETriggerEvent::Started,ContextObject,InputPressedFunc,
 			AbilityInputActionConfig.InputTag);
 		BindAction(AbilityInputActionConfig.InputAction,ETriggerEvent::Completed,ContextObject,InputReleasedFunc,

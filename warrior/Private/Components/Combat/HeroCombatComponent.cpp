@@ -4,7 +4,6 @@
 #include "Components/Combat/HeroCombatComponent.h"
 #include "Items/Weapon/WarriorHeroWeapon.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "WarriorDebugHelper.h"
 #include "WarriorGamePlayTags.h"
 
 AWarriorHeroWeapon* UHeroCombatComponent::GetHeroCarriedWeaponByTags(FGameplayTag InWeaponTag) const

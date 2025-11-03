@@ -2,7 +2,6 @@
 
 
 #include "PickUps/WarriorStoneBase.h"
-
 #include "WarriorGamePlayTags.h"
 #include "Characters/WarriorHeroCharacter.h"
 
@@ -10,8 +9,9 @@ void AWarriorStoneBase::Consume(UWarriorAbilitySystemComponent* AbilitySystemCom
 {
 	check(StoneGameplayEffectClass);
 
-	//所有UCLASS都拥有的默认模板对象，包括所有在类中被定义并且在编辑器中国被设置的值，也就是我们需要的GE对象
-	UGameplayEffect* EffectCDO=StoneGameplayEffectClass->GetDefaultObject<UGameplayEffect>();
+	//所有UCLASS都拥有的默认模板对象，包括所有在此类中被定义并且在编辑器中被设置的值，也就是我们需要的所有Stone设置中的GE对象
+	//使用CDO可以不实例化GE，节省开销
+	const UGameplayEffect* EffectCDO=StoneGameplayEffectClass->GetDefaultObject<UGameplayEffect>();
 	
 	AbilitySystemComponent->ApplyGameplayEffectToSelf(EffectCDO,ApplyLevel,AbilitySystemComponent->MakeEffectContext());
 
@@ -25,7 +25,7 @@ void AWarriorStoneBase::OnPickUpCollisionSphereBeginOverlap(UPrimitiveComponent*
 {
 	if (AWarriorHeroCharacter* OverlappedHeroCharacter=Cast<AWarriorHeroCharacter>(OtherActor))
 	{
-		//激活GA，在GA生效期间收集所有Stone并用数组存储，当输入映射后应用所有Stone的GE
+		//激活GA，在GA生效期间收集所有Stone并用数组存储，当产生输入映射后对所有Stone调用Consume
 		OverlappedHeroCharacter->GetWarriorAbilitySystemComponent()->TryActivateAbilityByTag(WarriorGamePlayTags::Player_Ability_PickUp_Stone);
 	}
 }

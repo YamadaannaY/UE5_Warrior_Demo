@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "WarriorWeaponBase.generated.h"
+
 class UBoxComponent;
 
 //自定义一个带AActor*参数，委托名为FOnTargetInteractedDelegate的Delegate

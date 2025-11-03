@@ -19,11 +19,11 @@ public:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	UInputMappingContext* DefaultMappingContext;
 
-	//Config结构体数组，存储依靠纯逻辑实现的本地IA与对应Tag（eg：Look、Move都是依靠映射输入加上向量计算完成操作，没有动画、GE等。）
+	//存储所有基础的IA，即不会在IMC中被替换的能力
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(TitleProperty="InputTag"))
 	TArray<FWarriorInputActionConfig> NativeInputActions;
 
-	//存储所有GATag和对应IA
+	//存储所有GATag和对应IA进行绑定
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(TitleProperty="InputTag"))
 	TArray<FWarriorInputActionConfig> AbilityInputActions;
 
