@@ -34,7 +34,7 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly,Category="Projectile")
 	UBoxComponent* ProjectileCollisionBox;
 
-	//飞行物粒子特效（飞行物实体是Box，所以粒子特效就是子弹外观）
+	//飞行物实体是Box，所以粒子特效就是子弹外观
 	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly,Category="Projectile")
 	UNiagaraComponent* ProjectileNiagaraComponent;
 
@@ -42,7 +42,7 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly,Category="Projectile")
 	UProjectileMovementComponent* ProjectileMovementComp;
 
-	//默认造成伤害的逻辑是碰撞
+	//默认造成伤害的碰撞逻辑
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Projectile")
 	EProjectileDamagePolicy ProjectileDamagePolicy=EProjectileDamagePolicy::OnHit;
 
@@ -50,20 +50,20 @@ protected:
 	UPROPERTY(BlueprintReadOnly,Category="Projectile",meta=(ExposeOnSpawn="true"))
 	FGameplayEffectSpecHandle ProjectileDamageEffectSpecHandle;
 	
-	//伤害造成策略一绑定的逻辑函数，使得Projectile在碰撞后销毁
+	//Hit绑定的逻辑函数，使得Projectile在碰撞后销毁
 	UFUNCTION()
 	virtual void OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit );
 
-	//伤害造成策略二绑定的逻辑函数，Projectile以重叠的形式进行伤害应用，同时不销毁Projectile，具体穿透性
+	//Overlap绑定的逻辑函数，Projectile以重叠的形式进行伤害应用，同时不销毁Projectile，具体穿透性
 	UFUNCTION()
 	virtual void OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	//逻辑由蓝图实现，传入一个碰撞位置作为参数，在位置生成音效和粒子特效
+	//传入碰撞位置作为参数，在位置生成音效和粒子特效
 	UFUNCTION(BlueprintImplementableEvent,meta=(Displayname="On Spawn Projectile FX"))
 	void BP_OnSpawnProjectileHitFX(const FVector& HitLocation);
 
 private:
-	//ApplyGE 到HitPawn
+	//ApplyGE到HitPawn
 	void HandleApplyProjectileDamage(APawn* InHitPawn,const FGameplayEventData& InPayLoad);
 
 	UPROPERTY()

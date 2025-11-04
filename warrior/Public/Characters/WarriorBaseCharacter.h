@@ -22,18 +22,20 @@ public:
 	
 	//~ Begin IAbilitySystemInterface Interface
 	
-	//Character下获得ASC
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override ;
+	
 	//~End IAbilitySystemInterface Interface
 	
 	//~Begin IPawnCombatInterface Interface**/
 	
-	//Character下获得CombatComponent
 	virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
+	
 	//~End IPawnCombatInterface Interface**/
 	
 	//~Begin IPawnUIInterface Interface**/
+	
 	virtual UPawnUIComponent* GetPawnUIComponent() const override;
+	
 	//~End IPawnCombatInterface Interface**/
 protected:
 	//~ Begin APawn Interface.

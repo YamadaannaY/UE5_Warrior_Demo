@@ -38,8 +38,6 @@ public:
 	virtual UEnemyUIComponent* GetEnemyUIComponent() const;
 };
 
-//这样设计十分清楚，且不需要频繁的类型转换，还保证了所有接口下的类都有UI组件。但是缺点是过度设计，容易导致接口膨胀
-
 //优化：使用模板
 /*template<typename T>
    T* GetUIComponent() const

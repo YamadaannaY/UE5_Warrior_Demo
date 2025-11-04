@@ -17,10 +17,10 @@ class WARRIOR_API UWarriorWidgetBase : public UUserWidget
 	GENERATED_BODY()
 
 protected:
-	//引擎第一次初始化调用
+	//引擎第一次初始化调用，初始化HeroUI
 	virtual void NativeOnInitialized() override;
 
-	//蓝图实现函数，传入HeroUIComponent作为参数，绑定（HP、Rage的变化委托，传入NewPercent，然后设置Bar的Percent，变化color）
+	//蓝图实现函数，传入HeroUIComponent作为参数，绑定HP、Rage的变化委托
 	UFUNCTION(BlueprintImplementableEvent,meta=(DisplayName="On Owing Hero UIComponent Initialize"))
 	void BP_OnOwingHeroUIComponentInitialized(UHeroUIComponent* HeroUIComponent);
 	
@@ -28,7 +28,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent,meta=(DisplayName="On Owing Enemy UIComponent Initialize"))
 	void BP_OnOwingEnemyUIComponentInitialized(UEnemyUIComponent* EnemyUIComponent);
 public:
-	//初始化已创建的
+	//初始化EnemyUI
 	UFUNCTION(BlueprintCallable)
 	void InitEnemyCreatedWidget(AActor* OwingEnemyActor);
 };

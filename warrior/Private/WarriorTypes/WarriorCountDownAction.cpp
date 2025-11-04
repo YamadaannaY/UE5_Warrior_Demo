@@ -8,7 +8,7 @@ void FWarriorCountDownAction::UpdateOperation(FLatentResponse& Response)
 	if (bNeedToCancel)
 	{
 		CountDownOutput=EWarriorCountDownActionOutput::Cancelled;
-		//立即结束这个延迟操作
+		//，再执行一次这个函数，此时输出的是cancelled，随后立即结束这个倒计时操作
 		Response.FinishAndTriggerIf(true,ExecutionFunction,OutputLink,CallBackTarget);
 
 		return;
@@ -22,7 +22,7 @@ void FWarriorCountDownAction::UpdateOperation(FLatentResponse& Response)
 	}
 
 	//每隔UpdateInterval秒进行一次更新
-	//原理：只在规定频率触发事件，而且ElapsedTimeSinceStart非常精准，减少的是固定值而不是我们时刻迭代的经过时间值。而且具有两种模式，频率大于0时根据频率更新，频率小于0时实时更新
+	//原理：只在规定频率触发事件，而且ElapsedTimeSinceStart非常精准，减少的是固定值而不是我们时刻迭代的经过时间值。频率大于0时根据频率更新，频率小于0时实时更新
 	//如果继上一次update后经过时间小于间隔时间，执行简单加法，性能极高
 	if (ElapsedInterval < UpdateInterval)
 	{
@@ -35,9 +35,9 @@ void FWarriorCountDownAction::UpdateOperation(FLatentResponse& Response)
 		ElapsedTimeSinceStart +=UpdateInterval > 0.f ? UpdateInterval : Response.ElapsedTime();
 		//还剩下的延时时间等于总延时减掉当前的总时间
 		OutRemainingTime = TotalCountDownTime - ElapsedTimeSinceStart;
-		//Update
+		//触发一次Update
 		Response.TriggerLink(ExecutionFunction,OutputLink,CallBackTarget);
-		//此次更新完毕，进入下一个更新
+
 		ElapsedInterval = 0.f;
 	}
 }

@@ -17,15 +17,17 @@ void UEnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 	}
 	OverLappedActors.AddUnique(HitActor);
 	bool bIsValidBlock=false;
+	
 	//两个判断：1.是否正在进行格挡 2.此次攻击是否不可阻挡
 	const bool  bIsPlayerBlocking=UWarriorFunctionLibrary::NativeDoesActorHaveTag(HitActor,WarriorGamePlayTags::Player_Status_Blocking);
 	const bool bIsAttackUnblockable=UWarriorFunctionLibrary::NativeDoesActorHaveTag(GetMyOwningPawn(),WarriorGamePlayTags::Enemy_Status_UnBlockable);
+
 	if (bIsPlayerBlocking && !bIsAttackUnblockable)
 	{
 		//判断格挡成功
 		bIsValidBlock=UWarriorFunctionLibrary::IsValidBlock(GetMyOwningPawn(),HitActor);
 	}
-	//SendGameplayEventToActor需要的Data参数
+	
 	FGameplayEventData EventData;
 	EventData.Instigator=GetMyOwningPawn();
 	EventData.Target=HitActor;
@@ -38,20 +40,22 @@ void UEnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 	
 	else
 	{
-		//没有进行格挡或格挡失败，触发MeleeGA绑定的Event
+		//没有进行格挡或格挡失败，触发Shared_Event_MeleeHit
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetMyOwningPawn(),WarriorGamePlayTags::Shared_Event_MeleeHit,EventData);
 	}
 }
 
 void UEnemyCombatComponent::ToggleBodyCollisionBoxCollision(bool bShouldEnable, EToggleDamageType ToggleDamageType)
 {
-	AWarriorEnemyCharacter* OwningEnemyCharacter=Cast<AWarriorEnemyCharacter>(GetOwner());
+	const AWarriorEnemyCharacter* OwningEnemyCharacter=Cast<AWarriorEnemyCharacter>(GetOwner());
 	check(OwningEnemyCharacter);
 
+	//获取左右手Box
 	UBoxComponent* LeftHandCollisionBox=OwningEnemyCharacter->GetLeftHandCollisionBox();
 	UBoxComponent* RightHandCollisionBox=OwningEnemyCharacter->GetRightHandCollisionBox();
 	check(LeftHandCollisionBox && RightHandCollisionBox);
 
+	//根据传入参数设置左右手碰撞状态
 	switch (ToggleDamageType)
 	{
 	case EToggleDamageType::LeftHand:

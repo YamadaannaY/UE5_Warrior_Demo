@@ -11,7 +11,6 @@
 // Sets default values
 AWarriorProjectileBase::AWarriorProjectileBase()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	ProjectileCollisionBox=CreateDefaultSubobject<UBoxComponent>(TEXT("ProjectileCollisionBox"));
@@ -27,18 +26,15 @@ AWarriorProjectileBase::AWarriorProjectileBase()
 	ProjectileCollisionBox->SetCollisionResponseToChannel(ECC_Pawn,ECR_Block);
 	ProjectileCollisionBox->SetCollisionResponseToChannel(ECC_WorldDynamic,ECR_Block);
 	ProjectileCollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Block);
-	
-	/**两种不同策略下的委托回调 **/
+
 	
 	ProjectileCollisionBox->OnComponentHit.AddUniqueDynamic(this,&ThisClass::OnProjectileHit);
-	
-	//如果设置了EProjectileDamagePolicy::OnBeginOverlap，则对角色的策略改变为重叠交互，也就是穿透其他环境（因为其他的是Block），但是对于角色有作用
 	ProjectileCollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this,&ThisClass::OnProjectileBeginOverlap);
 
 	//初始速度
 	ProjectileMovementComp->InitialSpeed=700.f;
 	ProjectileMovementComp->MaxSpeed=600.f;
-	//暂时无重力
+	//无重力
 	ProjectileMovementComp->ProjectileGravityScale=0.f;
 	//控制 Actor 在生成（Spawn）后自动销毁的时间。
 	InitialLifeSpan=4.f;
@@ -74,7 +70,8 @@ void AWarriorProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, 
 	{
 		bIsValidBlock=UWarriorFunctionLibrary::IsValidBlock(this,HitPawn);
 	}
-	//PayLoad
+	
+	//GameplayEvent中PayLoad参数
 	FGameplayEventData Data;
 	Data.Instigator=this;
 	Data.Target=HitPawn;

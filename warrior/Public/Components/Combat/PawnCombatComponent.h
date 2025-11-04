@@ -17,7 +17,7 @@ class WARRIOR_API UPawnCombatComponent : public UPawnExtensionComponentBase
 {
 	GENERATED_BODY()
 public:
-	//向CharacterCarriedWeaponMap中添加映射
+	//向CharacterCarriedWeaponMap中添加映射，SpawnWeapon后执行
 	UFUNCTION(BlueprintCallable,Category="Warrior|Combat")
 	void RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegister,AWarriorWeaponBase* InWeaponToRegister,bool bRegisterAsEquipped=false);
 

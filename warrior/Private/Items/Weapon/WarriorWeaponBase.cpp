@@ -16,10 +16,9 @@ AWarriorWeaponBase::AWarriorWeaponBase()
 	WeaponCollisionBox=CreateDefaultSubobject<UBoxComponent>(TEXT("WeaponCollisionBox"));
 	WeaponCollisionBox->SetupAttachment(WeaponMesh);
 	WeaponCollisionBox->SetBoxExtent(FVector(20.f));
-	//默认下无碰撞，在Montage中进行碰撞切换。
 	WeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
-	//当物体开始/结束重叠时，执行回调函数,回调函数调动自定义委托，委托执行绑定函数
+	//当物体开始/结束重叠时，执行回调函数,回调函数调用所有需要在此时作用的委托的绑定函数
 	WeaponCollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this,&ThisClass::OnCollisionBoxBeginOverlap);
 	WeaponCollisionBox->OnComponentEndOverlap.AddUniqueDynamic(this,&ThisClass::OnCollisionBoxEndOverlap);
 }
@@ -27,8 +26,8 @@ AWarriorWeaponBase::AWarriorWeaponBase()
 void AWarriorWeaponBase::OnCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//获得发起者，这里是角色或者EnemyAPawn
 	APawn* WeaponOwningPawn=GetInstigator<APawn>();
+	
 	checkf(WeaponOwningPawn,TEXT("Forgot to assign an Instigator as te owning pawn for the weapon:%s "),*GetName());
 
 	if (APawn* HitPawn = Cast<APawn>(OtherActor))
@@ -45,10 +44,11 @@ void AWarriorWeaponBase::OnCollisionBoxEndOverlap(UPrimitiveComponent* Overlappe
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	APawn* WeaponOwningPawn=GetInstigator<APawn>();
+	
 	checkf(WeaponOwningPawn,TEXT("Forgot to assign an Instigator as te owning pawn for the weapon:%s "),*GetName());
+
 	if (APawn* HitPawn = Cast<APawn>(OtherActor))
 	{
-		//不想让Enemy能够伤害彼此，所以需要判断pawn类不是同一个。
 		if (UWarriorFunctionLibrary::IsTargetPawnHostile(WeaponOwningPawn,HitPawn))
 		{
 			//不让Enemy能够伤害彼此，所以需要id不同。

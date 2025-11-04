@@ -19,8 +19,9 @@ public:
 	AWarriorHeroController();
 	
 	//~ Begin IGenericTeamAgentInterface Interface
-	//获得Controller Possess 对象的TeamID
+
 	virtual FGenericTeamId GetGenericTeamId() const override;
+	
 	//~ End IGenericTeamAgentInterface Interface
 
 private:

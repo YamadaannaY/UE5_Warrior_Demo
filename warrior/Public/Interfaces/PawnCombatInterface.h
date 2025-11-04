@@ -21,9 +21,8 @@ class WARRIOR_API IPawnCombatInterface
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	//IPawnCombatInterface接口类存储的一个纯虚函数，被Character继承，在Base中为nullptr,在Base子类中为其UPawnCombatComponent
+	//被Character继承重写，在Base中为nullptr,在Base子类中为具体的UPawnCombatComponent，此接口public使得其他类都可以轻松获取此组件
 	virtual UPawnCombatComponent* GetPawnCombatComponent() const =0;
 	
 };

@@ -30,15 +30,15 @@ public:
 	UPROPERTY(BlueprintCallable,BlueprintAssignable)
 	FOnEquippedWeaponChangedDelegate OnEquippedWeaponChanged;
 
-	//在Equip武器的时候调用，加载技能图标
+	//在Equip武器的时候广播，加载技能图标
 	UPROPERTY(BlueprintCallable,BlueprintAssignable)
 	FOnAbilityIconSlotUpdatedDelegate  OnAbilityIconSlotUpdated;
 
-	//冷却时间的委托，在使用特殊技能后/装备武器时（用于技能冷却时装备武器时，需要加载冷却时间）
+	//冷却时间的委托，在使用有冷却时间的技能后进行广播
 	UPROPERTY(BlueprintCallable,BlueprintAssignable)
 	FOnAbilityCooldownBeginDelegate OnAbilityCooldownBegin;
 
-	//出现输入提示UI，合适的广播时机应该是Overlap发生后的回调GA中，此时还没有进行输入映射决定是否ConsumeStone
+	//出现输入提示UI，合适的广播时机应该是与StoneOverlap发生后的触发的回调GA中，此时还没有进行输入映射决定是否ConsumeStone
 	UPROPERTY(BlueprintCallable,BlueprintAssignable)
 	FOnStoneInteractedDelegate OnStoneInteracted;
 };
