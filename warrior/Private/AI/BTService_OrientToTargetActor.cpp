@@ -15,7 +15,7 @@ UBTService_OrientToTargetActor::UBTService_OrientToTargetActor()
 
 	
 	RotationInterSpeed=5.f;
-	Interval=0.f;  // 多久检查一次黑板键值是否满足条件
+	Interval=0.f;			// 多久检查一次黑板键值是否满足条件
 	RandomDeviation=0.5f; //在interval之上加了随机值，使得各个AI判断条件具有浮动偏差，更加自然。
 	
 	//添加基础过滤器：KeySelector只能接受AActor类型对象
@@ -47,10 +47,13 @@ void UBTService_OrientToTargetActor::TickNode(UBehaviorTreeComponent& OwnerComp,
 	
 	//返回行为树绑定的BB中对应FName的值。
 	UObject* ActorObject=OwnerComp.GetBlackboardComponent()->GetValueAsObject(InTargetActorKey.SelectedKeyName);
+
 	//获取TargetActor
 	const AActor* TargetActor=Cast<AActor>(ActorObject);
+
 	//通过BT获得绑定的AIPawn
 	APawn* OwningPawn=OwnerComp.GetAIOwner()->GetPawn();
+
 	if (OwningPawn && TargetActor)
 	{	
 		//指向TargetActor

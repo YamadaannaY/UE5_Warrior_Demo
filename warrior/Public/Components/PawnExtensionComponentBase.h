@@ -13,7 +13,7 @@ class WARRIOR_API UPawnExtensionComponentBase : public UActorComponent
 	GENERATED_BODY()
 
 protected:
-	//获得OwingPawn(由AActor转换)
+	//获得OwingPawn
 	template<class T>
 	T* GetOwingPawn() const
 	{
@@ -22,7 +22,7 @@ protected:
 		return CastChecked<T>(GetOwner());
 	}
 	
-	//获得当前的owner，并将这个Owner转换为pawn类型，可用于玩家角色和敌方角色（模板实例化）。
+	//获得当前Owner并将这个Owner转换为pawn类型，可用于玩家角色和敌方角色（模板实例化）。
 	APawn* GetMyOwningPawn() const
 	{
 		return GetOwingPawn<APawn>();

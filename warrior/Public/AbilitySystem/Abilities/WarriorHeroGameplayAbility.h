@@ -33,7 +33,7 @@ public:
 	UFUNCTION(BlueprintPure,Category="Warrior|Ability")
 	UHeroUIComponent* GetHeroUIComponentFromActorInfo();
 
-	//这个函数的作用是 生成一个针对武器攻击的 GameplayEffectSpecHandle,用于应用GameplayEffect到目标,实现伤害或者其他效果。
+	//GESpecHandle,其引用了GameplayEffect，便于将其ApplyGameplayEffect到目标,实现GE效果应用
 	UFUNCTION(BlueprintPure,Category="Warrior|Ability")
 	FGameplayEffectSpecHandle MakeHeroDamageEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass,float InWeaponBaseDamage,FGameplayTag InCurrentAttackTypeTag,int32 InUsedComboCount);
 

@@ -38,7 +38,7 @@ void UHeroCombatComponent::OnHitTargetActor(AActor* HitActor)
 	Data.Instigator=GetMyOwningPawn();
 	Data.Target=HitActor;
 	
-	//蓝图WaitGameplayEvent中Tag作为监听条件，将这个Event发送给节点
+	//触发GameEvent MeleeHit,造成伤害
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetMyOwningPawn(),WarriorGamePlayTags::Shared_Event_MeleeHit,Data);
 	//FGameplayEventData()默认构造，因为这个Event的意义在于触发，作用于自己，不需要额外的Data
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetMyOwningPawn(),WarriorGamePlayTags::Player_Event_HitPause,FGameplayEventData());
@@ -47,5 +47,5 @@ void UHeroCombatComponent::OnHitTargetActor(AActor* HitActor)
 
 void UHeroCombatComponent::OnWeaponPulledFromTargetActor(AActor* InteractedActor)
 {
-	/*UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwingPawn<APawn>(),WarriorGamePlayTags::Player_Event_HitPause,FGameplayEventData());*/
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwingPawn<APawn>(),WarriorGamePlayTags::Player_Event_HitPause,FGameplayEventData());
 }

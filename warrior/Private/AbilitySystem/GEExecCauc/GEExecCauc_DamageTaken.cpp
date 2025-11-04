@@ -127,7 +127,9 @@ void UGEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCustom
 	//将这个值赋予属性集
 	if (FinalDamageDone >0.f)
 	{
-		//DamageDone覆盖DamageTaken
+		//将一个属性修改器添加到输出中，其中AddOutputModifier收集所有要应用的属性修改
+		//FGameplayModifierEvaluatedData是一个封装好的属性修改数据包
+		//可以添加多个修改器OutExecutionOutput.AddOutputModifier
 		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(GetWarriorDamageCapture().DamageTakenProperty,EGameplayModOp::Override,FinalDamageDone));
 	}
 }

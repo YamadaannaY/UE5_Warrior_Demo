@@ -20,9 +20,10 @@ public:
 	void Consume(UWarriorAbilitySystemComponent* AbilitySystemComponent,int32 ApplyLevel);
 
 protected:
-	//BeginOverlap事件的回调，意味着可以产生交互，触发交互GA映射可收集Stone
+	//BeginOverlap事件的回调，意味着可以产生交互，此时触发交互GA映射可收集Stone，不触发也会显示交互操作UI
 	virtual void OnPickUpCollisionSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) override;
-	//在角色位置生成音效特效
+
+	//在角色位置生成音效特效，DestroyActor
 	UFUNCTION(BlueprintImplementableEvent,meta=(DisplayName="On Stones Consumed"))
 	void BP_OnStoneConsumed();
 

@@ -43,8 +43,9 @@ void UHeroGameplayAbility_PickUpStone::CollectStones()
 		 true
 		 );
 
-	//将所有符合Stone类型的碰撞对象加入数组,同时判断是否有Stone在适用范围内，如果有就继续收集，如果没有就直接清当前存储数组
+	//将所有符合Stone类型的碰撞对象加入数组,同时判断是否有Stone在适用范围内，如果有就继续收集，如果没有说明离开stone拾取范围，直接清空当前存储数组
 	uint8 StoneNum=0;
+	
 	for (const FHitResult& TraceHit:TraceHits)
 	{
 		if (AWarriorStoneBase* FoundStone=Cast<AWarriorStoneBase>(TraceHit.GetActor()))
@@ -53,6 +54,7 @@ void UHeroGameplayAbility_PickUpStone::CollectStones()
 			StoneNum++;
 		}
 	}
+	
 	if (StoneNum==0)
 	{
 		CollectedStones.Empty();

@@ -16,7 +16,7 @@ class WARRIOR_API UEnemyUIComponent : public UPawnUIComponent
 	GENERATED_BODY()
 	
 public:
-	//注册Widget到EnemyDrawnWidgets
+	//注册Widget到EnemyDrawnWidgets，Boss用，收集所有Widget，在Died中统一清理
 	UFUNCTION(BlueprintCallable)
 	void RegisterEnemyDrawWidget(UWarriorWidgetBase* InWidgetToRegister);
 

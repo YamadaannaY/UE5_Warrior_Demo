@@ -20,7 +20,7 @@ public:
 	virtual void NativeInitializeAnimation() override;
 
 	//动画的每帧调用
-	//作用：利用EnterRelaxStateThreshold和IdleElapsedTime判断bShouldEnterRelaxState状态
+	//利用EnterRelaxStateThreshold和IdleElapsedTime判断bShouldEnterRelaxState状态
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 protected:
 	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly,Category="AnimData|Refrences")

@@ -14,8 +14,8 @@
 UWarriorAttributeSet::UWarriorAttributeSet()
 {
 	InitCurrentHealth(1.f);
-	InitMaxHealth(1.f);
 	InitCurrentRage(1.f);
+	InitMaxHealth(1.f);
 	InitMaxRage(1.f);
 	InitAttackPower(1.f);
 	InitDefensePower(1.f);
@@ -38,9 +38,12 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 	/**被修改的属性判断 **/
 	if(Data.EvaluatedData.Attribute == GetCurrentHealthAttribute())
 	{
+		//获得经过Clamp限制后的值
 		const float NewCurrentHealth=FMath::Clamp(GetCurrentHealth(),0.f,GetMaxHealth());
-		//直接修改生命值，同时对应修改生命百分比
+
+		//限制后的值进行实际赋予
 		SetCurrentHealth(NewCurrentHealth);
+		
 		PawnUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentHealth()/GetMaxHealth());
 	}
 	if (Data.EvaluatedData.Attribute==GetCurrentRageAttribute())
@@ -58,6 +61,7 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 		}
 		else
 		{
+			//处于中间状态
 			UWarriorFunctionLibrary::RemoveGameplayTagFromActorIfFound(Data.Target.GetAvatarActor(),WarriorGamePlayTags::Player_Status_Rage_Full);
 			UWarriorFunctionLibrary::RemoveGameplayTagFromActorIfFound(Data.Target.GetAvatarActor(),WarriorGamePlayTags::Player_Status_Rage_None);
 		}
@@ -66,7 +70,6 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 		{
 			HeroUIComponent->OnCurrentRageChanged.Broadcast(GetCurrentRage()/GetMaxRage());
 		}
-		
 	}
 	//根据造成的伤害修改当前生命值，附加伤害计算后的死亡逻辑判断
 	if (Data.EvaluatedData.Attribute==GetDamageTakenAttribute())
@@ -75,8 +78,10 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 		const float DamageDone=GetDamageTaken();
 		const float NewCurrentHealth=FMath::Clamp(OldHealth-DamageDone,0.f,GetMaxHealth());
 		SetCurrentHealth(NewCurrentHealth);
+		
 		/*const FString DebugString=FString::Printf(TEXT("Old Health:%f,Damage Done:%f,New Current Health:%f"),OldHealth,DamageDone,NewCurrentHealth);
 		Debug::Print(DebugString,FColor::Green);*/
+		
 		PawnUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentHealth()/GetMaxHealth());
 
 		//Death：触发GA_Dead

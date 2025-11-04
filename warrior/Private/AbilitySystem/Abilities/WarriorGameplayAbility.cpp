@@ -56,8 +56,7 @@ FActiveGameplayEffectHandle UWarriorGameplayAbility::NativeApplyEffectSpecHandle
 	//获取目标的ASC
 	UAbilitySystemComponent* TargetASC=UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	check(TargetASC && InSpecHandle.IsValid());
-	//获取自己的ASC，并将作为参数的GE_Spec作用到目标ASC上,Apply意味着立即应用并激活这个GE
-	//除此之外对Source和Target进行了区分（OwnASC/TargetASC）
+	//*InSpecHandle.Data获得Spec
 	return GetWarriorAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*InSpecHandle.Data,TargetASC);
 }
 

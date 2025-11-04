@@ -18,6 +18,7 @@ UAbilityTask_ExecuteOnTick* UAbilityTask_ExecuteOnTick::ExecuteTaskOnTick(UGamep
 void UAbilityTask_ExecuteOnTick::TickTask(float DeltaTime)
 {
 	Super::TickTask(DeltaTime);
+	
 	//需要被判断一次：this makes sure the ability is still active.
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{

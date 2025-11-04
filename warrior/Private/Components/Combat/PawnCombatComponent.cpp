@@ -10,9 +10,8 @@ void UPawnCombatComponent::RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegis
                                                AWarriorWeaponBase* InWeaponToRegister, const bool bRegisterAsEquipped)
 {
 	checkf(!CharacterCarriedWeaponMap.Contains(InWeaponTagToRegister),
-		TEXT("A Tag named %s has already been added as carried weapon"),
-		*InWeaponTagToRegister.ToString());
-	check(InWeaponToRegister)
+		TEXT("A Tag named %s has already been added as carried weapon"),*InWeaponTagToRegister.ToString());
+	check(InWeaponToRegister);
 	
 	CharacterCarriedWeaponMap.Emplace(InWeaponTagToRegister,InWeaponToRegister);
 	

@@ -6,6 +6,7 @@
 void UWarriorHeroAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
+	
 	if (OwingCharacter)
 	{
 		OwingHeroCharacter=Cast<AWarriorHeroCharacter>(OwingCharacter);
@@ -15,6 +16,7 @@ void UWarriorHeroAnimInstance::NativeInitializeAnimation()
 void UWarriorHeroAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
+	
 	if (bHasAcceleration)
 	{
 		IdleElapsedTime=0.f;

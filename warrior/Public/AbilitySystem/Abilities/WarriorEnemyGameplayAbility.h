@@ -15,11 +15,10 @@ class WARRIOR_API UWarriorEnemyGameplayAbility : public UWarriorGameplayAbility
 {
 	GENERATED_BODY()
 public:
-	//GA下获得EnemyCharacter
+	
 	UFUNCTION(BlueprintPure,Category="Warrior|Ability")
 	AWarriorEnemyCharacter* GetEnemyCharacterFromActorInfo();
-
-	//GA下获得EnemyCombatComponent
+	
 	UFUNCTION(BlueprintPure,Category="Warrior|Ability")
 	UEnemyCombatComponent*  GetEnemyCombatComponentFromActorInfo() const;
 

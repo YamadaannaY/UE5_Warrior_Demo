@@ -28,7 +28,7 @@ void AWarriorHeroCharacter::PossessedBy(AController* NewController)
 		{
 			int32 AbilityApplyLevel=1;
 			
-			if (AWarriorGameMode* BaseGameMode=GetWorld()->GetAuthGameMode<AWarriorGameMode>())
+			if (const AWarriorGameMode* BaseGameMode=GetWorld()->GetAuthGameMode<AWarriorGameMode>())
 			{
 				switch (BaseGameMode->GetCurrentGameDifficulty())
 				{
@@ -52,7 +52,7 @@ void AWarriorHeroCharacter::PossessedBy(AController* NewController)
 					break;
 				}
 			}
-			//加载完毕将GASpec赋予ASC
+			//将DA赋予ASC
 			LoadedData->GiveToAbilitySystemComponent(WarriorAbilitySystemComponent,AbilityApplyLevel);
 		}
 	}
@@ -69,7 +69,7 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 {
 	checkf(InputConfigDataAsset,TEXT("Forgot to assign a valid data asset as input config"))
 	//Local player指的是被本地Controller控制的pawn
-	ULocalPlayer* LocalPlayer=GetController<APlayerController>()->GetLocalPlayer();
+	const ULocalPlayer* LocalPlayer=GetController<APlayerController>()->GetLocalPlayer();
 	
 	//获得LocalPlayer使用的EnhancedInputSubsystem
 	UEnhancedInputLocalPlayerSubsystem* Subsystem=ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
@@ -78,13 +78,9 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	//传入IMC以存储所有的动作映射，默认IMC优先级最低
 	Subsystem->AddMappingContext(InputConfigDataAsset->DefaultMappingContext,0);
 	
-	//if false,return nullptr
 	UWarriorInputComponent* WarriorInputComponent=CastChecked<UWarriorInputComponent>(PlayerInputComponent);
-
-	/**将具体的函数打上tag标签并说明触发方式**/
 	
 	//Native
-	//Triggered表明有输入时触发
 	WarriorInputComponent->BindNativeInputAction(
 		InputConfigDataAsset,
 		WarriorGamePlayTags::InputTag_Move,
@@ -107,7 +103,6 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		ETriggerEvent::Started,this,&ThisClass::Input_PickUp_Stone_Started);
 	
 	//Ability
-	//两个CallBack,分别在开始输入和结束输入时触发。
 	WarriorInputComponent->BindAbilityInputAction(
 		InputConfigDataAsset,
 		this,
@@ -154,7 +149,6 @@ void AWarriorHeroCharacter::Input_Look(const FInputActionValue& InputActionValue
 
 void AWarriorHeroCharacter::Input_SwitchTargetTriggered(const FInputActionValue& InputActionValue)
 {
-	//鼠标输入映射的向量大小。
 	SwitchDirection=InputActionValue.Get<FVector2D>();
 }
 
@@ -164,7 +158,7 @@ void AWarriorHeroCharacter::Input_SwitchTargetCompleted(const FInputActionValue&
 	//水平方向大于0，即向右移动鼠标，则激活右切换，否则是左切换
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this,SwitchDirection.X>0.f ? WarriorGamePlayTags::Player_Event_SwitchTarget_Right : WarriorGamePlayTags::Player_Event_SwitchTarget_Left,
 		Data);
-	//Debug::Print(TEXT("Switch Direction:")+SwitchDirection.ToString());
+	Debug::Print(TEXT("Switch Direction:")+SwitchDirection.ToString());
 }
 
 void AWarriorHeroCharacter::Input_PickUp_Stone_Started(const FInputActionValue& InputActionValue)
@@ -205,7 +199,7 @@ AWarriorHeroCharacter::AWarriorHeroCharacter()
 	
 	FollowCamera=CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom,USpringArmComponent::SocketName);
-	//相机臂已设置，不要重复，否则旋转叠加产生风险
+	//相机臂已设置旋转，不要重复，否则旋转叠加产生风险
 	FollowCamera->bUsePawnControlRotation=false;
 
 	//设置角色朝向运动方向

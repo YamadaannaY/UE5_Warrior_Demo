@@ -23,6 +23,7 @@ public:
 
 	//Task被激活时执行
 	virtual void Activate() override;
+	
 	//Task被摧毁时执行
 	virtual void OnDestroy(bool bInOwnerFinished) override;
 	
@@ -37,9 +38,7 @@ public:
 		int32 NumToSpawn,
 		const FVector& SpawnOrigin,
 		float RandomSpawnRadius);
-
-	/**  UCLASS自动识别BlueprintAssignable，将这两个委托转换为蓝图节点的输出引脚  **/
-
+	
 	//当生成完成时调用
 	UPROPERTY(BlueprintAssignable)
 	FWaitSpawnEnemyDelegate OnSpawnFinished;
@@ -48,8 +47,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FWaitSpawnEnemyDelegate DidNotSpawn;
 
-	
-	
+
 private:
 	FGameplayTag CachedEventTag;
 	int32 CachedNumToSpawn;

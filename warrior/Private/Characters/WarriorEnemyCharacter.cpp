@@ -25,7 +25,7 @@ AWarriorEnemyCharacter::AWarriorEnemyCharacter()
 	EnemyUIComponent=CreateDefaultSubobject<UEnemyUIComponent>(TEXT("EnemyUIComponent"));
 	
 	EnemyHealthWidgetComponent=CreateDefaultSubobject<UWidgetComponent>(TEXT("EnemyHealthWidgetComponent"));
-	//将Widget与Mesh绑定，其具有实体
+	//将生命值Widget与Mesh绑定
 	EnemyHealthWidgetComponent->SetupAttachment(GetMesh());
 
 	//将Box与Mesh绑定，初始化为无碰撞，并将OnComponentBeginOverlap绑定回调
@@ -42,7 +42,7 @@ AWarriorEnemyCharacter::AWarriorEnemyCharacter()
 	//面向移动方向旋转，同时不依赖Controller
 	GetCharacterMovement()->bOrientRotationToMovement=true;
 	GetCharacterMovement()->bUseControllerDesiredRotation=false;
-	GetCharacterMovement()->RotationRate=FRotator(0.0f,180.0f,0.0f);
+	GetCharacterMovement()->RotationRate=FRotator(0.0f,540.0f,0.0f);
 	GetCharacterMovement()->MaxWalkSpeed=400.f;
 	GetCharacterMovement()->BrakingDecelerationWalking=1000.f;
 }
@@ -85,7 +85,7 @@ void AWarriorEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 	if (UWarriorWidgetBase* HealthWidget=Cast<UWarriorWidgetBase>(EnemyHealthWidgetComponent->GetUserWidgetObject()))
 	{
-		//只在角色产生时对应产生Widget而非引擎初始化时创建，节省开销。
+		//只在Enemy产生时对应产生Widget而非引擎初始化时创建，节省开销。
 		HealthWidget->InitEnemyCreatedWidget(this);
 	}
 }

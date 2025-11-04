@@ -38,7 +38,7 @@ protected:
 	
 	//~ End UGameplayAbility Interface
 
-	//将GE的SpecHandle传递给目标Actor，即作为施法者对目标造成影响（eg：造成伤害）
+	//将GE的SpecHandle传递给目标Actor，即作为施法者对目标造成影响
 	FActiveGameplayEffectHandle NativeApplyEffectSpecHandleToTarget(AActor* TargetActor,const FGameplayEffectSpecHandle& InSpecHandle) const;
 
 	//蓝图函数：将SpecHandle应用到TargetActor上，直接激活GE

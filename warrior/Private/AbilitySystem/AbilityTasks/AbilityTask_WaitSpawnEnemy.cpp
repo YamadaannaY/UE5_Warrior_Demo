@@ -23,13 +23,12 @@ UAbilityTask_WaitSpawnEnemy* UAbilityTask_WaitSpawnEnemy::WaitSpawnEnemy(UGamepl
 
 void UAbilityTask_WaitSpawnEnemy::Activate()
 {
-	// 1. 找到或创建与指定Tag关联的事件委托
+	// 1. 找到或创建与指定Tag关联的事件委托，这里是创建委托
 	FGameplayEventMulticastDelegate& Delegate=AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(CachedEventTag);
 
 	// 2. 注册事件委托回调函数，同时保存这个注册委托句柄，用于后续取消注册
 	DelegateHandle=Delegate.AddUObject(this,&ThisClass::OnGameplayEventReceived);
 }
-
 
 void UAbilityTask_WaitSpawnEnemy::OnDestroy(bool bInOwnerFinished)
 {
@@ -79,13 +78,14 @@ void UAbilityTask_WaitSpawnEnemy::OnEnemyClassLoaded()
 		EndTask();
 		return ;
 	}
+	
 	//一个临时变量存储所有生成的单位
 	TArray<AWarriorEnemyCharacter*> SpawnedEnemies;
 
 	//SpawnActor时为Actor赋予的参数
 	FActorSpawnParameters SpawnParameters;
-	//Actor生成时的碰撞处理策略
-	//尽量调整位置避免碰撞，但如果调整后仍有碰撞，仍然强制生成Actor
+	
+	//碰撞处理策略：尽量调整位置避免碰撞，但如果调整后仍有碰撞，仍然强制生成Actor
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	//一次Task进行Spawn的次数
@@ -94,13 +94,13 @@ void UAbilityTask_WaitSpawnEnemy::OnEnemyClassLoaded()
 		FVector RandomLocation;
 		//CachedSpawnOrigin为中心生成点，传入BossLocation，RandomLocation是输出参数：point的位置，CachedRandomSpawnRadius是搜索半径
 		UNavigationSystemV1::K2_GetRandomReachablePointInRadius(this,CachedSpawnOrigin,RandomLocation,CachedRandomSpawnRadius);
-		//确保角色不会卡在地面中
+		//确保Enemy不会卡在地面中
 		RandomLocation+=FVector(0.f,0.f,50.f);
 
 		//实时计算朝向
 		const FRotator SpawnFacingRotation=AbilitySystemComponent->GetAvatarActor()->GetActorForwardVector().ToOrientationRotator();
 
-		//在指定位置以指定旋转朝向生成Class类的单位
+		//在指定位置以旋转朝向生成Class类的单位
 		AWarriorEnemyCharacter* SpawnedEnemy=World->SpawnActor<AWarriorEnemyCharacter>(LoadedClass,RandomLocation,SpawnFacingRotation);
 		
 		if (SpawnedEnemy)

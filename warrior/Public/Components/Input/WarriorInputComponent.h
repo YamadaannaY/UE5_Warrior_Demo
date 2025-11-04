@@ -24,7 +24,7 @@ public:
 		UserObject* ContextObject,
 		CallbackFunc Func);
 
-	//两个CallBackFunc分别在两个BindAction中绑定
+	//两个CallBackFunc分别在两个Trigger状态下的BindAction中绑定
 	template<class UserObject,typename CallbackFunc>
 	void BindAbilityInputAction(
 		const UDataAsset_InputConfig* InInputConfig,
@@ -54,6 +54,7 @@ inline void UWarriorInputComponent::BindAbilityInputAction(const UDataAsset_Inpu
 	UserObject* ContextObject, CallbackFunc InputPressedFunc, CallbackFunc InputReleasedFunc)
 {
 	checkf(InInputConfig,TEXT("Input config data asset is null,can not proceed with binding"));
+
 	//遍历存储了GA以及对应Tag的Config结构体数组
 	for (const FWarriorInputActionConfig& AbilityInputActionConfig:InInputConfig->AbilityInputActions)
 	{
@@ -62,6 +63,7 @@ inline void UWarriorInputComponent::BindAbilityInputAction(const UDataAsset_Inpu
 		//ETriggerEvent决定了输入动作何时触发CallBack Started表明按下按键时触发一次，Completed表明松开时触发一次。
 		BindAction(AbilityInputActionConfig.InputAction,ETriggerEvent::Started,ContextObject,InputPressedFunc,
 			AbilityInputActionConfig.InputTag);
+		
 		BindAction(AbilityInputActionConfig.InputAction,ETriggerEvent::Completed,ContextObject,InputReleasedFunc,
 			AbilityInputActionConfig.InputTag);
 	}

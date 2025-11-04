@@ -10,19 +10,24 @@
 UBTTask_RotateToFaceTarget::UBTTask_RotateToFaceTarget()
 {
 	NodeName=TEXT("Native Rotate to Face Target Actor");
+
 	AnglePrecision=10.f;
 	RotationInterSpeed=5.f;
 	//允许该任务节点每帧调用 TickTask() 函数。
 	bNotifyTick=true;
+
 	//让节点在任务完成时调用OnTaskFinished()回调。
 	bNotifyTaskFinished=true;
+
 	//控制任务节点在行为树中是否为每个 AI 创建独立实例。
 	//如果 bCreateNodeInstance = false，必须实现GetInstanceMemorySize()并通过NodeMemory存储每个AI的运行时状态，
-	//否则多AI同时执行任务会互相干扰。此处使用自定义结构体作为Memory，所以需要false
+	//否则多AI同时执行任务会互相干扰。此处使用自定义结构体作为Memory，拓展了valid判断和弱指针清空函数操作，所以需要false
 	bCreateNodeInstance=false;
-	//编辑器效果：当你在行为树任务蓝图/属性面板里选择黑板键时，黑板键列表只显示 AActor 类型或子类的对象，避免绑定错误类型。
+
+	//编辑器效果：当你在行为树任务蓝图/属性面板里选择黑板键作为变量值时，黑板键列表只显示AActor类型或子类的对象，避免绑定错误类型。
 	//运行时效果：任务在运行时通过 OwnerComp.GetBlackboardComponent()->GetValueAsObject(InTargetToFaceKey.SelectedKeyName) 获取对象时，可以保证类型安全。
 	InTargetToFaceKey.AddObjectFilter(this,GET_MEMBER_NAME_CHECKED(ThisClass,InTargetToFaceKey),AActor::StaticClass());
+
 	//每个Task都需要初始化
 	INIT_TASK_NODE_NOTIFY_FLAGS();
 }
@@ -51,9 +56,9 @@ FString UBTTask_RotateToFaceTarget::GetStaticDescription() const
 EBTNodeResult::Type UBTTask_RotateToFaceTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	UObject* ActorObject=OwnerComp.GetBlackboardComponent()->GetValueAsObject(InTargetToFaceKey.SelectedKeyName);
-	//PlayerActor
+
 	AActor* TargetActor=Cast<AActor>(ActorObject);
-	//AIPawn
+
 	APawn* OwningPawn=OwnerComp.GetAIOwner()->GetPawn();
 	//实例化Memory结构体
 	FRotatorToFaceTargetTaskMemory* Memory= CastInstanceNodeMemory<FRotatorToFaceTargetTaskMemory>(NodeMemory);
@@ -78,18 +83,21 @@ EBTNodeResult::Type UBTTask_RotateToFaceTarget::ExecuteTask(UBehaviorTreeCompone
 
 void UBTTask_RotateToFaceTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	//根据Tick特性时刻更新值
+	//Tick时刻更新值
 	FRotatorToFaceTargetTaskMemory* Memory= CastInstanceNodeMemory<FRotatorToFaceTargetTaskMemory>(NodeMemory);
-	if (!Memory->IsValid())
+
+	if (! Memory->IsValid())
 	{
 		//用于标记一个潜在的异步任务状态，并通知任务系统进行清理和状态转换。
 		FinishLatentTask(OwnerComp,EBTNodeResult::Failed);
 	}
+	
 	if (HasReachingAnglePrecision(Memory->OwingPawn.Get(),Memory->TargetActor.Get()))
 	{
 		Memory->Reset();
 		FinishLatentTask(OwnerComp,EBTNodeResult::Succeeded);
 	}
+	
 	else
 	{
 		const FRotator LookAtRot=UKismetMathLibrary::FindLookAtRotation(Memory->OwingPawn->GetActorLocation(),Memory->TargetActor->GetActorLocation());

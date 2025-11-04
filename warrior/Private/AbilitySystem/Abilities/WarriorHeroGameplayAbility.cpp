@@ -16,7 +16,7 @@ AWarriorHeroCharacter* UWarriorHeroGameplayAbility::GetHeroCharacterFromActorInf
 		
 		CachedWarriorHeroCharacter=Cast<AWarriorHeroCharacter>(CurrentActorInfo->AvatarActor);
 	}
-	//弱指针赋值成功后，解引用弱指针，
+	//赋值成功后获取弱指针，
 	return CachedWarriorHeroCharacter.IsValid() ? CachedWarriorHeroCharacter.Get(): nullptr;
 }
 
@@ -27,6 +27,7 @@ AWarriorHeroController* UWarriorHeroGameplayAbility::GetHeroControllerFromActorI
 	{	
 		CachedWarriorHeroController=Cast<AWarriorHeroController>(CurrentActorInfo->PlayerController);
 	}
+	
 	return CachedWarriorHeroController.IsValid() ? CachedWarriorHeroController.Get(): nullptr;
 	
 }
@@ -51,10 +52,8 @@ FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecH
 {
 	check(EffectClass);
 	
-	//EffectContext 保存当前GE的来源信息、发起者、附加对象等,作为SpecHandle的参数，Handle相当于ID，
 	//GEContextHandle固定流程
 	FGameplayEffectContextHandle ContextHandle=GetWarriorAbilitySystemComponentFromActorInfo()->MakeEffectContext();
-	//调用了这个函数的GA将会传入至Context
 	ContextHandle.SetAbility(this);
 	ContextHandle.AddSourceObject(GetAvatarActorFromActorInfo());
 	//第一个参数是 InstigatorActor（能力的发起者），第二个是 EffectCauser（造成伤害的来源，如武器，也可以是第一个参数）
@@ -72,7 +71,7 @@ FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecH
 
 	if (InCurrentAttackTypeTag.IsValid())
 	{
-		//InCurrentAttackTypeTag为攻击类型，在轻击GA中用LightType创建spec，重击GA中用HeavyType创建Spec（InUsedComboCount是每一段的伤害系数乘积）
+		//InCurrentAttackTypeTag为攻击类型，在GE中判断到对应的攻击计算，乘积系数不同，并且将InUsedComboCount代入公式
 		EffectSpecHandle.Data->SetSetByCallerMagnitude(InCurrentAttackTypeTag,InUsedComboCount);
 	}
 	return EffectSpecHandle;   
@@ -82,16 +81,18 @@ bool UWarriorHeroGameplayAbility::GetAbilityRemainingCoolDownByTag(FGameplayTag 
 	float& RemainingCooldownTime)
 {
 	check(InCooldownTag.IsValid());
+	
 	// 1. 创建冷却效果查询
-	FGameplayEffectQuery CooldownQuery=FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(InCooldownTag.GetSingleTagContainer());
+	FGameplayEffectQuery CooldownQuery=FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags
+	(InCooldownTag.GetSingleTagContainer());
 	// 2. 获取所有匹配的冷却效果的时间和持续时间
-	TArray<TPair<float,float>> TimeRemainingAndDuration=GetAbilitySystemComponentFromActorInfo()->GetActiveEffectsTimeRemainingAndDuration(CooldownQuery);
+	TArray<TPair<float,float>> TimeRemainingAndDuration=GetAbilitySystemComponentFromActorInfo()
+	->GetActiveEffectsTimeRemainingAndDuration(CooldownQuery);
 	// 3. 调用获得的两个时间值作输出引脚传给cooldown委托
 	if (!TimeRemainingAndDuration.IsEmpty())
 	{
 		RemainingCooldownTime=TimeRemainingAndDuration[0].Key;
 		TotalCooldownTime=TimeRemainingAndDuration[0].Value;
 	}
-	//判断是否还有冷却时间
 	return RemainingCooldownTime>0.f;
 }

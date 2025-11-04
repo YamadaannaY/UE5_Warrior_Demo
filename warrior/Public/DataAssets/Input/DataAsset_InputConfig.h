@@ -15,15 +15,14 @@ class WARRIOR_API UDataAsset_InputConfig : public UDataAsset
 {
 	GENERATED_BODY()
 public:
-	//DA_Default面板中设置IMC
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	UInputMappingContext* DefaultMappingContext;
 
-	//存储所有基础的IA，即不会在IMC中被替换的能力
+	//在C++中实现大部分功能的GA
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(TitleProperty="InputTag"))
 	TArray<FWarriorInputActionConfig> NativeInputActions;
 
-	//存储所有GATag和对应IA进行绑定
+	//存储所有GATag和对应IA
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(TitleProperty="InputTag"))
 	TArray<FWarriorInputActionConfig> AbilityInputActions;
 

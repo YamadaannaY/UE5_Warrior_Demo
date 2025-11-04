@@ -7,6 +7,7 @@
 #include "AbilitySystem/WarriorAbilitySystemComponent.h"
 #include "WarriorAttributeSet.generated.h"
 
+//生成一套访问器：ATTRIBUTE_ACCESSORS 提供功能
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
@@ -31,7 +32,6 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly,Category="Health")
 	FGameplayAttributeData CurrentHealth;
-	//生成一套访问器函数
 	ATTRIBUTE_ACCESSORS(UWarriorAttributeSet,CurrentHealth)
 
 	UPROPERTY(BlueprintReadOnly,Category="Health")
@@ -60,5 +60,4 @@ public:
 
 private:
 	TWeakInterfacePtr<IPawnUIInterface> CachedPawnUIInterface;
-	
 };

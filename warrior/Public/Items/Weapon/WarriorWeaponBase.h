@@ -32,11 +32,10 @@ protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Weapons")
 	UBoxComponent* WeaponCollisionBox;
 
-	//委托绑定的函数必须所有形参匹配，以接受委托所有信息
-	
 	//监听OnComponentBeginOverlap进行回调的函数，此函数包含所有需要在碰撞开始时发生的事件
 	UFUNCTION()
 	virtual void OnCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
 	//监听OnComponentEndOverlap进行回调的函数，此函数包含所有需要在碰撞结束时发生的事件
 	UFUNCTION()
 	virtual void OnCollisionBoxEndOverlap(UPrimitiveComponent*OverlappedComponent, AActor*OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);

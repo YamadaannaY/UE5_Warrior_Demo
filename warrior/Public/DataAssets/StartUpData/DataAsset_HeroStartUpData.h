@@ -15,7 +15,7 @@ class WARRIOR_API UDataAsset_HeroStartUpData : public UDataAsset_StartUpDataBase
 {
 	GENERATED_BODY()
 public:
-	//继承父类，在基础能力之后进行拓展，继续Give由Player专属的拥有Tag且需要输入映射进行触发的能力
+	//进行拓展，将StartUpAbilitySets的GA赋予对应Tag，通过Tag来激活能力
 	virtual void GiveToAbilitySystemComponent(UWarriorAbilitySystemComponent* InASCToGive,int32 ApplyLevel=1)	override;
 private:
 	//存储AbilitySet的数组
