@@ -43,7 +43,7 @@ public:
 	//工具函数，获取PawnCombatComponent，用于 BP_GetPawnCombatComponentFromActor
 	static UPawnCombatComponent* NativeGetPawnCombatComponentFromActor(AActor* InActor);
 
-	//蓝图函数，获取Actor的PawnCombatComponent，且具有两个输出引脚（Valid/Invalid）
+	//蓝图函数，获取Actor的PawnCombatComponent
 	UFUNCTION(BlueprintCallable,Category="Warrior|Function Library",meta=(DisplayName="GetPawnCombatComponentFromActor",ExpandEnumAsExecs="OutValidType"))
 	static UPawnCombatComponent* BP_GetPawnCombatComponentFromActor(AActor* InActor, EWarriorValidType& OutValidType );
 
@@ -68,7 +68,7 @@ public:
 	static void CountDown(const UObject* WorldContextObject,float TotalTime,float UpdateInterval,float& OutRemainingTime,EWarriorCountDownActionInput CountDownInput,
 		UPARAM(DisplayName="Output") EWarriorCountDownActionOutput& CountDownOutput,FLatentActionInfo LatenInfo);
 
-	//获取GameInstance
+	//获取GameInstance，其中记录关卡
 	UFUNCTION(BlueprintPure,Category="Warrior|Function Library",meta=(WorldContext="WorldContextObject"))
 	static UWarriorGameInstance* GetWarriorGameInstance(const UObject* WorldContextObject);
 

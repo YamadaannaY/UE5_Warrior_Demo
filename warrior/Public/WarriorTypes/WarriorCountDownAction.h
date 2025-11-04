@@ -9,7 +9,7 @@
  * 
 **/
 
-class FWarriorCountDownAction:public FPendingLatentAction
+class FWarriorCountDownAction:	public FPendingLatentAction
 {
 public:
 	FWarriorCountDownAction(
@@ -31,7 +31,7 @@ public:
 		ElapsedTimeSinceStart(0.f)
 	{
 	}
-	//在GameThread中世界会每帧更新，其中会对所有LatenAction调用UpdateOperation，即每帧更新
+	//在GameThread中世界会每帧更新，更新会对所有LatenAction调用UpdateOperation
 	virtual void UpdateOperation(FLatentResponse& Response) override;
 	void CancelAction();
 
