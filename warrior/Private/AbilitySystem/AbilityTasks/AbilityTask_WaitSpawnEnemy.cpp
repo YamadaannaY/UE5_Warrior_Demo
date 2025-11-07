@@ -101,7 +101,7 @@ void UAbilityTask_WaitSpawnEnemy::OnEnemyClassLoaded()
 		const FRotator SpawnFacingRotation=AbilitySystemComponent->GetAvatarActor()->GetActorForwardVector().ToOrientationRotator();
 
 		//在指定位置以旋转朝向生成Class类的单位
-		AWarriorEnemyCharacter* SpawnedEnemy=World->SpawnActor<AWarriorEnemyCharacter>(LoadedClass,RandomLocation,SpawnFacingRotation);
+		AWarriorEnemyCharacter* SpawnedEnemy=World->SpawnActor<AWarriorEnemyCharacter>(LoadedClass,RandomLocation,SpawnFacingRotation,SpawnParameters);
 		
 		if (SpawnedEnemy)
 		{

@@ -24,10 +24,11 @@ public:
 	//EndOverlap的回调函数中调用此委托，以调用 OnWeaponPulledFromTargetActor
 	FOnTargetInteractedDelegate OnWeaponPulledFromTarget;
 	
-protected:
+public:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Weapons")
 	//武器Mesh
 	UStaticMeshComponent* WeaponMesh;
+protected:
 	//碰撞box
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Weapons")
 	UBoxComponent* WeaponCollisionBox;
