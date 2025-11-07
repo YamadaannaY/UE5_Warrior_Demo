@@ -106,11 +106,7 @@ private:
 	//当前State
 	UPROPERTY()
 	EWarriorSurvivalGameModeState CurrentSurvivalGameModeState;
-
-	//蓝图绑定委托，此时广播对应改变的State需要进行的逻辑将回调执行
-	UPROPERTY(BlueprintAssignable,BlueprintCallable)
-	FOnSurvivalGameModeStateChanged OnSurvivalGameModeStateChanged;
-
+	
 	//DT对象，在DT实例中配置各波次数据，主要为FWarriorEnemyWaveSpawnerTableRow内容
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="WaveDefinition",meta=(AllowPrivateAccess=true))
 	UDataTable* EnemyWaveSpawnerDataTable;
@@ -159,5 +155,9 @@ public:
 	//将Boss生成的敌方单位个数加入TotalSpawnEnemiesThisWaveCounter，赋予其调用OnEnemyDestroyed的能力
 	UFUNCTION(BlueprintCallable)
 	void RegisterSpawnedEnemies(const TArray<AWarriorEnemyCharacter*>& InEnemiesToRegister);
+
+	//蓝图绑定委托，此时广播对应改变的State需要进行的逻辑将回调执行
+	UPROPERTY(BlueprintAssignable,BlueprintCallable)
+	FOnSurvivalGameModeStateChanged OnSurvivalGameModeStateChanged;
 	
 };

@@ -29,7 +29,7 @@ public:
 	UFUNCTION(BlueprintCallable,Category="Warrior|Ability")
 	void RemoveGrantedHeroWeaponAbilities(UPARAM(ref)TArray<FGameplayAbilitySpecHandle>& InSpecHandlesToRemove);
 
-	//用于BTTask_ActivateAbilityByTag中，激活AI的MeleeGA，在行为树攻击模块中被应用。
+	//找到所有具有此Tag的能力，随机取出一个实现
 	UFUNCTION(BlueprintCallable,Category="Warrior|Ability")
 	bool TryActivateAbilityByTag(FGameplayTag AbilityTagToActivate);
 };

@@ -76,6 +76,7 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 	{
 		const float OldHealth=GetCurrentHealth();
 		const float DamageDone=GetDamageTaken();
+
 		const float NewCurrentHealth=FMath::Clamp(OldHealth-DamageDone,0.f,GetMaxHealth());
 		SetCurrentHealth(NewCurrentHealth);
 		

@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/WarriorHeroGameplayAbility.h"
+#include "AbilitySystem/AbilityTasks/AbilityTask_ExecuteOnTick.h"
 #include "HeroGameplayAbility_TargetLock.generated.h"
+
+
 class UInputMappingContext;
 class UWarriorWidgetBase;
 /**
@@ -122,4 +125,6 @@ private:
 	UPROPERTY()
 	float CachedDefaultMaxWalkSpeed;
 	
+	UPROPERTY()
+	UAbilityTask_ExecuteOnTick* ExecuteOnTick;
 };

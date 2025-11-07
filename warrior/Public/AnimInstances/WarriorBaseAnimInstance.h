@@ -15,7 +15,7 @@ class WARRIOR_API UWarriorBaseAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 protected:
-	//在AnimIns中可调用节点，判断有没有TagToCheck，用来判断是否进行状态转换。
+	//在AnimInstance中调用，判断有没有TagToCheck，用来判断是否需要进行Pose转换。
 	UFUNCTION(BlueprintPure,meta=(BlueprintThreadSafe))
 	bool DoesOwnerHaveTag(FGameplayTag TagToCheck)const ;
 	

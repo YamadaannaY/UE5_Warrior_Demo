@@ -14,7 +14,6 @@
 #include "WarriorGamePlayTags.h"
 #include "Components/SizeBox.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "WarriorDebugHelper.h"
 #include "Kismet/KismetMathLibrary.h"
 
 void UHeroGameplayAbility_TargetLock::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -25,6 +24,13 @@ void UHeroGameplayAbility_TargetLock::ActivateAbility(const FGameplayAbilitySpec
 	InitTargetLockMovement();
 	InitTargetLockMappingContext();
 	TryLockOnTarget();
+	
+	ExecuteOnTick = UAbilityTask_ExecuteOnTick::ExecuteTaskOnTick(this);
+	if (ExecuteOnTick)
+	{
+		ExecuteOnTick->OnAbilityTaskTick.AddUniqueDynamic(this,&ThisClass::OnTargetLockTick);
+		ExecuteOnTick->ReadyForActivation();
+	}
 }
 
 void UHeroGameplayAbility_TargetLock::EndAbility(const FGameplayAbilitySpecHandle Handle,
