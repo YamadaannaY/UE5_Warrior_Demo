@@ -50,10 +50,6 @@ public:
 	//判断攻击者与被攻击者是不是同一个ID
 	UFUNCTION(BlueprintPure,Category="Warrior|Function Library")
 	static bool IsTargetPawnHostile(APawn* QueryPawn,APawn* TargetPawn);
-
-	//计算二者角度差值，根据值判断DirectionTag以触发对应的Montage
-	UFUNCTION(BlueprintPure,Category="Warrior|Function Library")
-	static FGameplayTag ComputeHitReactDirectionTag(const AActor* InAttacker,AActor* InVictim,float& OutAngleDifference);
 	
 	//根据角度判断格挡是否生效
 	UFUNCTION(BlueprintPure,Category="Warrior|Function Library")

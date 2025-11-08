@@ -25,7 +25,7 @@ protected:
 
 	//计算二者角度差值，根据值判断DirectionTag以触发对应的Montage
 	UFUNCTION(BlueprintPure,Category="Warrior|Hit React")
-	static FGameplayTag ComputeHitReactDirectionTag(const AActor* InAttacker,AActor* InVictim,float& OutAngleDifference);
+	FGameplayTag ComputeHitReactDirectionTag(const AActor* InAttacker,AActor* InVictim,float& OutAngleDifference);
 private:
 	UPROPERTY(EditDefaultsOnly, Category="HitReactMontage")
 	UAnimMontage* HitReactMontage_Front;

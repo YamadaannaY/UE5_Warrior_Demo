@@ -37,7 +37,7 @@ void UHeroGameplayAbility_HitReact::OnMontageFinished()
 void UHeroGameplayAbility_HitReact::SelectMontageAndPlay( const FGameplayEventData InPayLoad)
 {
 	float OutDistance;
-	FGameplayTag DirectionTag=UWarriorFunctionLibrary::ComputeHitReactDirectionTag(InPayLoad.Instigator.Get(),GetHeroCharacterFromActorInfo(),OutDistance);
+	const FGameplayTag DirectionTag=ComputeHitReactDirectionTag(InPayLoad.Instigator.Get(),GetHeroCharacterFromActorInfo(),OutDistance);
 	
 	if (DirectionTag==WarriorGamePlayTags::Shared_Status_HitReact_Front)
 		{
