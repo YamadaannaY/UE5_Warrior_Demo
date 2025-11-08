@@ -53,7 +53,7 @@ public:
 
 	//计算二者角度差值，根据值判断DirectionTag以触发对应的Montage
 	UFUNCTION(BlueprintPure,Category="Warrior|Function Library")
-	static FGameplayTag ComputeHitReactDirectionTag(AActor* InAttacker,AActor* InVictim,float& OutAngleDifference);
+	static FGameplayTag ComputeHitReactDirectionTag(const AActor* InAttacker,AActor* InVictim,float& OutAngleDifference);
 	
 	//根据角度判断格挡是否生效
 	UFUNCTION(BlueprintPure,Category="Warrior|Function Library")

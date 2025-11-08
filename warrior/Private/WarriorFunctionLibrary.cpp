@@ -90,7 +90,7 @@ bool UWarriorFunctionLibrary::IsTargetPawnHostile(APawn* QueryPawn, APawn* Targe
 	return false;
 }
 
-FGameplayTag UWarriorFunctionLibrary::ComputeHitReactDirectionTag(AActor* InAttacker, AActor* InVictim,
+FGameplayTag UWarriorFunctionLibrary::ComputeHitReactDirectionTag(const AActor* InAttacker, AActor* InVictim,
 	float& OutAngleDifference)
 {
 	check(InAttacker && InVictim);
