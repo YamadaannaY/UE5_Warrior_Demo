@@ -19,7 +19,7 @@ public:
 	AWarriorGameMode();
 
 protected:
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Gaem Settings")
+	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly,Category="Gaem Settings")
 	EWarriorGameDifficulty CurrentGameDifficulty;
 
 public:

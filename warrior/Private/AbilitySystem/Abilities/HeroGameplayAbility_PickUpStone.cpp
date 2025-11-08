@@ -2,19 +2,41 @@
 
 
 #include "AbilitySystem/Abilities/HeroGameplayAbility_PickUpStone.h"
+#include"WarriorGamePlayTags.h"
+#include "AbilitySystem/AbilityTasks/AbilityTask_ExecuteOnTick.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Characters/WarriorHeroCharacter.h"
 #include "Components/UI/HeroUIComponent.h"
 #include "PickUps/WarriorStoneBase.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 
 void UHeroGameplayAbility_PickUpStone::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                                        const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                        const FGameplayEventData* TriggerEventData)
 {
-
-	GetHeroUIComponentFromActorInfo()->OnStoneInteracted.Broadcast(true);
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	GetHeroUIComponentFromActorInfo()->OnStoneInteracted.Broadcast(true);
+	ExecuteOnTick=UAbilityTask_ExecuteOnTick::ExecuteTaskOnTick(this);
+	if (ExecuteOnTick)
+	{
+		ExecuteOnTick->OnAbilityTaskTick.AddUniqueDynamic(this,&ThisClass::CollectStones);
+		ExecuteOnTick->ReadyForActivation();
+	}
+	
+	WaitEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		  this,                                          
+		  WarriorGamePlayTags::Player_Event_ConsumeStones,
+		  nullptr,                                       
+		  false,                                         
+		  true                                          
+	  );
+	if (WaitEventTask)
+		{
+			WaitEventTask->EventReceived.AddUniqueDynamic(this,&ThisClass::ConsumeStones);
+			WaitEventTask->ReadyForActivation();
+		}
 }
+
 
 void UHeroGameplayAbility_PickUpStone::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -24,7 +46,7 @@ void UHeroGameplayAbility_PickUpStone::EndAbility(const FGameplayAbilitySpecHand
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UHeroGameplayAbility_PickUpStone::CollectStones()
+void UHeroGameplayAbility_PickUpStone::CollectStones(float DeltaTime)
 {
 	TArray<FHitResult> TraceHits;
 
@@ -66,7 +88,7 @@ void UHeroGameplayAbility_PickUpStone::CollectStones()
 	}
 }
 
-void UHeroGameplayAbility_PickUpStone::ConsumeStones()
+void UHeroGameplayAbility_PickUpStone::ConsumeStones(FGameplayEventData EventData)
 {
 	if (CollectedStones.IsEmpty())
 	{

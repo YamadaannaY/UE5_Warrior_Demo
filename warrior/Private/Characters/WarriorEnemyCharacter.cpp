@@ -119,7 +119,7 @@ void AWarriorEnemyCharacter::InitEnemyStartUpData() const
 
 	int32 AbilityApplyLevel=1;
 			
-	if (AWarriorGameMode* BaseGameMode=GetWorld()->GetAuthGameMode<AWarriorGameMode>())
+	if (const AWarriorGameMode* BaseGameMode=GetWorld()->GetAuthGameMode<AWarriorGameMode>())
 	{
 		switch (BaseGameMode->GetCurrentGameDifficulty())
 		{

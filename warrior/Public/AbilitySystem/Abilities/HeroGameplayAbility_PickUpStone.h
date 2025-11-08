@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/WarriorHeroGameplayAbility.h"
+#include "AbilitySystem/AbilityTasks/AbilityTask_ExecuteOnTick.h"
 #include "HeroGameplayAbility_PickUpStone.generated.h"
+class UAbilityTask_WaitGameplayEvent;
 class AWarriorStoneBase;
 /**
  * 
@@ -25,11 +27,11 @@ protected:
 
 	//收集Hit范围内所有Stone类型的Actor
 	UFUNCTION(BlueprintCallable)
-	void CollectStones();
+	void CollectStones(float DeltaTime);
 
 	//消耗所有Stone
 	UFUNCTION(BlueprintCallable)
-	void ConsumeStones();
+	void ConsumeStones(FGameplayEventData EventData);
 	
 private:
 	UPROPERTY(EditDefaultsOnly)
@@ -47,4 +49,10 @@ private:
 
 	UPROPERTY()
 	TArray<AWarriorStoneBase*> CollectedStones;
+
+	UPROPERTY()
+	UAbilityTask_ExecuteOnTick* ExecuteOnTick=nullptr;
+
+	UPROPERTY()
+	UAbilityTask_WaitGameplayEvent* WaitEventTask=nullptr;
 };
