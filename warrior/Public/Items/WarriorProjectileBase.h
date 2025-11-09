@@ -27,6 +27,10 @@ class WARRIOR_API AWarriorProjectileBase : public AActor
 public:	
 	AWarriorProjectileBase();
 
+	//在Spawn时将其暴露，传入GE:SharedDamage的SpecHandle
+	UPROPERTY(BlueprintReadOnly,Category="Projectile",meta=(ExposeOnSpawn="true"))
+	FGameplayEffectSpecHandle ProjectileDamageEffectSpecHandle;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -45,10 +49,6 @@ protected:
 	//默认造成伤害的碰撞逻辑
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Projectile")
 	EProjectileDamagePolicy ProjectileDamagePolicy=EProjectileDamagePolicy::OnHit;
-
-	//在Spawn时将其暴露，传入GE:SharedDamage的SpecHandle
-	UPROPERTY(BlueprintReadOnly,Category="Projectile",meta=(ExposeOnSpawn="true"))
-	FGameplayEffectSpecHandle ProjectileDamageEffectSpecHandle;
 	
 	//Hit绑定的逻辑函数，使得Projectile在碰撞后销毁
 	UFUNCTION()

@@ -83,7 +83,7 @@ void UWarriorHeroGameplayAbility_Rage::RageActivating()
 		TagAddedDelegateHandle = ASC->RegisterGameplayTagEvent(
 			WarriorGamePlayTags::Player_Status_Rage_None,
 			EGameplayTagEventType::NewOrRemoved
-		).AddUObject(this, &UWarriorHeroGameplayAbility_Rage::OnAdded);
+		).AddUObject(this, &UWarriorHeroGameplayAbility_Rage::OnAdded); 
 	}
 }
 
