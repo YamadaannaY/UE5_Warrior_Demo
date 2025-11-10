@@ -132,7 +132,7 @@ void UGA_Hero_HeavyAttack::HandleApplyDamage(FGameplayEventData InPayLoad)
 
 void UGA_Hero_HeavyAttack::ResetAttackComboCount()
 {
-	//超过Combo判定时间，回到第一段
+	//超过Combo判定时间或者段数达到最后一段，回到第一段
 	CurrentLayerAttackComboCount=1;
 	UWarriorFunctionLibrary::RemoveGameplayTagFromActorIfFound(GetHeroCharacterFromActorInfo(),WarriorGamePlayTags::Player_Status_JumpToFinisher);
 }
@@ -161,7 +161,10 @@ void UGA_Hero_HeavyAttack::HandleComboCount()
 	{
 		ResetAttackComboCount();
 	}
+	else
+	{
 	CurrentLayerAttackComboCount++;
+	}
 }
 
 void UGA_Hero_HeavyAttack::SpecialAttackWithRage()

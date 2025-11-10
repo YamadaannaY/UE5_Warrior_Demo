@@ -19,6 +19,7 @@ class WARRIOR_API AWarriorEnemyCharacter : public AWarriorBaseCharacter
 public:
 	AWarriorEnemyCharacter();
 
+	virtual void BeginPlay() override;
 	//~Begin IPawnCombatInterface Interface 
 
 	//重写接口函数，指向具体类
@@ -43,8 +44,6 @@ public:
 	//~End  UObject Interface**/
 
 protected:
-
-	virtual void BeginPlay() override;
 	
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Combat");
 	UEnemyCombatComponent* EnemyCombatComponent;

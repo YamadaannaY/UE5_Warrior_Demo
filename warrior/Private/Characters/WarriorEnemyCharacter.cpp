@@ -158,3 +158,5 @@ void AWarriorEnemyCharacter::InitEnemyStartUpData() const
 		);
 	}
 }
+
+
