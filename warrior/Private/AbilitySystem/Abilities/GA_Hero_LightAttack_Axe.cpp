@@ -2,8 +2,6 @@
 
 
 #include "AbilitySystem/Abilities/GA_Hero_LightAttack_Axe.h"
-
-#include "WarriorDebugHelper.h"
 #include "Characters/WarriorHeroCharacter.h"
 #include "WarriorGamePlayTags.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
@@ -22,14 +20,18 @@ void UGA_Hero_LightAttack_Axe::WhileRageActive()
 		false,
 		true
 		);
-
 	Task_WaitGameplayEvent->EventReceived.AddUniqueDynamic(this,&ThisClass::SpawnProjectile);
 	Task_WaitGameplayEvent->ReadyForActivation();
+	
 }
 
 void UGA_Hero_LightAttack_Axe::SpawnProjectile(FGameplayEventData InPayLoad)
 {
 	AWarriorHeroWeapon* HeroWeapon=GetHeroCombatComponentFromActorInfo()->GetHeroCarriedEquippedWeapon();
+	if (!HeroWeapon)
+	{
+		return;
+	}
 	FTransform WeaponTransform=HeroWeapon->WeaponMesh->GetSocketTransform(FName("RageSlashSocket"),RTS_World);
 
 	FVector ForwardVector=GetHeroCharacterFromActorInfo()->GetActorForwardVector();
@@ -44,11 +46,7 @@ void UGA_Hero_LightAttack_Axe::SpawnProjectile(FGameplayEventData InPayLoad)
 	SpawnParameters.Owner=GetHeroCharacterFromActorInfo();
 
 	FVector SpawnLocation = WeaponTransform.GetLocation();
-	FRotator SpawnRotation = FRotator(WeaponTransform.GetRotation().X, 0.0f, ZValue);
+	FRotator SpawnRotation = FRotator(0.0f,ZValue,WeaponTransform.Rotator().Roll);
 	AWarriorProjectileBase* SpawnedProjectile = World->SpawnActor<AWarriorProjectileBase>(HeroSlash, SpawnLocation,SpawnRotation,SpawnParameters);
-	if (SpawnedProjectile)
-	{
-		Debug::Print("work");
-	}
 	SpawnedProjectile->ProjectileDamageEffectSpecHandle=MakeHeroDamageEffectSpecHandle(GameplayEffectClass,BaseDamage,WarriorGamePlayTags::Player_SetByCaller_AttackType_Light,3);
 }

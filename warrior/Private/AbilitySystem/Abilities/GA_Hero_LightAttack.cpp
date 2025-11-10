@@ -20,9 +20,9 @@ void UGA_Hero_LightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	ClearTimer();
 	FindIfSpecialTagAndSetMontage();
 	PlayMontageAndDealFinished();
+	SpecialAttackWithRage();
 	ApplyDamage();
 	HandleComboCount();
-	SpecialAttackWithRage();
 }
 
 void UGA_Hero_LightAttack::PlayMontageAndDealFinished()
@@ -34,11 +34,13 @@ void UGA_Hero_LightAttack::PlayMontageAndDealFinished()
 		1,
 		NAME_None
 		);
-	Task_PlayMontageAndWait->ReadyForActivation();
 	Task_PlayMontageAndWait->OnCompleted.AddUniqueDynamic(this,&ThisClass::OnMontagePlayingFinished);
+	Task_PlayMontageAndWait->ReadyForActivation();
 	
 }
 
+//设置一个定时器，GA是PerActor,会保存当前段数，在定时范围内再次激活GA可以激活下一段，同时每一段GA都会清除当前Timer
+// 否则ResetAttackComboCount
 void UGA_Hero_LightAttack::OnMontagePlayingFinished()
 {
 	CancelAbility(GetCurrentAbilitySpecHandle(),GetCurrentActorInfo(),GetCurrentActivationInfo(),true);
@@ -60,6 +62,7 @@ void UGA_Hero_LightAttack::ClearTimer()
 	UWorld* World = GetWorld();
 	if (World && TimerHandle.IsValid())
 	{
+		//ClearAndInValidTimer
 		World->GetTimerManager().ClearTimer(TimerHandle);
 		TimerHandle.Invalidate();
 	}
@@ -111,6 +114,7 @@ void UGA_Hero_LightAttack::ApplyDamage()
 	(this,WarriorGamePlayTags::Shared_Event_MeleeHit,nullptr,false,true);
 
 	Task_WaitGameplayEvent->EventReceived.AddUniqueDynamic(this,&ThisClass::HandleApplyDamage);
+	Task_WaitGameplayEvent->ReadyForActivation();
 }
 
 void UGA_Hero_LightAttack::HandleApplyDamage(FGameplayEventData InPayLoad)
@@ -130,6 +134,7 @@ void UGA_Hero_LightAttack::HandleApplyDamage(FGameplayEventData InPayLoad)
 
 void UGA_Hero_LightAttack::ResetAttackComboCount()
 {
+	//超过Combo判定时间，回到第一段
 	CurrentLayerAttackComboCount=1;
 	UWarriorFunctionLibrary::RemoveGameplayTagFromActorIfFound(GetHeroCharacterFromActorInfo(),WarriorGamePlayTags::Player_Status_JumpToFinisher);
 }
@@ -171,7 +176,7 @@ void UGA_Hero_LightAttack::HandleComboCount()
 
 void UGA_Hero_LightAttack::SpecialAttackWithRage()
 {
-	if (UWarriorFunctionLibrary::NativeDoesActorHaveTag(GetHeroCharacterFromActorInfo(),WarriorGamePlayTags::Player_Status_Rage_Activating))
+	if (UWarriorFunctionLibrary::NativeDoesActorHaveTag(GetHeroCharacterFromActorInfo(),WarriorGamePlayTags::Player_Status_Rage_Active))
 	{
 		WhileRageActive();
 	}
@@ -179,7 +184,6 @@ void UGA_Hero_LightAttack::SpecialAttackWithRage()
 
 void UGA_Hero_LightAttack::WhileRageActive()
 {
-	Debug::Print("base class");
 }
 
 
