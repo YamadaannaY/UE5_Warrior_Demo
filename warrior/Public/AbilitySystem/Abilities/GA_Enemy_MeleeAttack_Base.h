@@ -1,4 +1,4 @@
-// Yu
+//Yu
 
 #pragma once
 
@@ -6,49 +6,48 @@
 #include "AbilitySystem/Abilities/WarriorEnemyGameplayAbility.h"
 #include "GA_Enemy_MeleeAttack_Base.generated.h"
 
-/**
- * 
- */
+// GA_Enemy_MeleeAttack_Base.h
 UCLASS()
-class WARRIOR_API UGA_Enemy_MeleeAttack_Base : public UWarriorEnemyGameplayAbility
+class UGA_Enemy_MeleeAttack_Base : public UWarriorEnemyGameplayAbility
 {
 	GENERATED_BODY()
-protected:
+
+public:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
-	UFUNCTION()
-	void PlayMontageAndDealFinished();
-
-	UFUNCTION()
-	FGameplayCueParameters MakeBlockGamePlayCueParams() const;
-
-	UFUNCTION()
-	void ExecuteGameplayCueToOwnerWithParams(const FGameplayTag InGameplayTag) const;
-
-	UFUNCTION()
-	void OnMontageCompleted();
-
-	UFUNCTION()
-	void WaitEventAndDealDamage();
-
-	UFUNCTION()
-	void HandleApplyDamage(FGameplayEventData InPayLoad);
-
-	UPROPERTY()
-	float UnblockableAttackWarningSpawnOffset;
-
-	UPROPERTY()
-	FGameplayTag WarningGameplayCueTag;
-
-	UPROPERTY()
-	FGameplayTag WeaponHitSoundGameplayCueTag;
-
-	UPROPERTY()
+protected:
+	// Montage相关
+	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 	UAnimMontage* PlayMontage;
 
-	UPROPERTY()
+	// 伤害相关
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	TSubclassOf<UGameplayEffect> DamageGameplayEffectClass;
-
-	UPROPERTY()
+    
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	FScalableFloat InDamageScalableFloat;
+
+	// Gameplay Cue相关
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	FGameplayTag WarningGameplayCueTag;
+    
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	FGameplayTag WeaponHitSoundGameplayCueTag;
+    
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	float UnblockableAttackWarningSpawnOffset = 0.0f;
+
+private:
+	void ExecuteGameplayCueToOwnerWithParams(const FGameplayTag InGameplayTag) const;
+	FGameplayCueParameters MakeBlockGamePlayCueParams() const;
+    
+	void WaitEventAndDealDamage();
+	UFUNCTION()
+	void HandleApplyDamage(FGameplayEventData InPayLoad);
+    UFUNCTION()
+	void PlayMontageAndDealFinished();
+	UFUNCTION()
+	void PlayMontageInternal();
+	UFUNCTION()
+	void OnMontageFinished();
 };
