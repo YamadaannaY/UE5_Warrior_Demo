@@ -49,5 +49,14 @@ private:
 	//碰撞避让检测，在这个范围内触发避让
 	UPROPERTY(EditDefaultsOnly,Category="Detour Crowd Avoidance Config",meta=(EditCondition="bEnableDetourCrowdAvoidance"))
 	float CollisionQueryRange=700.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float VisionAngleDegrees=180.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float SightRadius=2000.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float LoseSightRadius=2300.f;
 	
 };

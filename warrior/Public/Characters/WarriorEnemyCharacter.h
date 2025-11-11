@@ -38,7 +38,7 @@ public:
 	//~Begin UObject Interface**/
 
 #if WITH_EDITOR
-	// 在编辑器中属性发生变化时自动调用
+	// 在编辑器中属性发生变化时自动调用,用于绑定box到正确的骨骼上
 	virtual void PostEditChangeProperty( struct FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 	//~End  UObject Interface**/

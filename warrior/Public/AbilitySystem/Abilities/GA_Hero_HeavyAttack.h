@@ -90,5 +90,5 @@ private:
 	FTimerHandle TimerHandle;
 
 	UPROPERTY(EditDefaultsOnly)
-	float ResetComboTime=3.f;
+	float ResetComboTime=0.3f;
 };
