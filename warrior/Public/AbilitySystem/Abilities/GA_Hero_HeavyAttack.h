@@ -81,10 +81,8 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UGameplayEffect> GainRageGameplayEffectClass;
 	
-	UPROPERTY()
 	int32 CurrentLayerAttackComboCount=1;
 
-	UPROPERTY()
 	int32 UseComboCount;
 	
 	FTimerHandle TimerHandle;

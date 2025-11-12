@@ -3,6 +3,8 @@
 //ActorInfo存储了character、controller、component等信息
 
 #include "AbilitySystem/Abilities/WarriorHeroGameplayAbility.h"
+
+#include "WarriorDebugHelper.h"
 #include "Conrtroller/WarriorHeroController.h"
 #include "AbilitySystem/WarriorAbilitySystemComponent.h"
 #include"WarriorGamePlayTags.h"

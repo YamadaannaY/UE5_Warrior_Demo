@@ -12,3 +12,6 @@ TArray<FGameplayAbilitySpecHandle> AWarriorHeroWeapon::GetGrantedAbilitySpecHand
 {
 	return GrantedAbilitySpecHandles;
 }
+
+
+

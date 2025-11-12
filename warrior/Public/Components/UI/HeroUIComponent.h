@@ -41,4 +41,5 @@ public:
 	//出现输入提示UI，合适的广播时机应该是与StoneOverlap发生后的触发的回调GA中，此时还没有进行输入映射决定是否ConsumeStone
 	UPROPERTY(BlueprintCallable,BlueprintAssignable)
 	FOnStoneInteractedDelegate OnStoneInteracted;
+
 };
