@@ -18,12 +18,13 @@ class WARRIOR_API UGA_Hero_UnequipWeapon : public UWarriorHeroGameplayAbility
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
-
-	UFUNCTION()
+	
 	void PlayMontageAndWaitEventUnEquip();
 
 	UFUNCTION()
 	void PlayMontageCompleted();
+
+	void OnTimerFinished();
 
 	//将武器绑定到Socket上
 	UFUNCTION()

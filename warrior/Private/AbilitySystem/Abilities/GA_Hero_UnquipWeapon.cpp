@@ -15,10 +15,9 @@
 #include "Conrtroller/WarriorHeroController.h"
 #include "Items/Weapon/WarriorHeroWeapon.h"
 
-
 void UGA_Hero_UnequipWeapon::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-                                            const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-                                            const FGameplayEventData* TriggerEventData)
+                                             const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+                                             const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
@@ -30,6 +29,10 @@ void UGA_Hero_UnequipWeapon::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ThisClass::OnTimerFinished, 0.01f, false);
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -69,6 +72,15 @@ void UGA_Hero_UnequipWeapon::PlayMontageCompleted()
 	EndAbility(GetCurrentAbilitySpecHandle(),GetCurrentActorInfo(),GetCurrentActivationInfo(),true,true);
 }
 
+void UGA_Hero_UnequipWeapon::OnTimerFinished()
+{
+	//取消动画层,由于蓝图动画更新顺序与cpp不同，蓝图在动画层取消链接之后重新编译状态机，过渡完毕后再更新视觉，但是cpp
+	//会先更新视觉，在下一帧才重新编译状态机，不可避免有一帧的僵直。
+	
+	GetOwningComponentFromActorInfo()->UnlinkAnimClassLayers(GetHeroCombatComponentFromActorInfo()->GetHeroCarriedWeaponByTags(CarriedWeaponTagToUse)
+->HeroWeaponData.WeaponAnimLayerToLink.Get());
+}
+
 
 void UGA_Hero_UnequipWeapon::AttachWeapon(FGameplayEventData InPayload)
 {
@@ -79,25 +91,6 @@ void UGA_Hero_UnequipWeapon::AttachWeapon(FGameplayEventData InPayload)
 	if (HeroWeapon)
 	{
 		USkeletalMeshComponent* SkeletalMeshComponent=GetOwningComponentFromActorInfo();
-
-		//取消动画层,由于蓝图动画更新顺序与cpp不同，蓝图在动画层取消链接之后重新编译状态机，过渡完毕后再更新视觉，但是cpp
-		//会先更新视觉，在下一帧才重新编译状态机，不可避免有一帧的僵直。
-
-		//因此需要在取消链接之后立即更新状态机
-		SkeletalMeshComponent->UnlinkAnimClassLayers(HeroWeapon->HeroWeaponData.WeaponAnimLayerToLink.Get());
-        
-		//强制动画蓝图立即更新状态机
-		if (UAnimInstance* AnimInstance = SkeletalMeshComponent->GetAnimInstance())
-		{
-			// 强制重新初始化动画
-			AnimInstance->InitializeAnimation();
-            
-			// 强制更新状态机
-			AnimInstance->UpdateAnimation(0.0f, false);
-            
-			// 刷新骨骼变换
-			SkeletalMeshComponent->RefreshBoneTransforms();
-		}
 		
 		FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules(
 		EAttachmentRule::SnapToTarget,    // Location Rule
