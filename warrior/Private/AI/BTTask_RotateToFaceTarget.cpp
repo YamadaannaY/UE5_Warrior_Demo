@@ -1,122 +1,233 @@
-// Yu
-
 #include "AI/BTTask_RotateToFaceTarget.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
 #include "Kismet/KismetMathLibrary.h"
 
-#include "BehaviorTree/BlackboardData.h"
-
 UBTTask_RotateToFaceTarget::UBTTask_RotateToFaceTarget()
 {
-	NodeName=TEXT("Native Rotate to Face Target Actor");
-
-	AnglePrecision=10.f;
-	RotationInterSpeed=5.f;
-	//允许该任务节点每帧调用 TickTask() 函数。
-	bNotifyTick=true;
-
-	//让节点在任务完成时调用OnTaskFinished()回调。
-	bNotifyTaskFinished=true;
-
-	//控制任务节点在行为树中是否为每个 AI 创建独立实例。
-	//如果 bCreateNodeInstance = false，必须实现GetInstanceMemorySize()并通过NodeMemory存储每个AI的运行时状态，
-	//否则多AI同时执行任务会互相干扰。此处使用自定义结构体作为Memory，拓展了valid判断和弱指针清空函数操作，所以需要false
-	bCreateNodeInstance=false;
-
-	//编辑器效果：当你在行为树任务蓝图/属性面板里选择黑板键作为变量值时，黑板键列表只显示AActor类型或子类的对象，避免绑定错误类型。
-	//运行时效果：任务在运行时通过 OwnerComp.GetBlackboardComponent()->GetValueAsObject(InTargetToFaceKey.SelectedKeyName) 获取对象时，可以保证类型安全。
-	InTargetToFaceKey.AddObjectFilter(this,GET_MEMBER_NAME_CHECKED(ThisClass,InTargetToFaceKey),AActor::StaticClass());
-
-	//每个Task都需要初始化
-	INIT_TASK_NODE_NOTIFY_FLAGS();
+    NodeName = TEXT("Native Rotate to Face Target Actor");
+    
+    AnglePrecision = 5.f;
+    RotationInterSpeed = 5.f;
+    MinimumSafeDistance = 200.0f;
+    bUseYawOnly = true;
+    MaxRotationSpeed = 360.0f;
+    AdaptiveSpeedMultiplier = 2.0f;
+    
+    bNotifyTick = true;
+    bNotifyTaskFinished = true;
+    bCreateNodeInstance = false;
+    
+    InTargetToFaceKey.AddObjectFilter(this, GET_MEMBER_NAME_CHECKED(ThisClass, InTargetToFaceKey), AActor::StaticClass());
+    
+    INIT_TASK_NODE_NOTIFY_FLAGS();
 }
 
 void UBTTask_RotateToFaceTarget::InitializeFromAsset(UBehaviorTree& Asset)
 {
-	Super::InitializeFromAsset(Asset);
-	if (const UBlackboardData* BBAsset=GetBlackboardAsset())
-	{
-		InTargetToFaceKey.ResolveSelectedKey(*BBAsset);
-	}
+    Super::InitializeFromAsset(Asset);
+    if (const UBlackboardData* BBAsset = GetBlackboardAsset())
+    {
+        InTargetToFaceKey.ResolveSelectedKey(*BBAsset);
+    }
 }
 
 uint16 UBTTask_RotateToFaceTarget::GetInstanceMemorySize() const
 {
-	//获得为缓存对象分配的内存
-	return sizeof(FRotatorToFaceTargetTaskMemory);
+    return sizeof(FRotatorToFaceTargetTaskMemory);
 }
 
 FString UBTTask_RotateToFaceTarget::GetStaticDescription() const
 {
-	const FString KeyDescription = InTargetToFaceKey.SelectedKeyName.ToString();
-	return FString::Printf(TEXT("Smoothly rotates to face %s Key until the angle precision :%.2f is reached"),*KeyDescription,AnglePrecision);
+    const FString KeyDescription = InTargetToFaceKey.SelectedKeyName.ToString();
+    return FString::Printf(TEXT("Smoothly rotates to face %s\nPrecision: %.1f° | Safe Distance: %.0f"), 
+        *KeyDescription, AnglePrecision, MinimumSafeDistance);
 }
 
 EBTNodeResult::Type UBTTask_RotateToFaceTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	UObject* ActorObject=OwnerComp.GetBlackboardComponent()->GetValueAsObject(InTargetToFaceKey.SelectedKeyName);
+    UObject* ActorObject = OwnerComp.GetBlackboardComponent()->GetValueAsObject(InTargetToFaceKey.SelectedKeyName);
+    AActor* TargetActor = Cast<AActor>(ActorObject);
+    APawn* OwningPawn = OwnerComp.GetAIOwner()->GetPawn();
+    
+    FRotatorToFaceTargetTaskMemory* Memory = CastInstanceNodeMemory<FRotatorToFaceTargetTaskMemory>(NodeMemory);
+    check(Memory);
+    
+    Memory->OwingPawn = OwningPawn;
+    Memory->TargetActor = TargetActor;
+    Memory->LastSafeDirection = OwningPawn ? OwningPawn->GetActorForwardVector() : FVector::ForwardVector;
 
-	AActor* TargetActor=Cast<AActor>(ActorObject);
-
-	APawn* OwningPawn=OwnerComp.GetAIOwner()->GetPawn();
-	//实例化Memory结构体
-	FRotatorToFaceTargetTaskMemory* Memory= CastInstanceNodeMemory<FRotatorToFaceTargetTaskMemory>(NodeMemory);
-	check(Memory);
-	Memory->OwingPawn=OwningPawn;
-	Memory->TargetActor=TargetActor;
-
-	if (!Memory->IsValid())
-	{
-		//行为树根据父节点逻辑（Selector/Sequence）决定下一步
-		return EBTNodeResult::Failed;
-	}
-	if (HasReachingAnglePrecision(OwningPawn,TargetActor))
-	{
-		//直接执行下一个节点
-		Memory->Reset();
-		return EBTNodeResult::Succeeded;
-	}
-	//任务仍在进行中（异步任务/持续任务），Tick 或者 latent 完成后再返回 Succeeded/Failed
-	return EBTNodeResult::InProgress;
+    if (!Memory->IsValid())
+    {
+        return EBTNodeResult::Failed;
+    }
+    
+    if (HasReachingAnglePrecision(OwningPawn, TargetActor))
+    {
+        Memory->Reset();
+        return EBTNodeResult::Succeeded;
+    }
+    
+    return EBTNodeResult::InProgress;
 }
 
 void UBTTask_RotateToFaceTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	//Tick时刻更新值
-	FRotatorToFaceTargetTaskMemory* Memory= CastInstanceNodeMemory<FRotatorToFaceTargetTaskMemory>(NodeMemory);
+    FRotatorToFaceTargetTaskMemory* Memory = CastInstanceNodeMemory<FRotatorToFaceTargetTaskMemory>(NodeMemory);
 
-	if (! Memory->IsValid())
-	{
-		//用于标记一个潜在的异步任务状态，并通知任务系统进行清理和状态转换。
-		FinishLatentTask(OwnerComp,EBTNodeResult::Failed);
-	}
-	
-	if (HasReachingAnglePrecision(Memory->OwingPawn.Get(),Memory->TargetActor.Get()))
-	{
-		Memory->Reset();
-		FinishLatentTask(OwnerComp,EBTNodeResult::Succeeded);
-	}
-	
-	else
-	{
-		const FRotator LookAtRot=UKismetMathLibrary::FindLookAtRotation(Memory->OwingPawn->GetActorLocation(),Memory->TargetActor->GetActorLocation());
-		const FRotator TargetRot=FMath::RInterpTo(Memory->OwingPawn->GetActorRotation(),LookAtRot,DeltaSeconds,RotationInterSpeed);
-		Memory->OwingPawn->SetActorRotation(TargetRot);
-	}
+    if (!Memory->IsValid())
+    {
+        FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+        return;
+    }
+    
+    if (HasReachingAnglePrecision(Memory->OwingPawn.Get(), Memory->TargetActor.Get()))
+    {
+        Memory->Reset();
+        FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+        return;
+    }
+    
+    // 使用安全的旋转计算
+    PerformSafeRotation(Memory, DeltaSeconds);
+}
+
+void UBTTask_RotateToFaceTarget::PerformSafeRotation(FRotatorToFaceTargetTaskMemory* Memory, float DeltaSeconds)
+{
+    APawn* Pawn = Memory->OwingPawn.Get();
+    AActor* Target = Memory->TargetActor.Get();
+    
+    if (!Pawn || !Target) return;
+
+    FVector PawnLocation = Pawn->GetActorLocation();
+    FVector TargetLocation = Target->GetActorLocation();
+    
+    // 计算到目标的向量
+    FVector ToTarget = TargetLocation - PawnLocation;
+    float Distance = ToTarget.Size2D(); // 使用2D距离
+    
+    // 关键修复：近距离稳定处理
+    FVector SafeDirection;
+    
+    if (Distance < MinimumSafeDistance)
+    {
+        // 方法1：使用角色当前位置+安全距离的虚拟目标
+        FVector DirectionToTarget = ToTarget.GetSafeNormal2D();
+        if (DirectionToTarget.IsNearlyZero())
+        {
+            // 如果方向几乎为零，使用上一帧的安全方向
+            SafeDirection = Memory->LastSafeDirection;
+        }
+        else
+        {
+            // 创建虚拟目标点
+            FVector VirtualTarget = PawnLocation + DirectionToTarget * MinimumSafeDistance;
+            SafeDirection = (VirtualTarget - PawnLocation).GetSafeNormal2D();
+        }
+    }
+    else
+    {
+        // 正常距离，使用实际方向
+        SafeDirection = ToTarget.GetSafeNormal2D();
+    }
+    
+    // 保存安全方向供下一帧使用
+    if (!SafeDirection.IsNearlyZero())
+    {
+        Memory->LastSafeDirection = SafeDirection;
+    }
+    
+    // 计算目标旋转
+    FRotator LookAtRot = SafeDirection.Rotation();
+    FRotator CurrentRot = Pawn->GetActorRotation();
+    
+    // 应用轴向限制
+    if (bUseYawOnly)
+    {
+        LookAtRot.Pitch = CurrentRot.Pitch;
+        LookAtRot.Roll = CurrentRot.Roll;
+    }
+    
+    // 自适应旋转速度
+    float AdaptiveSpeed = CalculateAdaptiveRotationSpeed(CurrentRot, LookAtRot, Distance);
+    
+    // 使用更稳定的插值方法
+    FRotator TargetRot = CalculateStableRotation(CurrentRot, LookAtRot, DeltaSeconds, AdaptiveSpeed);
+    
+    // 应用旋转
+    Pawn->SetActorRotation(TargetRot);
+}
+
+float UBTTask_RotateToFaceTarget::CalculateAdaptiveRotationSpeed(const FRotator& CurrentRot, const FRotator& TargetRot, float Distance) const
+{
+    // 计算角度差
+    FRotator DeltaRot = (TargetRot - CurrentRot).GetNormalized();
+    float AngleDiff = FMath::Abs(DeltaRot.Yaw);
+    
+    float BaseSpeed = RotationInterSpeed;
+    
+    // 基于角度差的自适应速度
+    if (AngleDiff > 120.0f)
+    {
+        // 大角度时快速旋转
+        BaseSpeed *= AdaptiveSpeedMultiplier;
+    }
+    else if (AngleDiff < 20.0f)
+    {
+        // 小角度时精确旋转
+        BaseSpeed *= 0.3f;
+    }
+    
+    // 基于距离的调整：近距离时降低速度避免抖动
+    if (Distance < MinimumSafeDistance * 2.0f)
+    {
+        float DistanceFactor = FMath::Clamp(Distance / MinimumSafeDistance, 0.3f, 1.0f);
+        BaseSpeed *= DistanceFactor;
+    }
+    
+    return BaseSpeed;
+}
+
+FRotator UBTTask_RotateToFaceTarget::CalculateStableRotation(const FRotator& CurrentRot, const FRotator& TargetRot, float DeltaSeconds, float Speed) const
+{
+    // 使用更稳定的旋转插值
+    FRotator ResultRot;
+    
+    // 分别插值每个轴，避免万向锁问题
+    ResultRot.Yaw = FMath::FInterpTo(CurrentRot.Yaw, TargetRot.Yaw, DeltaSeconds, Speed);
+    
+    if (bUseYawOnly)
+    {
+        ResultRot.Pitch = CurrentRot.Pitch;
+        ResultRot.Roll = CurrentRot.Roll;
+    }
+    else
+    {
+        ResultRot.Pitch = FMath::FInterpTo(CurrentRot.Pitch, TargetRot.Pitch, DeltaSeconds, Speed);
+        ResultRot.Roll = FMath::FInterpTo(CurrentRot.Roll, TargetRot.Roll, DeltaSeconds, Speed);
+    }
+    
+    return ResultRot;
 }
 
 bool UBTTask_RotateToFaceTarget::HasReachingAnglePrecision(APawn* QueryPawn, AActor* TargetActor) const
 {
-	//只看XY平面
-	const float Distance = FVector::Dist2D(QueryPawn->GetActorLocation(), TargetActor->GetActorLocation());
-	if (Distance <= 50.f) return true; // 距离太近直接结束.防止因为距离太近被认为是重叠导致OwnerToTargetNormalized几乎是0出现bug
-	
-	const FVector OwnerForward=QueryPawn->GetActorForwardVector();
-	const FVector OwnerToTargetNormalized=(TargetActor->GetActorLocation()-QueryPawn->GetActorLocation()).GetSafeNormal2D();
-	
-	const float DotResult=FVector::DotProduct(OwnerForward.GetSafeNormal2D(),OwnerToTargetNormalized);
-	const float AngleDiff=UKismetMathLibrary::DegAcos(DotResult);
-	
-	return AngleDiff<=AnglePrecision;
+    if (!QueryPawn || !TargetActor) 
+        return false;
+        
+    const float Distance = FVector::Dist2D(QueryPawn->GetActorLocation(), TargetActor->GetActorLocation());
+    if (Distance <= 50.f) 
+        return true; // 距离太近直接结束
+    
+    const FVector OwnerForward = QueryPawn->GetActorForwardVector().GetSafeNormal2D();
+    const FVector OwnerToTargetNormalized = (TargetActor->GetActorLocation() - QueryPawn->GetActorLocation()).GetSafeNormal2D();
+    
+    // 如果方向几乎为零，认为已经面向目标
+    if (OwnerToTargetNormalized.IsNearlyZero())
+        return true;
+    
+    const float DotResult = FVector::DotProduct(OwnerForward, OwnerToTargetNormalized);
+    const float AngleDiff = UKismetMathLibrary::DegAcos(DotResult);
+    
+    return AngleDiff <= AnglePrecision;
 }

@@ -115,6 +115,7 @@ void AWarriorHeroCharacter::Input_Move(const FInputActionValue& InputActionValue
 	const FVector2D MovementVector=InputActionValue.Get<FVector2D>();
 	//获得摄像机水平方向的欧拉角旋转
 	const FRotator MovementRotation(0.f,Controller->GetControlRotation().Yaw,0.f);
+	
 	if (MovementVector.Y!=0.f)
 	{
 		 //旋转到的欧拉角度单位向量

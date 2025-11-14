@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "WarriorAIController.generated.h"
 
+class UAISenseConfig_Hearing;
 struct FAIStimulus;
 class UAISenseConfig_Sight;
 class UAIPerceptionComponent;
@@ -33,6 +34,9 @@ protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	UAISenseConfig_Sight* AISenseConfig_Sight;
 
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	UAISenseConfig_Hearing* AISenseConfig_Hear;
+
 	UFUNCTION()
 	//当感知对象更新时更新
 	virtual void OnEnemyPerceptionUpdated( AActor* Actor, FAIStimulus Stimulus);
@@ -55,6 +59,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	float SightRadius=2000.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float HearRadius=500.f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float LoseSightRadius=2300.f;

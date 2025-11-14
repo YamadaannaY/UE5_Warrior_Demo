@@ -57,8 +57,10 @@ void UGA_Hero_SpecialAbilityBase::HandleEventReceived(FGameplayEventData InPayLo
 
 void UGA_Hero_SpecialAbilityBase::CallCooldown()
 {
+	//检查并确认Ability是否可以执行（即检查Cost和Cooldown），如果可以执行，则自动应用Cost和Cooldown
 	CommitAbility(GetCurrentAbilitySpecHandle(),GetCurrentActorInfo(),GetCurrentActivationInfo());
 
+	//手动调用Cooldown
 	GetHeroCharacterFromActorInfo()->GetHeroUIComponent()->OnAbilityCooldownBegin.Broadcast
 	(CooldownAbilityInputTag,GetCooldownTimeRemaining(),GetCooldownTimeRemaining());
 }

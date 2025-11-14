@@ -16,6 +16,7 @@ struct FRotatorToFaceTargetTaskMemory
 	//这两个变量会随着感知变化随时被更新或销毁，所以用弱指针存储避免悬空。
 	TWeakObjectPtr<APawn> OwingPawn;
 	TWeakObjectPtr<AActor> TargetActor;
+	FVector LastSafeDirection;     // 上一帧的安全方向
 	
 	//辅助函数，判断弱引用是否还持有
 	bool IsValid() const
@@ -28,6 +29,7 @@ struct FRotatorToFaceTargetTaskMemory
 		// Reset the weak pointer back to the null state
 		OwingPawn.Reset();
 		TargetActor.Reset();
+		LastSafeDirection = FVector::ZeroVector;
 	}
 };
 
@@ -73,4 +75,24 @@ class WARRIOR_API UBTTask_RotateToFaceTarget : public UBTTaskNode
 	//TargetActor的参数变量
 	UPROPERTY(EditAnywhere,Category="Face Target")
 	FBlackboardKeySelector InTargetToFaceKey;
+
+protected:
+	UPROPERTY(EditAnywhere, Category = "Rotation")
+	float MinimumSafeDistance = 200.0f; // 最小安全距离
+    
+	UPROPERTY(EditAnywhere, Category = "Rotation")
+	bool bUseYawOnly = true; // 只旋转Yaw轴
+	
+	UPROPERTY(EditAnywhere, Category = "Rotation", AdvancedDisplay)
+	float MaxRotationSpeed = 360.0f; // 最大旋转速度(度/秒)
+	
+	UPROPERTY(EditAnywhere, Category = "Rotation", AdvancedDisplay)
+	float AdaptiveSpeedMultiplier = 2.0f; // 自适应速度倍数
+	
+	
+	void PerformSafeRotation(FRotatorToFaceTargetTaskMemory* Memory, float DeltaSeconds);
+	float CalculateAdaptiveRotationSpeed(const FRotator& CurrentRot, const FRotator& TargetRot, float Distance) const;
+	FRotator CalculateStableRotation(const FRotator& CurrentRot, const FRotator& TargetRot, float DeltaSeconds, float Speed) const;
+
+
 };

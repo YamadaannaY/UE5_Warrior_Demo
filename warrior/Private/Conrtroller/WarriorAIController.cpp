@@ -6,14 +6,15 @@
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "WarriorDebugHelper.h"
+#include "Perception/AISenseConfig_Hearing.h"
 
 //~ :Super是初始化列表一种方式：调用父类的构造函数，在父类构造函数时就默认把PathFollowingComponent（路径跟随组件）改成CrowdFollowingComponent
 AWarriorAIController::AWarriorAIController(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>("PathFollowingComponent"))
 {
 	AISenseConfig_Sight=CreateDefaultSubobject<UAISenseConfig_Sight>("EnemySenseConfig_Sight");
-
+	AISenseConfig_Hear=CreateDefaultSubobject<UAISenseConfig_Hearing>("EnemySenseConfig_Hear");
+	
 	AISenseConfig_Sight->DetectionByAffiliation.bDetectEnemies=true;	// 能看见敌人
 	AISenseConfig_Sight->DetectionByAffiliation.bDetectFriendlies=false; // 不检测友军
 	AISenseConfig_Sight->DetectionByAffiliation.bDetectNeutrals=false;  // 不检测中立单位
@@ -21,10 +22,15 @@ AWarriorAIController::AWarriorAIController(const FObjectInitializer& ObjectIniti
 	AISenseConfig_Sight->LoseSightRadius=2300.f; // 丢失目标距离（通常应大于 SightRadius，设 0 意味着一旦出视野就立刻丢失）
 	AISenseConfig_Sight->PeripheralVisionAngleDegrees=VisionAngleDegrees; // 视野角度（0° = 只能正前方一条线，通常会设置为 90-120°）
 	AISenseConfig_Sight->SetMaxAge(1.5f);      //保留三秒感知信息，三秒内不对更新频繁触发做出反应        
+
+	AISenseConfig_Hear->HearingRange(HearRadius);
+	AISenseConfig_Hear->SetMaxAge(3.f);
 	
 	SetPerceptionComponent(*EnemyPerceptionComponent);
 	EnemyPerceptionComponent=CreateDefaultSubobject<UAIPerceptionComponent>("EnemyAIPerceptionComponent");
 	EnemyPerceptionComponent->ConfigureSense(*AISenseConfig_Sight); //感知配置
+	EnemyPerceptionComponent->ConfigureSense(*AISenseConfig_Hear); //感知配置
+	
 	EnemyPerceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass()); //主导感知类型，多感官下优先使用这个结果
 	EnemyPerceptionComponent->OnTargetPerceptionUpdated.AddUniqueDynamic(this,&ThisClass::OnEnemyPerceptionUpdated); //绑定感知更新事件，当AI感知到目标（进入/离开视野）时就会回调，其中更新TargetActor
 
@@ -85,6 +91,10 @@ void AWarriorAIController::OnEnemyPerceptionUpdated(AActor* Actor, FAIStimulus S
 				//SetValueAsObject设置Object及其子类参数所用
 				BlackboardComponent->SetValueAsObject(FName("TargetActor"),Actor);
 			}
+		}
+		else
+		{
+			BlackboardComponent->SetValueAsObject(FName("TargetActor"),nullptr);
 		}
 	}
 }

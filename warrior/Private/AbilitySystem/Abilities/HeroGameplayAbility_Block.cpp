@@ -22,7 +22,7 @@ void UHeroGameplayAbility_Block::ActivateAbility(const FGameplayAbilitySpecHandl
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	//激活Block同时判断此时时间时间
+	//激活Block同时记录时间
 	HeroBlockActiveTime=UGameplayStatics::GetTimeSeconds(this);
 	PlayMontageAndDealFinished();
 }
@@ -138,12 +138,13 @@ void UHeroGameplayAbility_Block::DealSuccessfulBlock(FGameplayEventData InPayLoa
 			UGameplayStatics::SetGlobalTimeDilation(this,0.2);
 
 			UAbilityTask_WaitDelay* DelayTask = UAbilityTask_WaitDelay::WaitDelay(this,0.08f );
-
+			
 			if (DelayTask)
 			{
 				DelayTask->OnFinish.AddDynamic(this, &ThisClass::OnDelayCompleted);
 				DelayTask->ReadyForActivation();
 			}
+			bIsPerfectBlock=false;
 		}
 	}
 }

@@ -2,7 +2,6 @@
 
 #include "AbilitySystem/GEExecCauc/GEExecCauc_DamageTaken.h"
 #include "AbilitySystem/WarriorAttributeSet.h"
-#include "WarriorDebugHelper.h"
 #include "WarriorGamePlayTags.h"
 
 struct FWarriorDamageCapture
@@ -108,20 +107,21 @@ void UGEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCustom
 	//轻击段数基础上的伤害系数增比
 	if (UsedLightAttackComboCount != 0)
 	{
-		const float DamageIncreasePercentLight=(UsedLightAttackComboCount -1)*0.05+1.f;
+		const float DamageIncreasePercentLight=UsedLightAttackComboCount*0.08+1.f;
 		BaseDamage*=DamageIncreasePercentLight;
 		//Debug::Print(TEXT("ScaledBaseDamageLight"),BaseDamage);
 	}
 	//重击段数基础上的伤害系数增比
 	if (UsedHeavyAttackComboCount!=0)
 	{
-		const float DamageIncreasePercentHeavy=UsedHeavyAttackComboCount*0.15f+1.f;
+		const float DamageIncreasePercentHeavy=UsedHeavyAttackComboCount*0.25f+1.f;
 		BaseDamage*=DamageIncreasePercentHeavy;
 		//Debug::Print(TEXT("ScaledBaseDamageHeavy"),BaseDamage);
 	
 	}
+	const float MultAttack=FMath::RandRange(0.8,1.2);
 	//最终伤害判定公式
-	const float FinalDamageDone=BaseDamage * SourceAttackPower/TargetDefensePower;
+	const float FinalDamageDone=(BaseDamage+MultAttack*SourceAttackPower)*(100/(100+TargetDefensePower));
 	//Debug::Print(TEXT("FinalDamageDone"),FinalDamageDone);
 
 	//将这个值赋予属性集
