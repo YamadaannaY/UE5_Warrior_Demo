@@ -2,36 +2,46 @@
 
 
 #include "Conrtroller/WarriorAIController.h"
+
+#include "WarriorDebugHelper.h"
 #include "Navigation/CrowdFollowingComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Perception/AISenseConfig_Damage.h"
 #include "Perception/AISenseConfig_Hearing.h"
 
 //~ :Super是初始化列表一种方式：调用父类的构造函数，在父类构造函数时就默认把PathFollowingComponent（路径跟随组件）改成CrowdFollowingComponent
 AWarriorAIController::AWarriorAIController(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>("PathFollowingComponent"))
 {
+	EnemyPerceptionComponent=CreateDefaultSubobject<UAIPerceptionComponent>("EnemyAIPerceptionComponent");
 	AISenseConfig_Sight=CreateDefaultSubobject<UAISenseConfig_Sight>("EnemySenseConfig_Sight");
 	AISenseConfig_Hear=CreateDefaultSubobject<UAISenseConfig_Hearing>("EnemySenseConfig_Hear");
+	AISenseConfig_Damage=CreateDefaultSubobject<UAISenseConfig_Damage>("EnemySenseConfig_Damage");
 	
-	AISenseConfig_Sight->DetectionByAffiliation.bDetectEnemies=true;	// 能看见敌人
-	AISenseConfig_Sight->DetectionByAffiliation.bDetectFriendlies=false; // 不检测友军
-	AISenseConfig_Sight->DetectionByAffiliation.bDetectNeutrals=false;  // 不检测中立单位
-	AISenseConfig_Sight->SightRadius=2000.f;	// 视野半径
-	AISenseConfig_Sight->LoseSightRadius=2300.f; // 丢失目标距离（通常应大于 SightRadius，设 0 意味着一旦出视野就立刻丢失）
-	AISenseConfig_Sight->PeripheralVisionAngleDegrees=VisionAngleDegrees; // 视野角度（0° = 只能正前方一条线，通常会设置为 90-120°）
-	AISenseConfig_Sight->SetMaxAge(1.5f);      //保留三秒感知信息，三秒内不对更新频繁触发做出反应        
+	AISenseConfig_Sight->DetectionByAffiliation.bDetectEnemies=bDetectEnemies;	// 能看见敌人
+	AISenseConfig_Sight->DetectionByAffiliation.bDetectFriendlies=bDetectFriendlies; // 不检测友军
+	AISenseConfig_Sight->DetectionByAffiliation.bDetectNeutrals=bDetectNeutrals;  // 不检测中立单位
+	AISenseConfig_Sight->SightRadius=SightRadius;	// 视野半径
+	AISenseConfig_Sight->LoseSightRadius=LoseSightRadius; // 丢失目标距离（通常应大于 SightRadius，设 0 意味着一旦出视野就立刻丢失）
+	AISenseConfig_Sight->PeripheralVisionAngleDegrees=VisionAngleDegrees; // 视野角度的一半
+	AISenseConfig_Sight->SetMaxAge(SightMaxAge);      //保留三秒感知信息，三秒内不对更新频繁触发做出反应        
 
-	AISenseConfig_Hear->HearingRange(HearRadius);
-	AISenseConfig_Hear->SetMaxAge(3.f);
+	AISenseConfig_Hear->DetectionByAffiliation.bDetectEnemies=bDetectEnemies;	// 能看见敌人
+	AISenseConfig_Hear->DetectionByAffiliation.bDetectFriendlies=bDetectFriendlies; // 不检测友军
+	AISenseConfig_Hear->DetectionByAffiliation.bDetectNeutrals=bDetectNeutrals;  // 不检测中立单位
+	AISenseConfig_Hear->HearingRange=HearRadius;
+	AISenseConfig_Hear->SetMaxAge(HearMaxAge);
+
+	AISenseConfig_Damage->SetMaxAge(DamageMaxAge);
 	
-	SetPerceptionComponent(*EnemyPerceptionComponent);
-	EnemyPerceptionComponent=CreateDefaultSubobject<UAIPerceptionComponent>("EnemyAIPerceptionComponent");
 	EnemyPerceptionComponent->ConfigureSense(*AISenseConfig_Sight); //感知配置
 	EnemyPerceptionComponent->ConfigureSense(*AISenseConfig_Hear); //感知配置
+	EnemyPerceptionComponent->ConfigureSense(*AISenseConfig_Damage); //感知配置
 	
-	EnemyPerceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass()); //主导感知类型，多感官下优先使用这个结果
+	EnemyPerceptionComponent->SetDominantSense(UAISense_Sight::StaticClass()); //主导感知类型，多感官下优先使用这个结果
+
 	EnemyPerceptionComponent->OnTargetPerceptionUpdated.AddUniqueDynamic(this,&ThisClass::OnEnemyPerceptionUpdated); //绑定感知更新事件，当AI感知到目标（进入/离开视野）时就会回调，其中更新TargetActor
 
 	AAIController::SetGenericTeamId(FGenericTeamId(1));
@@ -82,19 +92,21 @@ void AWarriorAIController::BeginPlay()
 //当感知更新时，设置TargetActor
 void AWarriorAIController::OnEnemyPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	if (UBlackboardComponent*BlackboardComponent=GetBlackboardComponent())
+	if (UBlackboardComponent* BlackboardComponent = GetBlackboardComponent())
 	{
-		if (!BlackboardComponent->GetValueAsObject(FName("TargetActor")))
+		if (Stimulus.WasSuccessfullySensed())
 		{
-			if (Stimulus.WasSuccessfullySensed() && Actor)
-			{	
-				//SetValueAsObject设置Object及其子类参数所用
-				BlackboardComponent->SetValueAsObject(FName("TargetActor"),Actor);
-			}
+			// 进入感知范围：设置目标
+			BlackboardComponent->SetValueAsObject(FName("TargetActor"), Actor);
 		}
 		else
 		{
-			BlackboardComponent->SetValueAsObject(FName("TargetActor"),nullptr);
+			// 离开感知范围：检查是否丢失的就是当前目标
+			AActor* CurrentTarget = Cast<AActor>(BlackboardComponent->GetValueAsObject(FName("TargetActor")));
+			if (CurrentTarget == Actor)
+			{
+				BlackboardComponent->SetValueAsObject(FName("TargetActor"), nullptr);
+			}
 		}
 	}
 }

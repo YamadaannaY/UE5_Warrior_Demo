@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "WarriorAIController.generated.h"
 
+class UAISenseConfig_Damage;
 class UAISenseConfig_Hearing;
 struct FAIStimulus;
 class UAISenseConfig_Sight;
@@ -37,11 +38,14 @@ protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	UAISenseConfig_Hearing* AISenseConfig_Hear;
 
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	UAISenseConfig_Damage* AISenseConfig_Damage;
+
 	UFUNCTION()
 	//当感知对象更新时更新
 	virtual void OnEnemyPerceptionUpdated( AActor* Actor, FAIStimulus Stimulus);
 
-private:
+protected:
 	//允许避让
 	UPROPERTY(EditDefaultsOnly,Category="Detour Crowd Avoidance Config")
 	bool bEnableDetourCrowdAvoidance=true;
@@ -54,16 +58,35 @@ private:
 	UPROPERTY(EditDefaultsOnly,Category="Detour Crowd Avoidance Config",meta=(EditCondition="bEnableDetourCrowdAvoidance"))
 	float CollisionQueryRange=700.f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere,Category="Sight")
 	float VisionAngleDegrees=180.f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere,Category="Sight")
 	float SightRadius=2000.f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere,Category="Sight")
+	float LoseSightRadius=2300.f;
+
+	UPROPERTY(EditAnywhere,Category="Sight")
+	float SightMaxAge=3.f;
+
+	
+	UPROPERTY(EditAnywhere,Category="Hearing")
 	float HearRadius=500.f;
 
-	UPROPERTY(EditDefaultsOnly)
-	float LoseSightRadius=2300.f;
-	
+	UPROPERTY(EditAnywhere,Category="Hearing")
+	float HearMaxAge=3.f;
+
+	UPROPERTY(EditAnywhere,Category="Damage")
+	float DamageMaxAge=3.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Detection")
+	bool bDetectEnemies = true;
+    
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Detection")
+	bool bDetectNeutrals = true;
+    
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Detection")
+	bool bDetectFriendlies = false;
+	 
 };
