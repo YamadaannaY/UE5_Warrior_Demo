@@ -36,6 +36,7 @@ void UHeroGameplayAbility_Block::EndAbility(const FGameplayAbilitySpecHandle Han
 	{
 		UGameplayStatics::SetGlobalTimeDilation(this,1.f);
 	}
+	
 	GetAbilitySystemComponentFromActorInfo()->RemoveGameplayCue(GameplayCueShieldTag);
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

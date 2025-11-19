@@ -99,14 +99,5 @@ void AWarriorAIController::OnEnemyPerceptionUpdated(AActor* Actor, FAIStimulus S
 			// 进入感知范围：设置目标
 			BlackboardComponent->SetValueAsObject(FName("TargetActor"), Actor);
 		}
-		else
-		{
-			// 离开感知范围：检查是否丢失的就是当前目标
-			AActor* CurrentTarget = Cast<AActor>(BlackboardComponent->GetValueAsObject(FName("TargetActor")));
-			if (CurrentTarget == Actor)
-			{
-				BlackboardComponent->SetValueAsObject(FName("TargetActor"), nullptr);
-			}
-		}
 	}
 }
