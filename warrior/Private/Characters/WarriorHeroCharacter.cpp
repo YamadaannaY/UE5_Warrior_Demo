@@ -26,7 +26,7 @@ void AWarriorHeroCharacter::PossessedBy(AController* NewController)
 		//由于Player一开始就被Controller Possess，且十分重要，所以进行同步加载
 		if (UDataAsset_StartUpDataBase* LoadedData=CharacterStartUpData.LoadSynchronous())
 		{
-			int32 AbilityApplyLevel=1;
+			AbilityApplyLevel=1;
 			
 			if (const AWarriorGameMode* BaseGameMode=GetWorld()->GetAuthGameMode<AWarriorGameMode>())
 			{
@@ -63,6 +63,140 @@ void AWarriorHeroCharacter::PossessedBy(AController* NewController)
 void AWarriorHeroCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	//延时0.1s加载ASC
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer
+	(TimerHandle, this, &ThisClass::InitializeAttributeListener, 0.1f, false);
+}
+
+
+void AWarriorHeroCharacter::InitializeAttributeListener()
+{
+	if (!GetWarriorAbilitySystemComponent() || !GetWarriorAttributeSet())
+	{
+		Debug::Print(TEXT("ASC or AttributeSet not ready!"));
+		return;
+	}
+	
+	// 使用ASC的直接委托避免GC问题
+	GetWarriorAbilitySystemComponent()->GetGameplayAttributeValueChangeDelegate(
+		UWarriorAttributeSet::GetStaminaAttribute()
+	).AddUObject(this, &AWarriorHeroCharacter::HandleStaminaChangeDirect);
+	
+	GetWarriorAbilitySystemComponent()->GetGameplayAttributeValueChangeDelegate(
+		UWarriorAttributeSet::GetCurrentHealthAttribute()
+	).AddUObject(this, &AWarriorHeroCharacter::HandleCurrentHealthChangeDirect);
+	
+	GetWarriorAbilitySystemComponent()->GetGameplayAttributeValueChangeDelegate(
+		UWarriorAttributeSet::GetCurrentRageAttribute()
+	).AddUObject(this, &AWarriorHeroCharacter::HandleCurrentRageDirect);
+}
+
+void AWarriorHeroCharacter::HandleStaminaChangeDirect(const FOnAttributeChangeData& Data) const 
+{
+	const float NewValue = Data.NewValue;
+	const float OldValue = Data.OldValue;
+
+	//处理Stamina逻辑
+	HandleStaminaChange(UWarriorAttributeSet::GetStaminaAttribute(),NewValue, OldValue);
+}
+
+void AWarriorHeroCharacter::HandleCurrentHealthChangeDirect(const FOnAttributeChangeData& Data) const 
+{
+	const float NewValue = Data.NewValue;
+	const float OldValue = Data.OldValue;
+
+	//处理CurrentHealth
+	HandleCurrentHealthChange(UWarriorAttributeSet::GetCurrentHealthAttribute(),NewValue,OldValue);
+}
+
+void AWarriorHeroCharacter::HandleCurrentRageDirect(const FOnAttributeChangeData& Data) const 
+{
+	const float NewValue = Data.NewValue;
+	const float OldValue = Data.OldValue;
+
+	//处理CurrentRage
+	HandleCurrentRageChange(UWarriorAttributeSet::GetCurrentRageAttribute(),NewValue, OldValue);
+}
+
+void AWarriorHeroCharacter::HandleStaminaChange(FGameplayAttribute ChangeAttribute,float NewValue, float OldValue) const 
+{
+	if (NewValue < OldValue)
+	{
+		const FGameplayEffectSpecHandle SpecHandle =
+			GetWarriorAbilitySystemComponent()->MakeOutgoingSpec
+		(
+			StaminaRegenEffect, 
+		    AbilityApplyLevel, 
+		    GetWarriorAbilitySystemComponent()->MakeEffectContext()
+		);
+
+		if (SpecHandle.IsValid())
+		{
+			GetWarriorAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+		}
+	}
+	else
+	{
+		if(NewValue >= GetWarriorAttributeSet()->MaxStamina.GetCurrentValue())
+		{
+			GetWarriorAbilitySystemComponent()->RemoveActiveEffectsWithGrantedTags(StaminaRegenEffectTagToRemove.GetSingleTagContainer());
+		}
+	}
+}
+
+void AWarriorHeroCharacter::HandleCurrentHealthChange(FGameplayAttribute Attribute, float NewValue,
+	float OldValue) const
+{
+	if (NewValue < OldValue)
+	{
+		const FGameplayEffectSpecHandle SpecHandle =
+			GetWarriorAbilitySystemComponent()->MakeOutgoingSpec
+		(
+			CurrentHealthEffect, 
+			AbilityApplyLevel, 
+			GetWarriorAbilitySystemComponent()->MakeEffectContext()
+		);
+
+		if (SpecHandle.IsValid())
+		{
+			GetWarriorAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+		}
+	}
+	else
+	{
+		if(NewValue >= GetWarriorAttributeSet()->MaxHealth.GetCurrentValue())
+		{
+			GetWarriorAbilitySystemComponent()->RemoveActiveEffectsWithGrantedTags(CurrentHealthEffectTagToRemove.GetSingleTagContainer());
+		}
+	}
+}
+
+void AWarriorHeroCharacter::HandleCurrentRageChange(FGameplayAttribute Attribute, float NewValue, float OldValue) const
+{
+	if (NewValue < OldValue)
+	{
+		const FGameplayEffectSpecHandle SpecHandle =
+			GetWarriorAbilitySystemComponent()->MakeOutgoingSpec
+		(
+			CurrentRageEffect, 
+			AbilityApplyLevel, 
+			GetWarriorAbilitySystemComponent()->MakeEffectContext()
+		);
+
+		if (SpecHandle.IsValid())
+		{
+			GetWarriorAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+		}
+	}
+	else
+	{
+		if(NewValue >= GetWarriorAttributeSet()->MaxRage.GetCurrentValue())
+		{
+			GetWarriorAbilitySystemComponent()->RemoveActiveEffectsWithGrantedTags(CurrentRageEffectTagToRemove.GetSingleTagContainer());
+		}
+	}
 }
 
 void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -230,5 +364,3 @@ UHeroUIComponent* AWarriorHeroCharacter::GetHeroUIComponent() const
 {
 	return HeroUIComponent;
 }
-
-

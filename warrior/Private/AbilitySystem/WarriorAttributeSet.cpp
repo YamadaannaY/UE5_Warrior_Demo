@@ -8,6 +8,8 @@
 #include "Components/UI/HeroUIComponent.h"
 #include "Components/UI/PawnUIComponent.h"
 #include "Interfaces/PawnUIInterface.h"
+#include "Net/UnrealNetwork.h"
+#include "Abilities/Async/AbilityAsync_WaitAttributeChanged.h"
 
 //构造函数中使用访问器函数进行所有值的初始化，在编辑器中使用CurveTable进行赋值
 UWarriorAttributeSet::UWarriorAttributeSet()
@@ -18,6 +20,8 @@ UWarriorAttributeSet::UWarriorAttributeSet()
 	InitMaxRage(1.f);
 	InitAttackPower(1.f);
 	InitDefensePower(1.f);
+	InitMaxStamina(1.f);
+	InitStamina(1.f);
 }
 
 void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
@@ -91,4 +95,19 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 			(Data.Target.GetAvatarActor(),WarriorGamePlayTags::Shared_Status_Dead);
 		}
 	}
+}
+
+void UWarriorAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(UWarriorAttributeSet,CurrentHealth,COND_None,REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UWarriorAttributeSet,MaxHealth,COND_None,REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UWarriorAttributeSet,CurrentRage,COND_None,REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UWarriorAttributeSet,MaxRage,COND_None,REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UWarriorAttributeSet,AttackPower,COND_None,REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UWarriorAttributeSet,DefensePower,COND_None,REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UWarriorAttributeSet,DamageTaken,COND_None,REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UWarriorAttributeSet,Stamina,COND_None,REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UWarriorAttributeSet,MaxStamina,COND_None,REPNOTIFY_Always)
 }

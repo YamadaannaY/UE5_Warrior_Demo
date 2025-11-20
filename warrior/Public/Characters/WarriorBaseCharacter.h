@@ -42,6 +42,9 @@ protected:
 	virtual void PossessedBy(AController* NewController) override;
 	//~ End APawn Interface.
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="AbilitySystem")
+	EGameplayEffectReplicationMode AscReplicationMode=EGameplayEffectReplicationMode::Mixed;
+
 	//ASC组件
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="AbilitySystem")
 	UWarriorAbilitySystemComponent* WarriorAbilitySystemComponent;

@@ -11,7 +11,7 @@ void UHeroGA__Dash::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                     const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
+	
 	Dashing();
 }
 
@@ -81,6 +81,9 @@ void UHeroGA__Dash::FinishDashing()
 {
 	GetAbilitySystemComponentFromActorInfo()->RemoveGameplayCue(DashGameplayCueTag);
 
+	//触发冷却
+	CommitAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo());
+	
 	EndAbility(GetCurrentAbilitySpecHandle(),GetCurrentActorInfo(),GetCurrentActivationInfo(),true,false);
 }
 

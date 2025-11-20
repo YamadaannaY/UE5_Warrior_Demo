@@ -15,6 +15,9 @@ AWarriorBaseCharacter::AWarriorBaseCharacter()
 	GetMesh()->bReceivesDecals=false;
 
 	WarriorAbilitySystemComponent=CreateDefaultSubobject<UWarriorAbilitySystemComponent>(TEXT("WarriorAbilitySystemComponent"));
+	WarriorAbilitySystemComponent->SetIsReplicated(true);
+	WarriorAbilitySystemComponent->SetReplicationMode(AscReplicationMode);
+
 	WarriorAttributeSet=CreateDefaultSubobject<UWarriorAttributeSet>(TEXT("WarriorAttributeSet"));
 	MotionWarpingComponent=CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 }

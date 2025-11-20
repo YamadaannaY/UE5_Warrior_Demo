@@ -38,7 +38,7 @@ protected:
 	UFUNCTION()
 	void StartResetJumpToFinishTimer();
 
-	UFUNCTION()
+	
 	void ResetJumpToFinishState();
 
 	UFUNCTION()

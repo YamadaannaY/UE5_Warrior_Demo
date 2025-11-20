@@ -12,15 +12,15 @@ void UWarriorAbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& I
 	{
 		return ;
 	}
-	//对所有被GiveAbility的Ability进行遍历（可以被激活但尚未激活的能力，即HeroStartUpAbilitySets中带有Tag的GA）
+	//对所有被GiveAbility的Ability进行遍历（可以被激活但尚未使用的GA，即HeroStartUpAbilitySets中动态赋予了Tag的GA）
 	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
 		if (! AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InInputTag)) continue;
 		
-		//对于切换类型的能力进行专门判断
+		//Toggleable GA没有手动结束能力，需要再次触发以解除GA
 		if (InInputTag.MatchesTag(WarriorGamePlayTags::InputTag_Toggleable) && AbilitySpec.IsActive())
 		{
-				//激活蓝图中的OnEndAbility
+				//激活EndAbility
 				CancelAbilityHandle(AbilitySpec.Handle);
 			}
 		else
@@ -34,7 +34,7 @@ void UWarriorAbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& I
 
 void UWarriorAbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag& InInputTag)
 {
-    //此函数只对所有InputTag_MustBeHeld下的Tag有效，因为Held类型的GA在激活后没有手动调用EndAbility
+    //此函数只对所有InputTag_MustBeHeld下的GA有效，因为Held类型的GA在激活后没有手动调用EndAbility，需要松开触发以结束能力
 	if (!InInputTag.IsValid() || !InInputTag.MatchesTag(WarriorGamePlayTags::InputTag_MustBeHeld))
 	{
 		return;
@@ -116,7 +116,7 @@ bool UWarriorAbilitySystemComponent::TryActivateAbilityByTag(FGameplayTag Abilit
 
 	if (!FoundAbilitySpecs.IsEmpty())
 	{
-		//Note:此处不完全随机，是有规律的随机数可能需要改进。
+
 		const int32 RandomAbilityIndex=FMath::RandRange(0,FoundAbilitySpecs.Num()-1);
 		const FGameplayAbilitySpec* SpecToActivate=FoundAbilitySpecs[RandomAbilityIndex];
 		

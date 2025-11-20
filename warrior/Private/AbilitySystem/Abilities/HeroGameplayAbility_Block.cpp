@@ -69,6 +69,7 @@ FGameplayCueParameters UHeroGameplayAbility_Block::MakeBlockGamePlayCueParams() 
 void UHeroGameplayAbility_Block::StartResetJumpToFinishTimer()
 {
 	FTimerDynamicDelegate TimerDelegate;
+	
 	TimerDelegate.BindUFunction(this, FName("ResetJumpToFinishState"));
 	GetWorld()->GetTimerManager().SetTimer(
 		   AbilityTimerHandle,
@@ -101,10 +102,10 @@ void UHeroGameplayAbility_Block::DealSuccessfulBlock(FGameplayEventData InPayLoa
 	
 	if (AWarriorHeroCharacter* HeroCharacter=GetHeroCharacterFromActorInfo())
 	{
-		const FVector Location=HeroCharacter->GetActorLocation();
+		const FVector ActorLocation=HeroCharacter->GetActorLocation();
 		const FVector LookAtLocation=InPayLoad.Instigator->GetActorLocation();
 
-		const FRotator NewRotation=UKismetMathLibrary::FindLookAtRotation(Location,LookAtLocation);
+		const FRotator NewRotation=UKismetMathLibrary::FindLookAtRotation(ActorLocation,LookAtLocation);
 
 		//防御成功后，转向目标方向
 		HeroCharacter->SetActorRotation(NewRotation);
@@ -145,6 +146,7 @@ void UHeroGameplayAbility_Block::DealSuccessfulBlock(FGameplayEventData InPayLoa
 				DelayTask->OnFinish.AddDynamic(this, &ThisClass::OnDelayCompleted);
 				DelayTask->ReadyForActivation();
 			}
+			//执行完毕重置false !!!
 			bIsPerfectBlock=false;
 		}
 	}

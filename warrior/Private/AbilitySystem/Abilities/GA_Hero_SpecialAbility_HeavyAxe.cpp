@@ -2,9 +2,10 @@
 
 
 #include "AbilitySystem/Abilities/GA_Hero_SpecialAbility_HeavyAxe.h"
-
 #include "AbilitySystemBlueprintLibrary.h"
+#include "WarriorDebugHelper.h"
 #include "WarriorGamePlayTags.h"
+#include "Characters/WarriorEnemyCharacter.h"
 #include "Characters/WarriorHeroCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -35,15 +36,19 @@ void UGA_Hero_SpecialAbility_HeavyAxe::HandleEventReceived(FGameplayEventData In
 	float InWeaponBaseDamage=GetHeroCombatComponentFromActorInfo()->GetHeroCurrentEquippedWeaponDamageAtLevel(GetAbilityLevel());
 	FGameplayEffectSpecHandle DamageSpecHandle=MakeHeroDamageEffectSpecHandle(DamageGameplayEffectClass,InWeaponBaseDamage,WarriorGamePlayTags::Player_SetByCaller_AttackType_Heavy,HeavyUseComboCount);
 
-	if (!DamageSpecHandle.IsValid())
+	if (!DamageSpecHandle.IsValid() ||  TraceHits.IsEmpty())
 	{
+		Debug::Print("no spechandle or no tracehit");
 		return ;
 	}
-
-	const AActor* LocalTargetActor=InPayLoad.Target.Get();
-	NativeApplyEffectSpecHandleToTarget(const_cast<AActor*>(LocalTargetActor),DamageSpecHandle);
-
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(const_cast<AActor*>(LocalTargetActor),WarriorGamePlayTags::Shared_Event_HitReact,InPayLoad);
-
 	
+	for (const FHitResult& TraceHit : TraceHits)
+	{
+		if (AWarriorEnemyCharacter* Enemy=Cast<AWarriorEnemyCharacter>(TraceHit.GetActor()))
+		{
+			NativeApplyEffectSpecHandleToTarget(Enemy,DamageSpecHandle);
+
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Enemy,WarriorGamePlayTags::Shared_Event_HitReact,InPayLoad);
+		}
+	}
 }
