@@ -21,11 +21,9 @@ public:
 	FWarriorHeroWeaponData HeroWeaponData;
 
 	//存储被GiveAbility()到ASC的Spec句柄到本地变量GrantedAbilitySpecHandles
-	UFUNCTION(BlueprintCallable)
 	void AssignGrantedAbilitySpecHandles(const TArray<FGameplayAbilitySpecHandle> InSpecHandles);
 
 	//获得存储GrantedAbilitySpecHandles的数组
-	UFUNCTION(BlueprintPure)
 	TArray<FGameplayAbilitySpecHandle> GetGrantedAbilitySpecHandles() const;
 
 private:

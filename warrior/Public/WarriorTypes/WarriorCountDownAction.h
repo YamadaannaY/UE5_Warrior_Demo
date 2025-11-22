@@ -38,7 +38,7 @@ public:
 private:
 	//是否Cancel
 	bool bNeedToCancel;
-	//延时时间
+	//总延时时间
 	float TotalCountDownTime;
 	//更新频率
 	float UpdateInterval;
@@ -50,7 +50,9 @@ private:
 	FName ExecutionFunction;
 	int32 OutputLink;
 	FWeakObjectPtr CallBackTarget;
-	//继上一次触发update后经过的时间周期
+
+	
+	//继上一次触发update后经过的时间周期，内置逻辑用
 	float ElapsedInterval;
 	float ElapsedTimeSinceStart;
 };

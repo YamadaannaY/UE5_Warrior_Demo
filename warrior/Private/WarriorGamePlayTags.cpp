@@ -41,6 +41,7 @@ namespace  WarriorGamePlayTags
 
 	//存储于WeaponMap
 	UE_DEFINE_GAMEPLAY_TAG(Player_Weapon_Axe,"Player.Weapon.Axe");
+	UE_DEFINE_GAMEPLAY_TAG(Player_Weapon_WolfSword,"Player.Weapon.WolfSword");
 
 	//与WaitGamePlayEvent中的EventTag绑定
 	UE_DEFINE_GAMEPLAY_TAG(Player_Event_Equip_Axe,"Player.Event.Equip.Axe");
@@ -72,6 +73,8 @@ namespace  WarriorGamePlayTags
 	//攻击Tag
 	UE_DEFINE_GAMEPLAY_TAG(Player_SetByCaller_AttackType_Light,"Player.SetByCaller.AttackType.Light");
 	UE_DEFINE_GAMEPLAY_TAG(Player_SetByCaller_AttackType_Heavy,"Player.SetByCaller.AttackType.Heavy");
+	UE_DEFINE_GAMEPLAY_TAG(Player_SetByCaller_Data_Damage,"Player.SetByCaller.Data.Damage");
+	UE_DEFINE_GAMEPLAY_TAG(Player_SetByCaller_Data_Heal,"Player.SetByCaller.Data.Heal");
 
 	/**EnemyTag **/
 	UE_DEFINE_GAMEPLAY_TAG(Enemy_Weapon,"Enemy.Weapon");

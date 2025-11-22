@@ -68,6 +68,7 @@ namespace  WarriorGamePlayTags
 	//		Weapon Tag:包装进CombatComponent中的WeaponMap,作为武器的Tag存在
 	//		Player Weapon Tags   **/
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Weapon_Axe);
+	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_Weapon_WolfSword);
 	//		Enemy Weapon Tag	**/
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Enemy_Weapon);
 	/** ----------------------------------------------------------------------------- **/
@@ -124,6 +125,8 @@ namespace  WarriorGamePlayTags
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Shared_SetByCaller_BaseDamage)
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_SetByCaller_AttackType_Light);
 	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_SetByCaller_AttackType_Heavy);
+	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_SetByCaller_Data_Damage);
+	WARRIOR_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Player_SetByCaller_Data_Heal);
 
 	/**Game Data Tag**/
 	//保存整个游戏需要的Data，如Level、SaveGameSlot

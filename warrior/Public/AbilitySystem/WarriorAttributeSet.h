@@ -25,8 +25,7 @@ class WARRIOR_API UWarriorAttributeSet : public UAttributeSet
 public:
 	UWarriorAttributeSet();
 
-	//内部自动调用的生命周期函数，当一个GameplayEffect修改了某个Attribute（注意是单个）时调用，会把结果写入到UWarriorAttributeSet里的对应属性
-	//内置if判断进行对应属性更新
+	//内部自动调用的生命周期函数，当一个GameplayEffect修改了某个Attribute（注意是单个）之后调用，用于处理改变后要执行的逻辑
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData &Data) override;
 	
 	UPROPERTY(BlueprintReadOnly,Category="Attribute|Health",ReplicatedUsing=OnRep_CurrentHealth)

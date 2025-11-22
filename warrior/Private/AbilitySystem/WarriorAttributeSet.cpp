@@ -49,6 +49,15 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 		
 		PawnUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentHealth()/GetMaxHealth());
 	}
+
+	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
+	{
+		const float NewStamina=FMath::Clamp(GetStamina(),0.f,GetMaxStamina());
+		SetStamina(NewStamina);
+
+		PawnUIComponent->OnStaminaChanged.Broadcast(GetStamina()/GetMaxStamina());
+	}
+	
 	if (Data.EvaluatedData.Attribute==GetCurrentRageAttribute())
 	{
 		const float NewCurrentRage=FMath::Clamp(GetCurrentRage(),0.f,GetMaxRage());

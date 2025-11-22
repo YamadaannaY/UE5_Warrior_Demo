@@ -8,7 +8,7 @@ void FWarriorCountDownAction::UpdateOperation(FLatentResponse& Response)
 	if (bNeedToCancel)
 	{
 		CountDownOutput=EWarriorCountDownActionOutput::Cancelled;
-		//，再执行一次这个函数，此时输出的是cancelled，随后立即结束这个倒计时操作
+		//再执行一次这个函数，此时输出的是cancelled，随后立即结束这个倒计时操作
 		Response.FinishAndTriggerIf(true,ExecutionFunction,OutputLink,CallBackTarget);
 
 		return;

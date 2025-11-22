@@ -88,6 +88,7 @@ void UGA_Hero_EquipWeapon::HandleEquipWeapon(AWarriorHeroWeapon* InWeaponToEquip
 	TArray<FGameplayAbilitySpecHandle> OutGrantedAbilitySpecHandles;
 	GetWarriorAbilitySystemComponentFromActorInfo()->GrantHeroWeaponAbilities(CacheWeaponData.DefaultWeaponAbilities,CacheWeaponData.SpecialWeaponAbilities,GetAbilityLevel(),OutGrantedAbilitySpecHandles);
 
+	//将数组存储到Weapon类本地变量中存储
 	InWeaponToEquip->AssignGrantedAbilitySpecHandles(OutGrantedAbilitySpecHandles);
 
 	UpdateUIAndCalRemainingTime(InWeaponToEquip);

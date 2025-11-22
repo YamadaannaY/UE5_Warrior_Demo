@@ -11,6 +11,7 @@
 #include  "WarriorGamePlayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "WarriorDebugHelper.h"
+#include "WarriorFunctionLibrary.h"
 #include "Components/UI/HeroUIComponent.h"
 #include "DataAssets/StartUpData/DataAsset_StartUpDataBase.h"
 #include "Components/Combat/HeroCombatComponent.h"
@@ -102,11 +103,15 @@ void AWarriorHeroCharacter::HandleStaminaChangeDirect(const FOnAttributeChangeDa
 	HandleStaminaChange(UWarriorAttributeSet::GetStaminaAttribute(),NewValue, OldValue);
 }
 
-void AWarriorHeroCharacter::HandleCurrentHealthChangeDirect(const FOnAttributeChangeData& Data) const 
+void AWarriorHeroCharacter::HandleCurrentHealthChangeDirect(const FOnAttributeChangeData& Data)
 {
 	const float NewValue = Data.NewValue;
 	const float OldValue = Data.OldValue;
-
+	if (NewValue<=0.f)
+	{
+		UWarriorFunctionLibrary::AddGameplayTagToActorIfNone(this,WarriorGamePlayTags::Shared_Status_Dead);
+		return;
+	}
 	//处理CurrentHealth
 	HandleCurrentHealthChange(UWarriorAttributeSet::GetCurrentHealthAttribute(),NewValue,OldValue);
 }
@@ -134,7 +139,16 @@ void AWarriorHeroCharacter::HandleStaminaChange(FGameplayAttribute ChangeAttribu
 
 		if (SpecHandle.IsValid())
 		{
-			GetWarriorAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+			//每次Dash之后延时一秒再进行StaminaRegen，所以无论GE是否存在都要删除，否则除第一次之外不会触发延时
+			GetWarriorAbilitySystemComponent()->RemoveActiveEffectsWithGrantedTags(StaminaRegenEffectTagToRemove.GetSingleTagContainer());
+
+			//设置一个定时器，在判断栈代码之后1s后触发Apply
+			FTimerHandle TimerHandle;
+			GetWorldTimerManager().SetTimer(TimerHandle, [this,SpecHandle]()
+			{
+				
+				GetWarriorAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+			},1.0f,false); // 1秒，不循环
 		}
 	}
 	else
@@ -187,7 +201,12 @@ void AWarriorHeroCharacter::HandleCurrentRageChange(FGameplayAttribute Attribute
 
 		if (SpecHandle.IsValid())
 		{
-			GetWarriorAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+			//设置一个定时器，在判断栈代码之后1s后触发Apply
+			FTimerHandle TimerHandle;
+			GetWorldTimerManager().SetTimer(TimerHandle, [this,SpecHandle]()
+			{
+				GetWarriorAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+			},1.0f,false); // 1秒，不循环
 		}
 	}
 	else

@@ -93,7 +93,7 @@ private:
 	int32 AbilityApplyLevel=1;
 	
 	void HandleStaminaChangeDirect(const FOnAttributeChangeData& Data) const;
-	void HandleCurrentHealthChangeDirect(const FOnAttributeChangeData& Data) const;
+	void HandleCurrentHealthChangeDirect(const FOnAttributeChangeData& Data);
 	void HandleCurrentRageDirect(const FOnAttributeChangeData& Data) const;
 
 #pragma region Input

@@ -23,6 +23,14 @@ UWarriorAbilitySystemComponent* UWarriorFunctionLibrary::NativeGetWarriorASCFrom
 void UWarriorFunctionLibrary::AddGameplayTagToActorIfNone(AActor* InActor, FGameplayTag TagToAdd)
 {
 	UWarriorAbilitySystemComponent* ASC=NativeGetWarriorASCFromActor(InActor);
+
+	if (!ASC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AddGameplayTagToActorIfNone: Failed to get ASC from actor %s"), 
+			*InActor->GetName());
+		return;
+	}
+	
 	if (! ASC->HasMatchingGameplayTag(TagToAdd))
 	{
 		//不依赖 GE，完全由开发者代码控制的Tag，根据计数逻辑进行添加或删除

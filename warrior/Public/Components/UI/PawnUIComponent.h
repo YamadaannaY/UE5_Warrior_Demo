@@ -24,4 +24,8 @@ public:
 	//当前生命百分比变化的委托，一旦属性集中PostGameplayEffectExecute中生命值部分改变就进行一次广播触发蓝图逻辑
 	UPROPERTY(BlueprintAssignable)
 	FOnPercentChangedDelegate OnCurrentHealthChanged;
+
+	//耐力/韧性百分比变化委托
+	UPROPERTY(BlueprintAssignable)
+	FOnPercentChangedDelegate OnStaminaChanged;
 };
