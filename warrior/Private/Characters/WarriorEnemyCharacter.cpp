@@ -23,9 +23,9 @@ AWarriorEnemyCharacter::AWarriorEnemyCharacter()
 	
 	EnemyCombatComponent=CreateDefaultSubobject<UEnemyCombatComponent>(TEXT("EnemyCombatComponent"));
 	EnemyUIComponent=CreateDefaultSubobject<UEnemyUIComponent>(TEXT("EnemyUIComponent"));
-	
 	EnemyHealthWidgetComponent=CreateDefaultSubobject<UWidgetComponent>(TEXT("EnemyHealthWidgetComponent"));
-	//将生命值Widget与Mesh绑定
+
+	//将生命值条与Mesh绑定
 	EnemyHealthWidgetComponent->SetupAttachment(GetMesh());
 
 	//将Box与Mesh绑定，初始化为无碰撞，并将OnComponentBeginOverlap绑定回调
@@ -83,6 +83,7 @@ void AWarriorEnemyCharacter::PostEditChangeProperty(struct FPropertyChangedEvent
 void AWarriorEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	//获得组件管理的实例以操作这个实例
 	if (UWarriorWidgetBase* HealthWidget=Cast<UWarriorWidgetBase>(EnemyHealthWidgetComponent->GetUserWidgetObject()))
 	{
 		//只在Enemy产生时对应产生Widget而非引擎初始化时创建，节省开销。

@@ -12,12 +12,14 @@
 class FWarriorCountDownAction:	public FPendingLatentAction
 {
 public:
-	FWarriorCountDownAction(
+	FWarriorCountDownAction
+	(
 		float InTotalCountDownTime,
 		float InUpdateInterval,
 		float& InOutRemainingTime,
 		EWarriorCountDownActionOutput& InCountDownOutput,
-		const FLatentActionInfo& LatenInfo)
+		const FLatentActionInfo& LatenInfo
+	)
 	:
 		bNeedToCancel(false),
 		TotalCountDownTime(InTotalCountDownTime),
@@ -31,8 +33,10 @@ public:
 		ElapsedTimeSinceStart(0.f)
 	{
 	}
-	//在GameThread中世界会每帧更新，更新会对所有LatenAction调用UpdateOperation
+	
+	//在GameThread中UWorld每帧更新，更新会对所有LatenAction调用UpdateOperation
 	virtual void UpdateOperation(FLatentResponse& Response) override;
+
 	void CancelAction();
 
 private:

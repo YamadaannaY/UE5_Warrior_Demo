@@ -2,8 +2,6 @@
 
 
 #include "Conrtroller/WarriorAIController.h"
-
-#include "WarriorDebugHelper.h"
 #include "Navigation/CrowdFollowingComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AIPerceptionComponent.h"

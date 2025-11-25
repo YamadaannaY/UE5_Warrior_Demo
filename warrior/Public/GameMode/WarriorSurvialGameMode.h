@@ -1,5 +1,4 @@
-// Yu
-
+// Yu WarriorGameMode
 #pragma once
 
 #include "CoreMinimal.h"

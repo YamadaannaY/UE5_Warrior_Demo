@@ -28,6 +28,14 @@ class WARRIOR_API IPawnUIInterface
 	此UI接口被WarriorBaseCharacter所继承。	**/
 	
 public:
+
+	//模板
+	template<typename T>
+	   T* GetUIComponent() const
+	{
+		return Cast<T>(GetPawnUIComponent());
+	}
+	
 	//框架级别的统一入口，保证所有实现接口的类都有一个基础 UI。
 	virtual UPawnUIComponent* GetPawnUIComponent() const =0;
 
@@ -38,14 +46,3 @@ public:
 	virtual UEnemyUIComponent* GetEnemyUIComponent() const;
 };
 
-//优化：使用模板
-/*template<typename T>
-   T* GetUIComponent() const
-{
-	return Cast<T>(GetPawnUIComponent());
-}
-// 使用：
-if (UHeroUIComponent* HeroUI = Character->GetUIComponent<UHeroUIComponent>())
-{
-	HeroUI->UpdateHeroSpecificUI();
-}*/

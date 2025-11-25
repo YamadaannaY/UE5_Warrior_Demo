@@ -57,8 +57,9 @@ void UGEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCustom
 	//获得当前正在执行的EffectSpec
 	const FGameplayEffectSpec& EffectSpec=ExecutionParams.GetOwningSpec();
 
-	//SourceTags → 施法者身上的标签集合
-	//TargetTags → 目标身上的标签集合
+	//FAggregatorEvaluateParameters主要作用在于判断是否有BuffTag，作为计算值参与计算，暂时还没有Buff，当一个参数即可
+	//SourceTags → 施法者ASC的标签集合
+	//TargetTags → 目标ASC的标签集合
 	FAggregatorEvaluateParameters EvaluateParameters;
 	EvaluateParameters.SourceTags=EffectSpec.CapturedSourceTags.GetAggregatedTags();
 	EvaluateParameters.TargetTags=EffectSpec.CapturedTargetTags.GetAggregatedTags();
@@ -78,6 +79,7 @@ void UGEExecCalc_DamageTaken::Execute_Implementation(const FGameplayEffectCustom
 	float BaseDamage=0.f;
 	int32 UsedLightAttackComboCount=0;
 	int32 UsedHeavyAttackComboCount=0;
+	
 	//SetSetByCallerMagnitude→是一种动态参数传递方式，调用时由 Ability/代码来设置SetByCallerMagnitude
 	//动态变化的值用此方法存储
 	for (const TPair<FGameplayTag,float>& TagMagnitude:EffectSpec.SetByCallerTagMagnitudes)

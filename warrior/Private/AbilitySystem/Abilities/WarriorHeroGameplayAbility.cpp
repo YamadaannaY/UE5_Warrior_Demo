@@ -3,8 +3,6 @@
 //ActorInfo存储了character、controller、component等信息
 
 #include "AbilitySystem/Abilities/WarriorHeroGameplayAbility.h"
-
-#include "WarriorDebugHelper.h"
 #include "Conrtroller/WarriorHeroController.h"
 #include "AbilitySystem/WarriorAbilitySystemComponent.h"
 #include"WarriorGamePlayTags.h"
@@ -62,7 +60,9 @@ FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecH
 	ContextHandle.AddInstigator(GetAvatarActorFromActorInfo(),GetAvatarActorFromActorInfo());
 	
 	//创建 EffectSpecHandle
-	FGameplayEffectSpecHandle EffectSpecHandle=GetWarriorAbilitySystemComponentFromActorInfo()->MakeOutgoingSpec(EffectClass,
+	FGameplayEffectSpecHandle EffectSpecHandle=GetWarriorAbilitySystemComponentFromActorInfo()
+	->MakeOutgoingSpec
+	(EffectClass,
 		GetAbilityLevel(),
 		ContextHandle
 		);

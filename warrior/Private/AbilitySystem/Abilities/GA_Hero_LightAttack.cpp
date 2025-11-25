@@ -96,9 +96,6 @@ void UGA_Hero_LightAttack::FindIfSpecialTagAndSetMontage()
     if (LightAttackMontages.Contains(CurrentLayerAttackComboCount))
     {
         CurrentPlayingMontage = LightAttackMontages[CurrentLayerAttackComboCount];
-    	Debug::Print(FString::Printf(TEXT("Selected montage with key %d: %s"), 
-	CurrentLayerAttackComboCount, 
-	*GetNameSafe(CurrentPlayingMontage)));
     }
     else
     {

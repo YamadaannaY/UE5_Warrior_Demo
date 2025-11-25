@@ -26,7 +26,7 @@ void UWarriorCharacterAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaS
 	}
 	GroundSpeed=OwingCharacter->GetVelocity().Size2D();
 	
-	//避免开方计算，直接计算这个向量的平方长度以减少消耗
+	//避免开方计算，直接计算这个向量的平方长度以减少计算消耗
 	bHasAcceleration=OwingMovementComponent->GetCurrentAcceleration().SizeSquared2D()> 0.f;
 
 	//计算角色相对一开始的旋转朝向

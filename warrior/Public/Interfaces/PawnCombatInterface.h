@@ -22,7 +22,7 @@ class WARRIOR_API IPawnCombatInterface
 	GENERATED_BODY()
 
 public:
-	//被Character继承重写，在Base中为nullptr,在Base子类中为具体的UPawnCombatComponent，此接口public使得其他类都可以轻松获取此组件
+	//被Character继承重写，在Base中为nullptr,在Base子类中为具体的UPawnCombatComponent，此接口public使得其他类都可以轻松获取角色类的CombatComponent
 	virtual UPawnCombatComponent* GetPawnCombatComponent() const =0;
 	
 };

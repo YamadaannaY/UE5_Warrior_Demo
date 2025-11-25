@@ -40,7 +40,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	UAISenseConfig_Damage* AISenseConfig_Damage;
-
+	
 	UFUNCTION()
 	//当感知对象更新时更新
 	virtual void OnEnemyPerceptionUpdated( AActor* Actor, FAIStimulus Stimulus);

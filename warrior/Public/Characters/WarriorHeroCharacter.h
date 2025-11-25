@@ -43,13 +43,18 @@ public:
 	virtual UHeroUIComponent* GetHeroUIComponent() const override;
 
 	//~End IPawnUIInterface Interface**/
-
-	UFUNCTION()
+	
 	void HandleStaminaChange(FGameplayAttribute Attribute,float NewValue,float OldValue) const ;
 	void HandleCurrentHealthChange(FGameplayAttribute Attribute,float NewValue,float OldValue) const ;
 	void HandleCurrentRageChange(FGameplayAttribute Attribute,float NewValue,float OldValue) const ;
-	
+
+	//处理所有对属性的监听委托
 	void InitializeAttributeListener();
+private:
+	bool CanProcessMovementInput() const;
+	bool ProcessMovementInput(FVector2D& OutMovementVector) const;
+	FVector CalculateMovementDirection(const FVector2D& MovementVector) const;
+	
 private:
 #pragma region Components
 	//相机臂
@@ -87,6 +92,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly,Category="ChangeEffect")
 	FGameplayTag CurrentRageEffectTagToRemove;
+
+	UPROPERTY(EditDefaultsOnly,Category="Movement")
+	bool bIsMovementDisabled=false;
 
 	
 

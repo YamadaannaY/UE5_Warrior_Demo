@@ -213,24 +213,36 @@ void UWarriorFunctionLibrary::ToggleInputMode(const UObject* WorldContextObject,
 
 void UWarriorFunctionLibrary::SaveCurrentGameDifficulty(EWarriorGameDifficulty InDifficultyToSave)
 {
-	//CreateSaveGameObject返回基类指针，需要进行一次手动Cast
-	USaveGame* SaveGameObject=UGameplayStatics::CreateSaveGameObject(UWarriorSaveGame::StaticClass());
-
+	//使用UClass中的数据创建SaveGame实例
+	USaveGame* SaveGameObject=UGameplayStatics::CreateSaveGameObject
+	(UWarriorSaveGame::StaticClass());
+	
+	//安全判断，防止SaveGame创建失败
 	if (UWarriorSaveGame* WarriorSaveGameObject=Cast<UWarriorSaveGame>(SaveGameObject))
 	{
 		WarriorSaveGameObject->SavedCurrentDifficulty=InDifficultyToSave;
 
-		//用Tag保持固定的Slot格式，便于存储遍历
-		UGameplayStatics::SaveGameToSlot(WarriorSaveGameObject,WarriorGamePlayTags::GameData_SaveGame_Slot_1.GetTag().ToString(),0);
+		//用Tag保存固定的Slot格式，便于存储遍历
+		UGameplayStatics::SaveGameToSlot
+		(
+			WarriorSaveGameObject, //要保存的SaveGame对象
+			WarriorGamePlayTags::GameData_SaveGame_Slot_1.GetTag().ToString(), //存档槽位名称
+			0 //用户索引
+		);
 		/*Debug::Print(bWasSaved ? TEXT("DifficultySaved") : TEXT("DifficultyNotSaved"));*/
 	}
 }
 
 bool UWarriorFunctionLibrary::TryLoadSavedGameDifficulty(EWarriorGameDifficulty& OutSaveDifficulty)
 {
-	if (UGameplayStatics::DoesSaveGameExist(WarriorGamePlayTags::GameData_SaveGame_Slot_1.GetTag().ToString(),0))
+	if (UGameplayStatics::DoesSaveGameExist
+		(
+			WarriorGamePlayTags::GameData_SaveGame_Slot_1.GetTag().ToString(),
+			0)
+		)
 	{
-		USaveGame* SaveGameObject=UGameplayStatics::LoadGameFromSlot(WarriorGamePlayTags::GameData_SaveGame_Slot_1.GetTag().ToString(),0);
+		USaveGame* SaveGameObject=UGameplayStatics::LoadGameFromSlot
+		(WarriorGamePlayTags::GameData_SaveGame_Slot_1.GetTag().ToString(),0);
 
 		if (const UWarriorSaveGame* WarriorSaveGameObject=Cast<UWarriorSaveGame>(SaveGameObject))
 		{

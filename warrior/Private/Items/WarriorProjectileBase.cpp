@@ -6,7 +6,6 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "WarriorFunctionLibrary.h"
 #include "WarriorGamePlayTags.h"
-#include "WarriorDebugHelper.h"
 #include "AbilitySystemBlueprintLibrary.h"
 // Sets default values
 AWarriorProjectileBase::AWarriorProjectileBase()
@@ -22,7 +21,7 @@ AWarriorProjectileBase::AWarriorProjectileBase()
 	ProjectileMovementComp=CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComp"));
 	
 	ProjectileCollisionBox->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
-	//设置碰撞通道为Pawn、WorldDynamic、WorldStatic可交互，并且发生实际物理碰撞
+	//设置碰撞通道为Pawn、WorldDynamic、WorldStatic可交互，Block意味着允许发生实际物理碰撞
 	ProjectileCollisionBox->SetCollisionResponseToChannel(ECC_Pawn,ECR_Block);
 	ProjectileCollisionBox->SetCollisionResponseToChannel(ECC_WorldDynamic,ECR_Block);
 	ProjectileCollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Block);

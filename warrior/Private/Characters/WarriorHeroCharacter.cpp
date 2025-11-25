@@ -21,10 +21,11 @@
 void AWarriorHeroCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+	
 	//若起始数据不为空
 	if (!CharacterStartUpData.IsNull())
 	{
-		//由于Player一开始就被Controller Possess，且十分重要，所以进行同步加载
+		//由于Player一开始就被ControllerPossess，且十分重要，所以进行同步加载
 		if (UDataAsset_StartUpDataBase* LoadedData=CharacterStartUpData.LoadSynchronous())
 		{
 			AbilityApplyLevel=1;
@@ -175,7 +176,16 @@ void AWarriorHeroCharacter::HandleCurrentHealthChange(FGameplayAttribute Attribu
 
 		if (SpecHandle.IsValid())
 		{
-			GetWarriorAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+			//每次Dash之后延时一秒再进行StaminaRegen，所以无论GE是否存在都要删除，否则除第一次之外不会触发延时
+			GetWarriorAbilitySystemComponent()->RemoveActiveEffectsWithGrantedTags(CurrentHealthEffectTagToRemove.GetSingleTagContainer());
+
+			//设置一个定时器，在判断栈代码之后1s后触发Apply
+			FTimerHandle TimerHandle;
+			GetWorldTimerManager().SetTimer(TimerHandle, [this,SpecHandle]()
+			{
+				
+				GetWarriorAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+			},1.0f,false); // 1秒，不循环
 		}
 	}
 	else
@@ -201,6 +211,8 @@ void AWarriorHeroCharacter::HandleCurrentRageChange(FGameplayAttribute Attribute
 
 		if (SpecHandle.IsValid())
 		{
+			GetWarriorAbilitySystemComponent()->RemoveActiveEffectsWithGrantedTags(CurrentRageEffectTagToRemove.GetSingleTagContainer());
+
 			//设置一个定时器，在判断栈代码之后1s后触发Apply
 			FTimerHandle TimerHandle;
 			GetWorldTimerManager().SetTimer(TimerHandle, [this,SpecHandle]()
@@ -220,7 +232,8 @@ void AWarriorHeroCharacter::HandleCurrentRageChange(FGameplayAttribute Attribute
 
 void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	checkf(InputConfigDataAsset,TEXT("Forgot to assign a valid data asset as input config"))
+	if(!InputConfigDataAsset){Debug::Print(TEXT("Forgot to assign a valid data asset as input config"));}
+
 	//Local player指的是被本地Controller控制的pawn
 	const ULocalPlayer* LocalPlayer=GetController<APlayerController>()->GetLocalPlayer();
 	
@@ -232,7 +245,6 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	Subsystem->AddMappingContext(InputConfigDataAsset->DefaultMappingContext,0);
 	
 	UWarriorInputComponent* WarriorInputComponent=CastChecked<UWarriorInputComponent>(PlayerInputComponent);
-	
 	//Native
 	WarriorInputComponent->BindNativeInputAction(
 		InputConfigDataAsset,
@@ -246,8 +258,8 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	WarriorInputComponent->BindNativeInputAction
 	(InputConfigDataAsset,WarriorGamePlayTags::InputTag_SwitchTarget,
 		ETriggerEvent::Triggered,this,&ThisClass::Input_SwitchTargetTriggered);
+	
 	WarriorInputComponent->BindNativeInputAction
-
 	(InputConfigDataAsset,WarriorGamePlayTags::InputTag_SwitchTarget,
 		ETriggerEvent::Completed,this,&ThisClass::Input_SwitchTargetCompleted);
 	
@@ -256,32 +268,62 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		ETriggerEvent::Started,this,&ThisClass::Input_PickUp_Stone_Started);
 	
 	//Ability
-	WarriorInputComponent->BindAbilityInputAction(
-		InputConfigDataAsset,
-		this,
-		&ThisClass::Input_AbilityInputPressed,
-		&ThisClass::Input_AbilityInputReleased);
+	WarriorInputComponent->BindAbilityInputAction
+	(InputConfigDataAsset,this,&ThisClass::Input_AbilityInputPressed,&ThisClass::Input_AbilityInputReleased);
 }
+
+bool AWarriorHeroCharacter::CanProcessMovementInput() const
+{
+	return
+	   Controller &&
+	   Controller->IsLocalController() &&
+	   !bIsMovementDisabled;
+}
+
+bool AWarriorHeroCharacter::ProcessMovementInput(FVector2D& OutMovementVector) const
+{
+	// 应用死区过滤
+	const float DeadZone = 0.1f;
+	if (FMath::Abs(OutMovementVector.X) < DeadZone) OutMovementVector.X = 0.f;
+	if (FMath::Abs(OutMovementVector.Y) < DeadZone) OutMovementVector.Y = 0.f;
+
+	// 检查是否有有效输入
+	return !OutMovementVector.IsNearlyZero(DeadZone);
+}
+
+FVector AWarriorHeroCharacter::CalculateMovementDirection(const FVector2D& MovementVector) const
+{
+	const FRotator ControlRotation = Controller->GetControlRotation();
+	const FRotator MovementRotation(0.f, ControlRotation.Yaw, 0.f);
+    
+	const FVector ForwardDirection = FRotationMatrix(MovementRotation).GetUnitAxis(EAxis::X);
+	const FVector RightDirection = FRotationMatrix(MovementRotation).GetUnitAxis(EAxis::Y);
+    
+	// 组合移动方向并标准化
+	FVector MovementDirection = (ForwardDirection * MovementVector.Y) + (RightDirection * MovementVector.X);
+
+	return MovementDirection.GetSafeNormal();
+}
+
+#pragma region Input_Action
 
 void AWarriorHeroCharacter::Input_Move(const FInputActionValue& InputActionValue)
 {
-	const FVector2D MovementVector=InputActionValue.Get<FVector2D>();
-	//获得摄像机水平方向的欧拉角旋转
-	const FRotator MovementRotation(0.f,Controller->GetControlRotation().Yaw,0.f);
-	
-	if (MovementVector.Y!=0.f)
+	// 输入验证
+	if (!CanProcessMovementInput())
 	{
-		 //旋转到的欧拉角度单位向量
-		const FVector ForwardDirection=MovementRotation.RotateVector(FVector::ForwardVector);
-		//ForwardDirection * MovementVector.Y
-		AddMovementInput(ForwardDirection,MovementVector.Y);
+		return;
 	}
-	if (MovementVector.X!=0.f)
+
+	// 获取并处理输入
+	FVector2D MovementVector = InputActionValue.Get<FVector2D>();
+	if (!ProcessMovementInput(MovementVector))
 	{
-		//X方向也有输入值，获得摄像机当前左右方向单位向量。
-		const FVector RightDirection=MovementRotation.RotateVector(FVector::RightVector);
-		AddMovementInput(RightDirection,MovementVector.X);
+		return;
 	}
+
+	// 应用移动
+	AddMovementInput(CalculateMovementDirection(MovementVector), 1.0f);
 }
 
 void AWarriorHeroCharacter::Input_Look(const FInputActionValue& InputActionValue)
@@ -331,6 +373,7 @@ void AWarriorHeroCharacter::Input_AbilityInputReleased(FGameplayTag InInputTag)
 {
 	WarriorAbilitySystemComponent->OnAbilityInputReleased(InInputTag);
 }
+#pragma endregion Input_Action
 
 
 AWarriorHeroCharacter::AWarriorHeroCharacter()
@@ -353,6 +396,7 @@ AWarriorHeroCharacter::AWarriorHeroCharacter()
 	
 	FollowCamera=CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom,USpringArmComponent::SocketName);
+	
 	//相机臂已设置旋转，不要重复，否则旋转叠加产生风险
 	FollowCamera->bUsePawnControlRotation=false;
 

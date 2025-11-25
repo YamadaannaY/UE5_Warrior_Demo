@@ -60,7 +60,7 @@ FVector UHeroGA__Dash::GetDashDistance()
 {
 	const APawn* HeroPawn=Cast<APawn>(GetHeroCharacterFromActorInfo());
 	
-	FVector DefaultDashVector=GetHeroCharacterFromActorInfo()->GetActorForwardVector();
+	FVector DefaultDashVector=GetHeroCharacterFromActorInfo()->GetActorForwardVector()*=-1;
 	if (HeroPawn)
 	{
 		FVector DashVector=HeroPawn->GetLastMovementInputVector();

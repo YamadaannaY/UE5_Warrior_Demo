@@ -26,7 +26,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnPercentChangedDelegate OnCurrentRageChanged;
 
-	//加载图标的委托回调
+	//加载武器图标的委托回调
 	UPROPERTY(BlueprintCallable,BlueprintAssignable)
 	FOnEquippedWeaponChangedDelegate OnEquippedWeaponChanged;
 

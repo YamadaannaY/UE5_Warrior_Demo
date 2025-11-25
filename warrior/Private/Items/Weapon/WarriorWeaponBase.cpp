@@ -2,6 +2,8 @@
 
 
 #include "Items/Weapon/WarriorWeaponBase.h"
+
+#include "WarriorDebugHelper.h"
 #include "Components/BoxComponent.h"
 #include "WarriorFunctionLibrary.h"
 
@@ -32,7 +34,7 @@ void AWarriorWeaponBase::OnCollisionBoxBeginOverlap(UPrimitiveComponent* Overlap
 
 	if (APawn* HitPawn = Cast<APawn>(OtherActor))
 	{
-		//不让Enemy能够伤害彼此，所以需要id不同。
+		//不让Enemy能够伤害彼此，所以需要id不同，Controller中通过TeamID判断
 		if (UWarriorFunctionLibrary::IsTargetPawnHostile(WeaponOwningPawn,HitPawn))
 		{
 			OnWeaponHitTarget.ExecuteIfBound(OtherActor);
@@ -44,9 +46,12 @@ void AWarriorWeaponBase::OnCollisionBoxEndOverlap(UPrimitiveComponent* Overlappe
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	APawn* WeaponOwningPawn=GetInstigator<APawn>();
+	if (!WeaponOwningPawn)
+	{
+		Debug::Print(FString::Printf(TEXT("Forgot to assign an Instigator as te owning pawn for the weapon:%s "),*GetName()));
+		return ;
+	}
 	
-	checkf(WeaponOwningPawn,TEXT("Forgot to assign an Instigator as te owning pawn for the weapon:%s "),*GetName());
-
 	if (APawn* HitPawn = Cast<APawn>(OtherActor))
 	{
 		if (UWarriorFunctionLibrary::IsTargetPawnHostile(WeaponOwningPawn,HitPawn))

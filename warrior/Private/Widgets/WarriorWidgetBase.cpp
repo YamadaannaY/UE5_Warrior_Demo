@@ -3,6 +3,7 @@
 
 #include "Widgets/WarriorWidgetBase.h"
 
+#include "WarriorDebugHelper.h"
 #include "Components/UI/HeroUIComponent.h"
 #include "Interfaces/PawnUIInterface.h"
 
@@ -30,8 +31,11 @@ void UWarriorWidgetBase::InitEnemyCreatedWidget(AActor* OwingEnemyActor)
 	if (const IPawnUIInterface* PawnUIInterface=Cast<IPawnUIInterface>(OwingEnemyActor))
 	{
 		UEnemyUIComponent* EnemyUIComponent=PawnUIInterface->GetEnemyUIComponent();
-		
-		checkf(EnemyUIComponent,TEXT("failed to extract an EnemyUIComponent from %s "),*OwingEnemyActor->GetActorNameOrLabel())
+
+		if (!EnemyUIComponent)
+		{
+			Debug::Print(FString::Printf(TEXT("failed to extract an EnemyUIComponent from %s "),*OwingEnemyActor->GetActorNameOrLabel()));
+		}
 		BP_OnOwingEnemyUIComponentInitialized(EnemyUIComponent);
 	}
 

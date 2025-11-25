@@ -9,20 +9,31 @@
 void UPawnCombatComponent::RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegister,
                                                AWarriorWeaponBase* InWeaponToRegister, const bool bRegisterAsEquipped)
 {
-	checkf(!CharacterCarriedWeaponMap.Contains(InWeaponTagToRegister),
-		TEXT("A Tag named %s has already been added as carried weapon"),*InWeaponTagToRegister.ToString());
-	check(InWeaponToRegister);
+	if (!InWeaponToRegister || !IsValid(InWeaponToRegister))
+		return;
+
+	//防止重复注册
+	if (CharacterCarriedWeaponMap.Contains(InWeaponTagToRegister))
+	{
+		Debug::Print(FString::Printf(TEXT("Weapon %s already registered"), *InWeaponTagToRegister.ToString()));
+		return;
+	}
 	
 	CharacterCarriedWeaponMap.Emplace(InWeaponTagToRegister,InWeaponToRegister);
 	
-	//将自定义委托与函数绑定，会在监听动态多播委托的回调函数中判断此绑定情况（Execute if bound）。
-	InWeaponToRegister->OnWeaponHitTarget.BindUObject(this,&ThisClass::OnHitTargetActor);
-	InWeaponToRegister->OnWeaponPulledFromTarget.BindUObject(this,&ThisClass::OnWeaponPulledFromTargetActor);
+	//绑定委托（只在服务器或需要处理逻辑的一端）
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	
-	//判断此装备是否为需要被Player装备的武器，是则为CurrentEquippedWeaponTag赋值
-	if (bRegisterAsEquipped)
+	if (OwnerPawn && OwnerPawn->HasAuthority())
 	{
-		CurrentEquippedWeaponTag=InWeaponTagToRegister;
+		InWeaponToRegister->OnWeaponHitTarget.BindUObject(this, &ThisClass::OnHitTargetActor);
+		InWeaponToRegister->OnWeaponPulledFromTarget.BindUObject(this, &ThisClass::OnWeaponPulledFromTargetActor);
+	}
+    
+	//设置装备状态（只在服务器）
+	if (bRegisterAsEquipped && OwnerPawn && OwnerPawn->HasAuthority())
+	{
+		CurrentEquippedWeaponTag = InWeaponTagToRegister;
 	}
 }
 
@@ -42,7 +53,7 @@ AWarriorWeaponBase*  UPawnCombatComponent::GetCharacterCarriedWeaponByTag(const 
 AWarriorWeaponBase* UPawnCombatComponent::GetCharacterCurrentEquippedWeapon() const
 {
 	if (!CurrentEquippedWeaponTag.IsValid())
-	{
+	{	
 		return nullptr;
 	}
 	return GetCharacterCarriedWeaponByTag(CurrentEquippedWeaponTag);

@@ -23,12 +23,15 @@ public:
 	//初始化OwingCharacter和 OwingMovementComponent
 	virtual void NativeInitializeAnimation() override;
 
-	//在GameThread执行，可能受游戏逻辑阻塞,而在专用的WorkerThread执行，不受GameThread卡顿影响，同时也减小了游戏线程负担
+	//在GameThread执行可能受游戏逻辑阻塞,而在专用的WorkerThread执行不受GameThread卡顿影响，同时也减小了游戏线程负担
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 
 	//~End AnimInstance Interface
 	
 protected:
+	/**一个角色Anim 基本的属性值**/
+
+	
 	UPROPERTY()
 	AWarriorBaseCharacter* OwingCharacter;
 	

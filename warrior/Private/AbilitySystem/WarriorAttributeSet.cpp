@@ -87,6 +87,7 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 	if (Data.EvaluatedData.Attribute==GetDamageTakenAttribute())
 	{
 		const float OldHealth=GetCurrentHealth();
+		//根据公式计算的最终属性
 		const float DamageDone=GetDamageTaken();
 
 		const float NewCurrentHealth=FMath::Clamp(OldHealth-DamageDone,0.f,GetMaxHealth());

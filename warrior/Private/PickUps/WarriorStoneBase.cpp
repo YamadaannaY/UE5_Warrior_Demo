@@ -9,9 +9,8 @@ void AWarriorStoneBase::Consume(UWarriorAbilitySystemComponent* AbilitySystemCom
 {
 	check(StoneGameplayEffectClass);
 
-	//CDO:所有UCLASS都拥有的默认模板对象，包括所有在此类中被定义并且在编辑器中被设置的值，也就是我们需要的Stone设置中的GESubclass
+	//CDO:所有UClass都拥有的默认模板对象，在无实例的情况下通过StaticClass获取一个UClass后GetDefaultObject包括所有在此类中被定义并且在编辑器中被设置的值，在编辑器中传入特定GE即可
 	const UGameplayEffect* EffectCDO=StoneGameplayEffectClass->GetDefaultObject<UGameplayEffect>();
-	//使用CDO可以不实例化GE，节省开销
 	AbilitySystemComponent->ApplyGameplayEffectToSelf(EffectCDO,ApplyLevel,AbilitySystemComponent->MakeEffectContext());
 
 	BP_OnStoneConsumed();
