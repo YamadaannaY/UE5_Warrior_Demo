@@ -15,6 +15,7 @@ void UHeroGameplayAbility_PickUpStone::ActivateAbility(const FGameplayAbilitySpe
                                                        const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
 	GetHeroUIComponentFromActorInfo()->OnStoneInteracted.Broadcast(true);
 	ExecuteOnTick=UAbilityTask_ExecuteOnTick::ExecuteTaskOnTick(this);
 	if (ExecuteOnTick)
@@ -23,13 +24,7 @@ void UHeroGameplayAbility_PickUpStone::ActivateAbility(const FGameplayAbilitySpe
 		ExecuteOnTick->ReadyForActivation();
 	}
 	
-	WaitEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-		  this,                                          
-		  WarriorGamePlayTags::Player_Event_ConsumeStones,
-		  nullptr,                                       
-		  false,                                         
-		  true                                          
-	  );
+	WaitEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this,WarriorGamePlayTags::Player_Event_ConsumeStones);
 	if (WaitEventTask)
 		{
 			WaitEventTask->EventReceived.AddUniqueDynamic(this,&ThisClass::ConsumeStones);
@@ -43,6 +38,7 @@ void UHeroGameplayAbility_PickUpStone::EndAbility(const FGameplayAbilitySpecHand
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
 	GetHeroUIComponentFromActorInfo()->OnStoneInteracted.Broadcast(false);
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 

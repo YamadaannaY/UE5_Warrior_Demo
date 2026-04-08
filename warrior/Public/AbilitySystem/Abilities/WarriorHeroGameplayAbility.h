@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/WarriorGameplayAbility.h"
 #include "WarriorHeroGameplayAbility.generated.h"
+
 class UHeroUIComponent;
 class UHeroCombatComponent;
 class AWarriorHeroCharacter;
@@ -24,7 +25,7 @@ public:
 	//GA下获得HeroController
 	UFUNCTION(BlueprintPure,Category="Warrior|Ability")
 	AWarriorHeroController* GetHeroControllerFromActorInfo();
-
+	
 	//GA下获得HeroCombatComponent
 	UFUNCTION(BlueprintPure,Category="Warrior|Ability")
 	UHeroCombatComponent* GetHeroCombatComponentFromActorInfo();
@@ -49,5 +50,4 @@ private:
 	TWeakObjectPtr<AWarriorHeroCharacter> CachedWarriorHeroCharacter;
 	//缓存HeroController
 	TWeakObjectPtr<AWarriorHeroController> CachedWarriorHeroController;
-	
 };

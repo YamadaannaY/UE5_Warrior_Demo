@@ -29,9 +29,7 @@ AWarriorHeroController* UWarriorHeroGameplayAbility::GetHeroControllerFromActorI
 	}
 	
 	return CachedWarriorHeroController.IsValid() ? CachedWarriorHeroController.Get(): nullptr;
-	
 }
-
 
 UHeroCombatComponent* UWarriorHeroGameplayAbility::GetHeroCombatComponentFromActorInfo()
 {
@@ -43,12 +41,8 @@ UHeroUIComponent* UWarriorHeroGameplayAbility::GetHeroUIComponentFromActorInfo()
 	return GetHeroCharacterFromActorInfo()->GetHeroUIComponent();
 }
 
-
-FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecHandle(
-	TSubclassOf<UGameplayEffect> EffectClass,
-	float InWeaponBaseDamage,
-	FGameplayTag InCurrentAttackTypeTag,
-	int32 InUsedComboCount)
+FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecHandle
+(TSubclassOf<UGameplayEffect> EffectClass,float InWeaponBaseDamage,FGameplayTag InCurrentAttackTypeTag,int32 InUsedComboCount)
 {
 	check(EffectClass);
 	
@@ -61,11 +55,7 @@ FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecH
 	
 	//创建 EffectSpecHandle
 	FGameplayEffectSpecHandle EffectSpecHandle=GetWarriorAbilitySystemComponentFromActorInfo()
-	->MakeOutgoingSpec
-	(EffectClass,
-		GetAbilityLevel(),
-		ContextHandle
-		);
+	->MakeOutgoingSpec(EffectClass,GetAbilityLevel(),ContextHandle);
 	
 	//SetSetByCallerMagnitude实现动态赋值，在蓝图中传入特定值。Tag作为键值进行检索
 	//在GEE中调用这些被设置值
@@ -79,8 +69,7 @@ FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecH
 	return EffectSpecHandle;   
 }
 
-bool UWarriorHeroGameplayAbility::GetAbilityRemainingCoolDownByTag(FGameplayTag InCooldownTag, float& TotalCooldownTime,
-	float& RemainingCooldownTime)
+bool UWarriorHeroGameplayAbility::GetAbilityRemainingCoolDownByTag(FGameplayTag InCooldownTag, float& TotalCooldownTime,float& RemainingCooldownTime)
 {
 	check(InCooldownTag.IsValid());
 	
@@ -88,8 +77,7 @@ bool UWarriorHeroGameplayAbility::GetAbilityRemainingCoolDownByTag(FGameplayTag 
 	FGameplayEffectQuery CooldownQuery=FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags
 	(InCooldownTag.GetSingleTagContainer());
 	// 2. 获取所有匹配的冷却效果的时间和持续时间
-	TArray<TPair<float,float>> TimeRemainingAndDuration=GetAbilitySystemComponentFromActorInfo()
-	->GetActiveEffectsTimeRemainingAndDuration(CooldownQuery);
+	TArray<TPair<float,float>> TimeRemainingAndDuration=GetAbilitySystemComponentFromActorInfo()->GetActiveEffectsTimeRemainingAndDuration(CooldownQuery);
 	// 3. 调用获得的两个时间值作输出引脚传给cooldown委托
 	if (!TimeRemainingAndDuration.IsEmpty())
 	{

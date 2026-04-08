@@ -1,10 +1,8 @@
 // Yu
 
-
 #include "Characters/WarriorBaseCharacter.h"
 #include "MotionWarpingComponent.h"
 #include "WarriorDebugHelper.h"
-
 
 AWarriorBaseCharacter::AWarriorBaseCharacter()
 {
@@ -40,8 +38,6 @@ UPawnUIComponent* AWarriorBaseCharacter::GetPawnUIComponent() const
 	return nullptr;
 }
 
-//当角色被ControllerPossess时调用，GAS的核心：每个拥有能力的Actor都要初始化 ASC（Ability System Component）的AbilityActorInfo，
-//往往在PossessedBy中进行
 void AWarriorBaseCharacter:: PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);

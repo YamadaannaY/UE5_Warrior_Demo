@@ -1,14 +1,11 @@
 // Yu
 
-
 #include "AbilitySystem/Abilities/WarriorGameplayAbility.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "WarriorFunctionLibrary.h"
 #include "AbilitySystem/WarriorAbilitySystemComponent.h"
 #include "Components/Combat/PawnCombatComponent.h"
-#include "WarriorFunctionLibrary.h"
 #include "WarriorGamePlayTags.h"
-
 
 UPawnCombatComponent* UWarriorGameplayAbility::GetPawnCombatComponentFromActorInfo() const
 {
@@ -26,6 +23,7 @@ void UWarriorGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* Act
 	const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
+	
 	if (AbilityActivationPolicy == EWarriorAbilityActivationPolicy::OnGiven)
 	{
 		if (ActorInfo && ! Spec.IsActive())
@@ -41,6 +39,7 @@ void UWarriorGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle
                                          const bool bReplicateEndAbility, const bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+	
 	if (AbilityActivationPolicy == EWarriorAbilityActivationPolicy::OnGiven)
 	{
 		if (ActorInfo)

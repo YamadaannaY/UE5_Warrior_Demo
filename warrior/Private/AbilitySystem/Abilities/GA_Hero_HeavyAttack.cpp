@@ -25,13 +25,7 @@ void  UGA_Hero_HeavyAttack::ActivateAbility(const FGameplayAbilitySpecHandle Han
 
 void UGA_Hero_HeavyAttack::PlayMontageAndDealFinished()
 {
-	UAbilityTask_PlayMontageAndWait* Task_PlayMontageAndWait=UAbilityTask_PlayMontageAndWait::
-	CreatePlayMontageAndWaitProxy
-	(this,TEXT("PlayMontageAndWait"),
-		CurrentPlayingMontage,
-		1,
-		NAME_None
-		);
+	UAbilityTask_PlayMontageAndWait* Task_PlayMontageAndWait=UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,NAME_None,CurrentPlayingMontage,1,NAME_None);
 	Task_PlayMontageAndWait->OnCompleted.AddUniqueDynamic(this,&ThisClass::OnMontagePlayingFinished);
 	Task_PlayMontageAndWait->ReadyForActivation();
 	

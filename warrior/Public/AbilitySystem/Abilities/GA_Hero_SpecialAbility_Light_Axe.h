@@ -13,13 +13,13 @@ UCLASS()
 class WARRIOR_API UGA_Hero_SpecialAbility_Light_Axe : public UGA_Hero_SpecialAbilityBase
 {
 	GENERATED_BODY()
-private:
+	
+protected:
+	//ApplyDamageGE,同时发送EventTag触发HitReact
 	virtual void HandleEventReceived(FGameplayEventData InPayLoad) override;
 	
-	FGameplayCueParameters MakeBlockGamePlayCueParams() const ;
+private: 
 	
-	void ExecuteGameplayCueToOwnerWithParams(const FGameplayTag InGameplayTag) const;
-
 	UPROPERTY(EditDefaultsOnly)
 	FGameplayTag GameplayCueTag;
 

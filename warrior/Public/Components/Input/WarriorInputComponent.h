@@ -48,19 +48,18 @@ void UWarriorInputComponent::BindNativeInputAction(const UDataAsset_InputConfig*
 }
 
 
-//将IA与CallBackFunc进行绑定，触发时机由ETriggerEvent决定。
+//将IA与CallBackFunc进行绑定，触发时机由ETriggerEven判定，Func带有Tag参数，封装了ASC以Tag触发GA的功能函数
 template <class UserObject, typename CallbackFunc>
-void UWarriorInputComponent::BindAbilityInputAction(const UDataAsset_InputConfig* InInputConfig,
+void UWarriorInputComponent:: BindAbilityInputAction(const UDataAsset_InputConfig* InInputConfig,
 	UserObject* ContextObject, CallbackFunc InputPressedFunc, CallbackFunc InputReleasedFunc)
 {
 	checkf(InInputConfig,TEXT("Input config data asset is null,can not proceed with binding"));
 
-	//遍历存储了GA以及对应Tag的Config结构体数组
+	//遍历存储了IA以及对应Tag的Config结构体数组
 	for (const FWarriorInputActionConfig& AbilityInputActionConfig:InInputConfig->AbilityInputActions)
 	{
 		if (!AbilityInputActionConfig.IsValid()) continue;
 		
-		//ETriggerEvent决定了输入动作何时触发CallBack Started表明按下按键时触发一次，Completed表明松开时触发一次。
 		BindAction(AbilityInputActionConfig.InputAction,ETriggerEvent::Started,ContextObject,InputPressedFunc,
 			AbilityInputActionConfig.InputTag);
 		

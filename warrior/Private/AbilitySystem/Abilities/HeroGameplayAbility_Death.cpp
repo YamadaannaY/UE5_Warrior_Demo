@@ -19,19 +19,11 @@ void UHeroGameplayAbility_Death::ActivateAbility(const FGameplayAbilitySpecHandl
 	{
 		const int32 RandomIndex=FMath::RandRange(0, MontageToPlay.Num()-1);
 
-		UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-this,                                
-		TEXT("PlayMontageAndWait"),            
-		MontageToPlay[RandomIndex],                            
-		1.0f,                                   
-		NAME_None,                              
-		true);
-
-		PlayMontageTask->OnCompleted.AddUniqueDynamic(this,&ThisClass::OnMontageFinished);
-		PlayMontageTask->OnBlendOut.AddUniqueDynamic(this,&ThisClass::OnMontageFinished);
-		PlayMontageTask->OnCancelled.AddUniqueDynamic(this,&ThisClass::OnMontageFinished);
-		PlayMontageTask->OnInterrupted.AddUniqueDynamic(this,&ThisClass::OnMontageFinished);
-		
+		UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,NAME_None,MontageToPlay[RandomIndex]);
+		PlayMontageTask->OnCompleted.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
+		PlayMontageTask->OnBlendOut.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
+		PlayMontageTask->OnCancelled.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
+		PlayMontageTask->OnInterrupted.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
 		PlayMontageTask->ReadyForActivation();
 	}
 }
@@ -62,13 +54,5 @@ void UHeroGameplayAbility_Death::EndAbility(const FGameplayAbilitySpecHandle Han
 	PlayerController->SetInputMode(FInputModeUIOnly());
 	PlayerController->bShowMouseCursor = true;
 	
-	UE_LOG(LogTemp, Warning, TEXT("Input mode set to UI Only"));
-	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-}
-
-
-void UHeroGameplayAbility_Death::OnMontageFinished()
-{
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
 }

@@ -18,10 +18,7 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	
 	void PlayMontageAndDealFinished();
-
-	UFUNCTION()
-	void OnMontagePlayingFinished();
-
+	
 	UFUNCTION()
 	virtual void HandleEventReceived(FGameplayEventData InPayLoad);
 	

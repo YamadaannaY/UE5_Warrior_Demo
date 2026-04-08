@@ -1,6 +1,5 @@
 // Yu
 
-
 #include "AbilitySystem/Abilities/WarriorEnemyGameplayAbility.h"
 #include "AbilitySystem/WarriorAbilitySystemComponent.h"
 #include"WarriorGamePlayTags.h"
@@ -42,6 +41,4 @@ FGameplayEffectSpecHandle UWarriorEnemyGameplayAbility::MakeEnemyDamageEffectSpe
 	EffectSpecHandle.Data->SetSetByCallerMagnitude(WarriorGamePlayTags::Shared_SetByCaller_BaseDamage,
 		InDamageScalableFloat.GetValueAtLevel(GetAbilityLevel()));
 	return EffectSpecHandle;
-	
-	
 }

@@ -1,6 +1,5 @@
 // Yu
 
-
 #include "AbilitySystem/WarriorAbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/WarriorGameplayAbility.h"
 #include "NativeGameplayTags.h"
@@ -20,15 +19,13 @@ void UWarriorAbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& I
 		//Toggleable GA没有手动结束能力，需要再次触发以解除GA
 		if (InInputTag.MatchesTag(WarriorGamePlayTags::InputTag_Toggleable) && AbilitySpec.IsActive())
 		{
-				//激活EndAbility
 				CancelAbilityHandle(AbilitySpec.Handle);
-			}
-		else
-			{
-				//激活能力（依赖输入，具有Tag）
-				TryActivateAbility(AbilitySpec.Handle);
-			}
 		}
+		else
+		{
+				TryActivateAbility(AbilitySpec.Handle);
+		}
+	}
 }
 
 
@@ -40,7 +37,7 @@ void UWarriorAbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag& 
 		return;
 	}
 	
-	//如果InputTag_MustBeHeld对应的GASpec正在被激活且此回调被触发（Completed）（即结束触发），则CancelGA
+	//MustBeHeld对应的GASpec正在被激活且此回调被触发（Completed）则CancelGA
 	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
 		if (AbilitySpec.GetDynamicSpecSourceTags() .HasTagExact(InInputTag) && AbilitySpec.IsActive())
@@ -50,9 +47,7 @@ void UWarriorAbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag& 
 	}
 }
 
-void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities
-(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities,const TArray<FWarriorHeroSpecialAbilitySet>& InSpecialWeaponAbilities,
-	int32 ApplyLevel,TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles)
+void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities,const TArray<FWarriorHeroSpecialAbilitySet>& InSpecialWeaponAbilities,int32 ApplyLevel,TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles)
 {
 	if (InDefaultWeaponAbilities.IsEmpty())
 	{
@@ -66,7 +61,6 @@ void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities
 		FGameplayAbilitySpec AbilitySpec(AbilitySet.AbilityToGrant);
 		AbilitySpec.SourceObject=GetAvatarActor();
 		AbilitySpec.Level = ApplyLevel;
-		
 		AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.InputTag);
 		
 		//存储所有建立好的WeaponAbilitySpec的句柄,这是为了在Unequip下便于删除。
@@ -80,15 +74,13 @@ void UWarriorAbilitySystemComponent::GrantHeroWeaponAbilities
 		FGameplayAbilitySpec AbilitySpec(AbilitySet.AbilityToGrant);
 		AbilitySpec.SourceObject=GetAvatarActor();
 		AbilitySpec.Level = ApplyLevel;
-		
 		AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.InputTag);
 		
 		OutGrantedAbilitySpecHandles.Add(GiveAbility(AbilitySpec));
 	}
 }
 
-void UWarriorAbilitySystemComponent::RemoveGrantedHeroWeaponAbilities(
-	TArray<FGameplayAbilitySpecHandle>& InSpecHandlesToRemove)
+void UWarriorAbilitySystemComponent::RemoveGrantedHeroWeaponAbilities(TArray<FGameplayAbilitySpecHandle>& InSpecHandlesToRemove)
 {
 	if (InSpecHandlesToRemove.IsEmpty())
 	{
@@ -110,8 +102,6 @@ bool UWarriorAbilitySystemComponent::TryActivateAbilityByTag(FGameplayTag Abilit
 	check(AbilityTagToActivate.IsValid());
 	TArray<FGameplayAbilitySpec*> FoundAbilitySpecs;
 	
-	//用于需要调用具有相同标签多个技能时，比如两个具有Enemy.Melee Tag的GA，用这个函数可以调用所有具有MatchingTag的GASpec
-	//GetSingleTagContainer()把单个标签打包成集合，GetActivatableGameplayAbilitySpecsByAllMatchingTags要求使用TagContainer进行匹配查询
 	GetActivatableGameplayAbilitySpecsByAllMatchingTags(AbilityTagToActivate.GetSingleTagContainer(),FoundAbilitySpecs);
 
 	if (!FoundAbilitySpecs.IsEmpty())
@@ -124,7 +114,7 @@ bool UWarriorAbilitySystemComponent::TryActivateAbilityByTag(FGameplayTag Abilit
 		
 		if (!SpecToActivate->IsActive())
 		{
-			return  TryActivateAbility(SpecToActivate->Handle);
+			return TryActivateAbility(SpecToActivate->Handle);
 		}
 	}
 	return false;

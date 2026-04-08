@@ -21,6 +21,7 @@ public:
 	FWarriorHeroWeaponData HeroWeaponData;
 
 	//存储被GiveAbility()到ASC的Spec句柄到本地变量GrantedAbilitySpecHandles
+	UFUNCTION(Blueprintable)
 	void AssignGrantedAbilitySpecHandles(const TArray<FGameplayAbilitySpecHandle> InSpecHandles);
 
 	//获得存储GrantedAbilitySpecHandles的数组

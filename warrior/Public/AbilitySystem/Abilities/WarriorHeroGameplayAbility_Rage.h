@@ -21,22 +21,15 @@ protected:
 	UFUNCTION()
 	void OnTaskCompleted() ;
 
-	UFUNCTION()
 	void RageActivating();
 
-	UFUNCTION()
 	void AddGameplayCueToOwnerWithParams(const FGameplayTag InGameplayTag);
-
-	UFUNCTION()
-	FGameplayCueParameters MakeBlockGamePlayCueParams();
-
+	
 	UFUNCTION()
 	void OnGameplayEventReceived(FGameplayEventData Payload);
-
-	UFUNCTION()
+	
 	void OnAdded(FGameplayTag Tag, int32 NewCount);
-
-	UFUNCTION()
+	
 	void RemoveRageCostEffect();
 
 private:
@@ -52,11 +45,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
 	TSubclassOf<UGameplayEffect> GameplayEffectClass;
 
-	UPROPERTY()
 	FActiveGameplayEffectHandle ApplyRageCostCostGEHandle;
-
-	/*UPROPERTY()
-	UAbilityAsync_WaitGameplayTagAdded* Task_WaitGameplayTagAdded;*/
 	
 	FDelegateHandle TagAddedDelegateHandle;
 };

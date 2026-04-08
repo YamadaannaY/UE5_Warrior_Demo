@@ -39,11 +39,10 @@ AWarriorProjectileBase::AWarriorProjectileBase()
 	InitialLifeSpan=4.f;
 }
 
-// Called when the game starts or when spawned
 void AWarriorProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
-	//只对角色产生效果（即忽视其他）的实现。
+	
 	if (ProjectileDamagePolicy == EProjectileDamagePolicy::OnBeginOverlap)
 	{
 		ProjectileCollisionBox->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap);
@@ -81,7 +80,6 @@ void AWarriorProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, 
 	}
 	else
 	{
-		//Damage
 		HandleApplyProjectileDamage(HitPawn,Data);
 	}
 	//碰撞产生后销毁Projectile
@@ -115,14 +113,11 @@ void AWarriorProjectileBase::HandleApplyProjectileDamage(APawn* InHitPawn,const 
 {
 	checkf(ProjectileDamageEffectSpecHandle.IsValid(),TEXT("Forgot to assign a valid spec to handle the projectile:%s"),*GetActorNameOrLabel());
 	
-	const bool bWasApplied=UWarriorFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor
-	(GetInstigator(),InHitPawn,ProjectileDamageEffectSpecHandle);
-	
+	const bool bWasApplied=UWarriorFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(GetInstigator(),InHitPawn,ProjectileDamageEffectSpecHandle);
 	if (bWasApplied)
 	{
 		//如果将DamageEffectSpecHandle传入的DealDamageEffect应用，则为InHitPawn发送标签，触发HitReact并传入PayLoad
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor
-		(InHitPawn,WarriorGamePlayTags::Shared_Event_HitReact,InPayLoad);
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(InHitPawn,WarriorGamePlayTags::Shared_Event_HitReact,InPayLoad);
 	}
 }
 

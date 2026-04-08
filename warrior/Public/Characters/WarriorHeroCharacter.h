@@ -104,6 +104,15 @@ private:
 	void HandleCurrentHealthChangeDirect(const FOnAttributeChangeData& Data);
 	void HandleCurrentRageDirect(const FOnAttributeChangeData& Data) const;
 
+public:
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_SetRollData(FVector InDirection,FVector InTarget);
+	//对Roll使用的一次性数据，RollGA中赋值，传递给SetRollData调用于所有客户端，内部调用ApplyWarpTargets具体逻辑。
+	FVector RollDirection;
+	FVector RollTargetLocation;
+	//应用逻辑
+	void ApplyWarpTargets();
+
 #pragma region Input
 	//InputAction、Tag的配置数据资产,为Player独有，因为只有Player具有输入映射
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="CharacterData",meta=(AllowPrivateAccess=true))
@@ -133,7 +142,6 @@ private:
 	void Input_AbilityInputReleased(FGameplayTag InInputTag);
 #pragma endregion
 
-public:
 	//接口函数重写
 	FORCEINLINE UHeroCombatComponent* GetHeroCombatComponent() const { return HeroCombatComponent; }
 };

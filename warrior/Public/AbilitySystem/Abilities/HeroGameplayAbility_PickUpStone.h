@@ -16,14 +16,10 @@ class WARRIOR_API UHeroGameplayAbility_PickUpStone : public UWarriorHeroGameplay
 {
 	GENERATED_BODY()
 protected:
-	//~Begin GameplayAbility Interface
 	
-	//能力激活时自动调用
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-	//能力结束时自动调用
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
-	//~End GameplayAbility Interface
 
 	//收集Hit范围内所有Stone类型的Actor
 	UFUNCTION(BlueprintCallable)

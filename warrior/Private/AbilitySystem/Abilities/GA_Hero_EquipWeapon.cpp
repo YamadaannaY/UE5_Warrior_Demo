@@ -19,43 +19,20 @@ void UGA_Hero_EquipWeapon::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	PlayMontageAndWaitEventEquip();
-	
 }
 
 void UGA_Hero_EquipWeapon::PlayMontageAndWaitEventEquip()
 {
-	UAbilityTask_PlayMontageAndWait* Task_PlayMontageAndWait=UAbilityTask_PlayMontageAndWait::
-	CreatePlayMontageAndWaitProxy(
-		this,
-		TEXT("PlayMontageAndWait"),
-		PlayMontage,
-		1,
-		NAME_None
-		);
-
-	Task_PlayMontageAndWait->OnCompleted.AddUniqueDynamic(this,&ThisClass::PlayMontageCompleted);
-	Task_PlayMontageAndWait->OnInterrupted.AddUniqueDynamic(this,&ThisClass::PlayMontageCompleted);
-	Task_PlayMontageAndWait->OnBlendOut.AddUniqueDynamic(this,&ThisClass::PlayMontageCompleted);
-	Task_PlayMontageAndWait->OnCancelled.AddUniqueDynamic(this,&ThisClass::PlayMontageCompleted);
-
+	UAbilityTask_PlayMontageAndWait* Task_PlayMontageAndWait=UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,NAME_None,PlayMontage);
+	Task_PlayMontageAndWait->OnCompleted.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
+	Task_PlayMontageAndWait->OnInterrupted.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
+	Task_PlayMontageAndWait->OnBlendOut.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
+	Task_PlayMontageAndWait->OnCancelled.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
 	Task_PlayMontageAndWait->ReadyForActivation();
 
-	UAbilityTask_WaitGameplayEvent* Task_WaitGameplayEvent=UAbilityTask_WaitGameplayEvent::
-	WaitGameplayEvent(
-		this,
-		EventEquipWeaponTag,
-		nullptr,
-		false,
-		true
-		);
-
-	Task_WaitGameplayEvent->EventReceived.AddUniqueDynamic(this,&ThisClass::AttachWeapon);
-	Task_WaitGameplayEvent->ReadyForActivation();
-}
-
-void UGA_Hero_EquipWeapon::PlayMontageCompleted()
-{
-	EndAbility(GetCurrentAbilitySpecHandle(),GetCurrentActorInfo(),GetCurrentActivationInfo(),true,true);
+	UAbilityTask_WaitGameplayEvent* WaitAttachWeaponEvent=UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this,EventEquipWeaponTag);
+	WaitAttachWeaponEvent->EventReceived.AddUniqueDynamic(this,&ThisClass::AttachWeapon);
+	WaitAttachWeaponEvent->ReadyForActivation();
 }
 
 void UGA_Hero_EquipWeapon::AttachWeapon(FGameplayEventData InPayload)
@@ -63,13 +40,7 @@ void UGA_Hero_EquipWeapon::AttachWeapon(FGameplayEventData InPayload)
 	AWarriorHeroWeapon* HeroWeapon=GetHeroCombatComponentFromActorInfo()->GetHeroCarriedWeaponByTags(CurrentEquipWeaponTag);
 	USkeletalMeshComponent* SkeletalMeshComponent=GetOwningComponentFromActorInfo();
 
-	FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules(
-	EAttachmentRule::SnapToTarget,    // Location Rule
-	EAttachmentRule::KeepRelative,    // Rotation Rule  
-	EAttachmentRule::KeepWorld,		  // Scale Rule
-	true                           // Weld Simulated Bodies
-);
-	
+	FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget,EAttachmentRule::KeepRelative,EAttachmentRule::KeepWorld,true);
 	HeroWeapon->AttachToComponent(SkeletalMeshComponent,AttachmentRules,SocketName);
 	HandleEquipWeapon(HeroWeapon);
 }
@@ -81,14 +52,14 @@ void UGA_Hero_EquipWeapon::HandleEquipWeapon(AWarriorHeroWeapon* InWeaponToEquip
 	GetOwningComponentFromActorInfo()->LinkAnimClassLayers(CacheWeaponData.WeaponAnimLayerToLink.Get());
 	
 	const ULocalPlayer* LocalPlayer=GetHeroControllerFromActorInfo()->GetLocalPlayer();
-	UEnhancedInputLocalPlayerSubsystem* Subsystem=ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem=ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
 
-	Subsystem->AddMappingContext(CacheWeaponData.WeaponInputMappingContext,1);
+	InputSubsystem->AddMappingContext(CacheWeaponData.WeaponInputMappingContext,1);
 
 	TArray<FGameplayAbilitySpecHandle> OutGrantedAbilitySpecHandles;
 	GetWarriorAbilitySystemComponentFromActorInfo()->GrantHeroWeaponAbilities(CacheWeaponData.DefaultWeaponAbilities,CacheWeaponData.SpecialWeaponAbilities,GetAbilityLevel(),OutGrantedAbilitySpecHandles);
 
-	//将数组存储到Weapon类本地变量中存储
+	//将数组存储到Weapon类本地变量中存储方便卸下装备时删除
 	InWeaponToEquip->AssignGrantedAbilitySpecHandles(OutGrantedAbilitySpecHandles);
 
 	UpdateUIAndCalRemainingTime(InWeaponToEquip);

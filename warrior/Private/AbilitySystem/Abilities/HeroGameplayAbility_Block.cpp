@@ -31,13 +31,14 @@ void UHeroGameplayAbility_Block::EndAbility(const FGameplayAbilitySpecHandle Han
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
-	//在结束能力时添加一个必要的时间流速判断
+	//在结束能力时添加一个必要的时间流速恢复
 	if (UGameplayStatics::GetGlobalTimeDilation(this)!=1.f)
 	{
 		UGameplayStatics::SetGlobalTimeDilation(this,1.f);
 	}
 	
 	GetAbilitySystemComponentFromActorInfo()->RemoveGameplayCue(GameplayCueShieldTag);
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -45,25 +46,21 @@ void UHeroGameplayAbility_Block::AddGameplayCueToOwnerWithParams(const FGameplay
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	if (!ASC) return;
-	ASC->AddGameplayCue(InGameplayTag, MakeBlockGamePlayCueParams());
+	USkeletalMeshComponent* SkeletalMeshComponent=GetOwningComponentFromActorInfo();
+	FGameplayCueParameters CueParams;
+	CueParams.TargetAttachComponent=SkeletalMeshComponent;
+	ASC->AddGameplayCue(InGameplayTag, CueParams);
 }
 
 void UHeroGameplayAbility_Block::ExecuteGameplayCueToOwnerWithParams(const FGameplayTag InGameplayTag) const
 {
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	if (!ASC) return;
-	ASC->ExecuteGameplayCue(InGameplayTag, MakeBlockGamePlayCueParams());
-}
-
-
-
-FGameplayCueParameters UHeroGameplayAbility_Block::MakeBlockGamePlayCueParams() const 
-{
 	//确定Cue参数：绑定位置为SkeletalMeshComponent
 	USkeletalMeshComponent* SkeletalMeshComponent=GetOwningComponentFromActorInfo();
 	FGameplayCueParameters CueParams;
 	CueParams.TargetAttachComponent=SkeletalMeshComponent;
-	return CueParams;
+	ASC->ExecuteGameplayCue(InGameplayTag,CueParams);
 }
 
 void UHeroGameplayAbility_Block::StartResetJumpToFinishTimer()
@@ -71,12 +68,7 @@ void UHeroGameplayAbility_Block::StartResetJumpToFinishTimer()
 	FTimerDynamicDelegate TimerDelegate;
 	
 	TimerDelegate.BindUFunction(this, FName("ResetJumpToFinishState"));
-	GetWorld()->GetTimerManager().SetTimer(
-		   AbilityTimerHandle,
-		   TimerDelegate,
-		   0.3f, 
-		   false 
-	   );
+	GetWorld()->GetTimerManager().SetTimer(AbilityTimerHandle,TimerDelegate,0.3f, false );
 }
 
 void UHeroGameplayAbility_Block::ResetJumpToFinishState()
@@ -146,7 +138,7 @@ void UHeroGameplayAbility_Block::DealSuccessfulBlock(FGameplayEventData InPayLoa
 				DelayTask->OnFinish.AddDynamic(this, &ThisClass::OnDelayCompleted);
 				DelayTask->ReadyForActivation();
 			}
-			//执行完毕重置false !!!
+			//执行完毕重置false
 			bIsPerfectBlock=false;
 		}
 	}
@@ -154,25 +146,17 @@ void UHeroGameplayAbility_Block::DealSuccessfulBlock(FGameplayEventData InPayLoa
 
 void UHeroGameplayAbility_Block::OnMontageFinished()
 {
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
+	K2_EndAbility();
 	StartResetJumpToFinishTimer();
 }
 
 void UHeroGameplayAbility_Block::PlayMontageAndDealFinished()
 {
 	checkf(HeroBlockMontage,TEXT("Forgot to assign Hero Block Montage To Play"));
-	UAbilityTask_PlayMontageAndWait* PlayMontageTask=UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
-	(
-		this,                                
-	TEXT("PlayMontageAndWait"),            
-		HeroBlockMontage,                            
-		1.0f,                                   
-		NAME_None,                              
-		true
-	);
+	UAbilityTask_PlayMontageAndWait* PlayMontageTask=UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,NAME_None,HeroBlockMontage);
+	PlayMontageTask->OnCancelled.AddDynamic(this,&ThisClass::OnMontageFinished);
+	PlayMontageTask->OnInterrupted.AddDynamic(this,&ThisClass::OnMontageFinished);
 	PlayMontageTask->ReadyForActivation();
-	PlayMontageTask->OnCancelled.AddUniqueDynamic(this,&ThisClass::OnMontageFinished);
-	PlayMontageTask->OnInterrupted.AddUniqueDynamic(this,&ThisClass::OnMontageFinished);
 
 	//魔法盾出现
 	AddGameplayCueToOwnerWithParams(GameplayCueShieldTag);

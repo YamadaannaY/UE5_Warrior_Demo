@@ -92,27 +92,27 @@ void UBTTask_RotateToFaceTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uin
     PerformSafeRotation(Memory, DeltaSeconds);
 }
 
-void UBTTask_RotateToFaceTarget::PerformSafeRotation(FRotatorToFaceTargetTaskMemory* Memory, float DeltaSeconds)
+void UBTTask_RotateToFaceTarget::PerformSafeRotation(FRotatorToFaceTargetTaskMemory* Memory, float DeltaSeconds) const 
 {
     APawn* Pawn = Memory->OwingPawn.Get();
-    AActor* Target = Memory->TargetActor.Get();
+    const AActor* Target = Memory->TargetActor.Get();
     
     if (!Pawn || !Target) return;
 
-    FVector PawnLocation = Pawn->GetActorLocation();
-    FVector TargetLocation = Target->GetActorLocation();
+    const FVector PawnLocation = Pawn->GetActorLocation();
+    const FVector TargetLocation = Target->GetActorLocation();
     
-    // 计算到目标的向量
-    FVector ToTarget = TargetLocation - PawnLocation;
-    float Distance = ToTarget.Size2D(); // 使用2D距离
+    //计算到目标的2D向量
+    const FVector ToTarget = TargetLocation - PawnLocation;
+    const float Distance = ToTarget.Size2D();
     
-    // 关键修复：近距离稳定处理
+    //近距离稳定处理
     FVector SafeDirection;
     
     if (Distance < MinimumSafeDistance)
     {
-        // 方法1：使用角色当前位置+安全距离的虚拟目标
-        FVector DirectionToTarget = ToTarget.GetSafeNormal2D();
+        //向量转正交
+        const FVector DirectionToTarget = ToTarget.GetSafeNormal2D();
         if (DirectionToTarget.IsNearlyZero())
         {
             // 如果方向几乎为零，使用上一帧的安全方向
@@ -120,18 +120,15 @@ void UBTTask_RotateToFaceTarget::PerformSafeRotation(FRotatorToFaceTargetTaskMem
         }
         else
         {
-            // 创建虚拟目标点
             FVector VirtualTarget = PawnLocation + DirectionToTarget * MinimumSafeDistance;
             SafeDirection = (VirtualTarget - PawnLocation).GetSafeNormal2D();
         }
     }
     else
     {
-        // 正常距离，使用实际方向
         SafeDirection = ToTarget.GetSafeNormal2D();
     }
     
-    // 保存安全方向供下一帧使用
     if (!SafeDirection.IsNearlyZero())
     {
         Memory->LastSafeDirection = SafeDirection;
@@ -149,10 +146,10 @@ void UBTTask_RotateToFaceTarget::PerformSafeRotation(FRotatorToFaceTargetTaskMem
     }
     
     // 自适应旋转速度
-    float AdaptiveSpeed = CalculateAdaptiveRotationSpeed(CurrentRot, LookAtRot, Distance);
+    const float AdaptiveSpeed = CalculateAdaptiveRotationSpeed(CurrentRot, LookAtRot, Distance);
     
     // 使用更稳定的插值方法
-    FRotator TargetRot = CalculateStableRotation(CurrentRot, LookAtRot, DeltaSeconds, AdaptiveSpeed);
+    const FRotator TargetRot = CalculateStableRotation(CurrentRot, LookAtRot, DeltaSeconds, AdaptiveSpeed);
     
     // 应用旋转
     Pawn->SetActorRotation(TargetRot);

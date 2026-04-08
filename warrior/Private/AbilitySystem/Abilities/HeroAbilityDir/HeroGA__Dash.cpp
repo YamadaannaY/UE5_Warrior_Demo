@@ -1,6 +1,3 @@
-// Yu
-
-
 #include "AbilitySystem/Abilities/HeroAbilityDir/HeroGA__Dash.h"
 #include "Characters/WarriorHeroCharacter.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionConstantForce.h"
@@ -12,6 +9,12 @@ void UHeroGA__Dash::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
+	if (!CommitAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo()))
+	{
+		K2_EndAbility();
+		return ;
+	}
+	
 	Dashing();
 }
 
@@ -19,6 +22,7 @@ void UHeroGA__Dash::Dashing()
 {
 	ERootMotionFinishVelocityMode VelocityMode=ERootMotionFinishVelocityMode::ClampVelocity;
 	
+	//ReSetSpeed
 	float DashFinishedSpeed=500.f;
 	if (GetHeroCharacterFromActorInfo()->GetMovementComponent()->GetMaxSpeed())
 	{
@@ -31,7 +35,7 @@ void UHeroGA__Dash::Dashing()
 	(
 		this,
 		NAME_None,
-		GetDashDistance(),
+		GetDashDirection(),
 		DashStrength,
 		DashTime,
 		false,   // 是否叠加
@@ -41,8 +45,7 @@ void UHeroGA__Dash::Dashing()
 		DashFinishedSpeed,
 		false
 	);
-	Task_ApplyRootMotionConstantForce->OnFinish.AddUniqueDynamic(this,&ThisClass::FinishDashing);
-	//没有这一步Task只会执行而不会结束
+	Task_ApplyRootMotionConstantForce->OnFinish.AddDynamic(this,&ThisClass::FinishDashing);
 	Task_ApplyRootMotionConstantForce->ReadyForActivation();
 
 	//确定Cue参数：绑定位置为SkeletalMeshComponent
@@ -56,22 +59,21 @@ void UHeroGA__Dash::Dashing()
 	ASC->AddGameplayCue(DashGameplayCueTag,CueParams);
 }
 
-FVector UHeroGA__Dash::GetDashDistance()
+FVector UHeroGA__Dash::GetDashDirection()
 {
 	const APawn* HeroPawn=Cast<APawn>(GetHeroCharacterFromActorInfo());
 	
+	//默认方向是向后
 	FVector DefaultDashVector=GetHeroCharacterFromActorInfo()->GetActorForwardVector()*=-1;
 	if (HeroPawn)
 	{
-		FVector DashVector=HeroPawn->GetLastMovementInputVector();
+		const FVector DashVector=HeroPawn->GetLastMovementInputVector();
 		if (DashVector.IsNearlyZero())
 		{
 			return DefaultDashVector;
 		}
-		else
-		{
-			return DashVector;
-		}
+
+		return DashVector;
 	}
 	
 	return DefaultDashVector;
@@ -80,11 +82,7 @@ FVector UHeroGA__Dash::GetDashDistance()
 void UHeroGA__Dash::FinishDashing()
 {
 	GetAbilitySystemComponentFromActorInfo()->RemoveGameplayCue(DashGameplayCueTag);
-
-	//触发冷却
-	CommitAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo());
-	
-	EndAbility(GetCurrentAbilitySpecHandle(),GetCurrentActorInfo(),GetCurrentActivationInfo(),true,false);
+	K2_EndAbility();
 }
 
 

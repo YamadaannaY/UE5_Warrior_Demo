@@ -1,10 +1,5 @@
-// Yu
-
-
 #include "AbilitySystem/Abilities/GA_Hero_LightAttack.h"
-
 #include "AbilitySystemBlueprintLibrary.h"
-#include "WarriorDebugHelper.h"
 #include "WarriorFunctionLibrary.h"
 #include "WarriorGamePlayTags.h"
 #include "Characters/WarriorHeroCharacter.h"
@@ -28,12 +23,7 @@ void UGA_Hero_LightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 void UGA_Hero_LightAttack::PlayMontageAndDealFinished()
 {
 	UAbilityTask_PlayMontageAndWait* Task_PlayMontageAndWait=UAbilityTask_PlayMontageAndWait::
-	CreatePlayMontageAndWaitProxy
-	(this,TEXT("PlayMontageAndWait"),
-		CurrentPlayingMontage,
-		1,
-		NAME_None
-		);
+	CreatePlayMontageAndWaitProxy(this,NAME_None,CurrentPlayingMontage);
 	Task_PlayMontageAndWait->OnCompleted.AddUniqueDynamic(this,&ThisClass::OnMontagePlayingFinished);
 	Task_PlayMontageAndWait->ReadyForActivation();
 	
@@ -64,7 +54,6 @@ void UGA_Hero_LightAttack::ClearTimer()
 	{
 		//ClearAndInValidTimer
 		World->GetTimerManager().ClearTimer(TimerHandle);
-		TimerHandle.Invalidate();
 	}
 }
 
@@ -82,10 +71,7 @@ void UGA_Hero_LightAttack::FindIfSpecialTagAndSetMontage()
         return;
     }
 
-    bool bHaveSpecialTag = UWarriorFunctionLibrary::NativeDoesActorHaveTag(
-        HeroCharacter, 
-        WarriorGamePlayTags::Player_Status_JumpToFinisher
-    );
+    bool bHaveSpecialTag = UWarriorFunctionLibrary::NativeDoesActorHaveTag(HeroCharacter, WarriorGamePlayTags::Player_Status_JumpToFinisher);
 
     if (bHaveSpecialTag)
     {

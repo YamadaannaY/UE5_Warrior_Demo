@@ -35,14 +35,13 @@ void UAbilityTask_WaitSpawnEnemy::OnDestroy(bool bInOwnerFinished)
 	// 1. 找到之前注册的委托，从中删除注册委托句柄
 	FGameplayEventMulticastDelegate& Delegate=AbilitySystemComponent->GenericGameplayEventCallbacks.FindOrAdd(CachedEventTag);
 	Delegate.Remove(DelegateHandle);
-	//要求最后调用，处理摧毁的逻辑
+	
 	Super::OnDestroy(bInOwnerFinished);
 }
 
 
 void UAbilityTask_WaitSpawnEnemy::OnGameplayEventReceived(const FGameplayEventData* InPayLoad)
 {
-	//明确传入的Class时执行
 	if (ensure(!CachedSoftEnemyClassToSpawn.IsNull()))
 	{
 		//异步加载Class，由于逻辑多不用Lambda而是一个绑定了异步委托的回调，每次异步加载调用
@@ -50,7 +49,6 @@ void UAbilityTask_WaitSpawnEnemy::OnGameplayEventReceived(const FGameplayEventDa
 			CachedSoftEnemyClassToSpawn.ToSoftObjectPath(),
 			FStreamableDelegate::CreateUObject(this,&ThisClass::OnEnemyClassLoaded));
 	}
-	//没有明确要生成的Class
 	else
 	{
 		//需要判断Task是否还在被激活，如果是，广播一个空数组
@@ -58,7 +56,6 @@ void UAbilityTask_WaitSpawnEnemy::OnGameplayEventReceived(const FGameplayEventDa
 		{
 			DidNotSpawn.Broadcast(TArray<AWarriorEnemyCharacter*>());
 		}
-		//结束Task
 		EndTask();
 	}
 }

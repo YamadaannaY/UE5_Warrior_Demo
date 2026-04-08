@@ -22,12 +22,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ability|AbilityTasks",meta=(HidePin="OwningAbility",DefaultToSelf="OwningAbility",BlueprintInternalUseOnly="true"))
 	static UAbilityTask_ExecuteOnTick* ExecuteTaskOnTick(UGameplayAbility* OwningAbility);
 	
-	//~Begin UGameplayTask Interface
 	//允许AbilityTask在激活期间每帧执行逻辑。
 	virtual void TickTask(float DeltaTime) override;
-	//~End UGameplayTask Interface
-
-	//委托对象。
-	UPROPERTY(BlueprintAssignable)
+	
 	FOnabilityTaskTickDelegate OnAbilityTaskTick;
 };

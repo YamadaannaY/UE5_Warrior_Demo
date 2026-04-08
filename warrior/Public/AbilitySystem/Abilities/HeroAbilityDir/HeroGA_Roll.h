@@ -1,4 +1,3 @@
-// Yu
 
 #pragma once
 
@@ -16,19 +15,15 @@ class WARRIOR_API UHeroGA_Roll : public UWarriorHeroGameplayAbility
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
+	//计算Roll的朝向和最终落点
 	void ComputeRotateDirection();
-	
-	void PlayRollMontage();
-
-	UFUNCTION()
-	void RollMontageFinished();
 	
 	UPROPERTY(EditDefaultsOnly)
 	float HeroRollingDistance;
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TEnumAsByte<EObjectTypeQuery>> RollLineTraceObjectType;
-
+	
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* RollMontage;
 };

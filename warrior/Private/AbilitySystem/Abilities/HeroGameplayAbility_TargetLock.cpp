@@ -1,6 +1,5 @@
 // Yu
 
-
 #include "AbilitySystem/Abilities/HeroGameplayAbility_TargetLock.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -40,6 +39,7 @@ void UHeroGameplayAbility_TargetLock::EndAbility(const FGameplayAbilitySpecHandl
 	ResetTargetLockMovement();
 	ResetTargetLockMappingContext();
 	CleanUp();
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -48,7 +48,7 @@ void UHeroGameplayAbility_TargetLock::OnTargetLockTick(const float DeltaTime)
 	//   没有锁定对象 || 有一方死亡 则解除锁定。
 	if (!CurrentLockedActor || UWarriorFunctionLibrary::NativeDoesActorHaveTag(CurrentLockedActor,WarriorGamePlayTags::Shared_Status_Dead) || UWarriorFunctionLibrary::NativeDoesActorHaveTag(GetHeroCharacterFromActorInfo(),WarriorGamePlayTags::Shared_Status_Dead))
 	{
-		CancelTargetLockAbility();
+		K2_CancelAbility();
 		return;
 	}
 	
@@ -64,8 +64,7 @@ void UHeroGameplayAbility_TargetLock::OnTargetLockTick(const float DeltaTime)
 	if (bShouldOverrideRotation)
 	{
 		//从起点位置看向目标位置时，在世界坐标系中应该具有的绝对旋转值。
-		FRotator LookAtRot=UKismetMathLibrary::FindLookAtRotation(GetHeroCharacterFromActorInfo()->GetActorLocation(),
-			CurrentLockedActor->GetActorLocation());
+		FRotator LookAtRot=UKismetMathLibrary::FindLookAtRotation(GetHeroCharacterFromActorInfo()->GetActorLocation(),CurrentLockedActor->GetActorLocation());
 		//将仰角抬高CameraOffsetDistance
 		LookAtRot -= FRotator(TargetLockCameraOffsetDistance,0.f,0.f);
 		//获得摄像机的当前欧拉角
@@ -109,7 +108,7 @@ void UHeroGameplayAbility_TargetLock::TryLockOnTarget()
 	
 	if (AvailableActorsToLock.IsEmpty())
 	{
-		CancelTargetLockAbility();
+		K2_CancelAbility();
 		return;
 	}
 	
@@ -119,12 +118,12 @@ void UHeroGameplayAbility_TargetLock::TryLockOnTarget()
 	{
 		//显现标记UI
 		DrawTargetLockWidget();
+		
 		SetTargetLockWidgetPosition();
-		/*Debug::Print(CurrentLockedActor->GetActorNameOrLabel());*/
 	}
 	else
 	{
-		CancelTargetLockAbility();
+		K2_EndAbility();
 	}
 }
 
@@ -169,17 +168,9 @@ void UHeroGameplayAbility_TargetLock::GetAvailableActorsToLock()
 			{
 				//将所有碰撞到的Pawn都添加到AvailableActorsToLock数组
 				AvailableActorsToLock.AddUnique(HitActor);
-				/*Debug::Print(HitActor->GetActorNameOrLabel());	*/
 			}
 		}
 	}
-}
-
-void UHeroGameplayAbility_TargetLock::CancelTargetLockAbility()
-{
-	//ActivationInfo()为当前Ability激活时的上下文信息，与spec的context不同，它是临时存在的，存储的是激活模式、预测Key、Source对象等
-	//而Spec是Cooldown、Cost、Level、Context等配置数据
-	CancelAbility(GetCurrentAbilitySpecHandle(),GetCurrentActorInfo(),GetCurrentActivationInfo(),true);
 }
 
 void UHeroGameplayAbility_TargetLock::CleanUp()
@@ -187,6 +178,7 @@ void UHeroGameplayAbility_TargetLock::CleanUp()
 	
 	AvailableActorsToLock.Empty();
 	CurrentLockedActor=nullptr;
+	
 	if (DrawnTargetLockWidget)
 	{
 		DrawnTargetLockWidget->RemoveFromParent();
@@ -223,7 +215,7 @@ void UHeroGameplayAbility_TargetLock::GetAvailableActorsAroundTarget(TArray<AAct
 {
 	if (!CurrentLockedActor || AvailableActorsToLock.IsEmpty())
 	{
-		CancelTargetLockAbility();
+		K2_CancelAbility();
 		return;
 	}
 	
@@ -259,7 +251,6 @@ void UHeroGameplayAbility_TargetLock::DrawTargetLockWidget()
 		DrawnTargetLockWidget=CreateWidget<UWarriorWidgetBase>(GetHeroControllerFromActorInfo(),TargetLockWidgetClass);
 		check(DrawnTargetLockWidget)
 
-		//--Adds it to the game's viewport and fills the entire screen 所以需要手动调整其大小
 		DrawnTargetLockWidget->AddToViewport();
 	}
 
@@ -269,12 +260,11 @@ void UHeroGameplayAbility_TargetLock::SetTargetLockWidgetPosition()
 {
 	if (!DrawnTargetLockWidget || !CurrentLockedActor)
 	{
-		CancelTargetLockAbility();
+		K2_CancelAbility();
 		return;
 	}
 	//一个2DVector坐标
 	FVector2D ScreenPos;
-	/**把3D世界坐标投影成2D屏幕坐标**/
 	
 	//GetHeroControllerFromActorInfo()用来获取当前视口信息（摄像机矩阵）
 	//若为true，坐标相对于玩家视口；若为 false，为全屏绝对坐标
@@ -284,21 +274,22 @@ void UHeroGameplayAbility_TargetLock::SetTargetLockWidgetPosition()
 	if(TargetLockWidgetSize==FVector2D::ZeroVector)
 		{
 
-		//找到Widget树中的USizeBox,ForEachWidget()是UWidgetTree的成员函数，用于遍历当前Widget树中所有的子Widget。
+		//匿名函数找到Widget树中的USizeBox,ForEachWidget()是UWidgetTree的成员函数，用于遍历当前Widget树中所有的子Widget。
 		DrawnTargetLockWidget->WidgetTree->ForEachWidget(
 			[this](UWidget* FoundWidget)
 			{
 				//对于每一个找到的子Widget尝试进行类型转换，如果成功说明找到了树中的USizeBox
-				//这样做的理由：Widget的遍历开销很小，这样找很方便   优化：可以直接缓存引用，然后这里直接使用
-				if (USizeBox* FoundSizeBox=Cast<USizeBox>(FoundWidget))
+				//这样做的理由：Widget的遍历开销很小，这样找很方便
+				if (const USizeBox* FoundSizeBox=Cast<USizeBox>(FoundWidget))
 				{
 					//获得图标尺寸
 					TargetLockWidgetSize.X=FoundSizeBox->GetWidthOverride();
 					TargetLockWidgetSize.Y=FoundSizeBox->GetHeightOverride();
 				}
-			});
+			}
+			);
 	}
-	//由于X、Y是图标长度的最大值，即指向了左上角（在FVector2D中y轴向下是加，x轴向右是加）
+	
 	//将图标左上角对齐ScreenPos，而我们希望居中，所以传入的值ScreenPos向左上对应移动一半的位置（将图标整体向左上拉）
 	ScreenPos-=(TargetLockWidgetSize/2.f);
 	
@@ -307,13 +298,13 @@ void UHeroGameplayAbility_TargetLock::SetTargetLockWidgetPosition()
 
 void UHeroGameplayAbility_TargetLock::InitTargetLockMappingContext()
 {
-	//通过Controller获取LocalPlayer，通过它获取UEnhancedInputLocalPlayerSubsystem类SubSystem
 	const ULocalPlayer* LocalPlayer=GetHeroControllerFromActorInfo()->GetLocalPlayer();
-	UEnhancedInputLocalPlayerSubsystem* Subsystem=ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
-
-	check(Subsystem);
-	//优先级应该高于武器的MappingContext，因为要覆盖其2D鼠标输入
-	Subsystem->AddMappingContext(TargetLockMappingContext,3);
+	UEnhancedInputLocalPlayerSubsystem* SubInputSystem=ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
+	if (SubInputSystem)
+	{
+		//优先级应该高于武器的MappingContext，因为要覆盖其2D鼠标输入
+		SubInputSystem->AddMappingContext(TargetLockMappingContext,3);
+	}
 }
 
 void UHeroGameplayAbility_TargetLock::ResetTargetLockMappingContext()

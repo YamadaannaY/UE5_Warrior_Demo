@@ -1,4 +1,4 @@
-// Yu
+// 将武器装备到手中
 
 #pragma once
 
@@ -11,26 +11,21 @@ class AWarriorHeroWeapon;
  * 
  */
 UCLASS()
-class WARRIOR_API UGA_Hero_EquipWeapon : public UWarriorHeroGameplayAbility
+class UGA_Hero_EquipWeapon : public UWarriorHeroGameplayAbility
 {
 	GENERATED_BODY()
 
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
-	UFUNCTION()
+	//播放Montage并进行装备
 	void PlayMontageAndWaitEventEquip();
-
-	UFUNCTION()
-	void PlayMontageCompleted();
-
+	
 	UFUNCTION()
 	void AttachWeapon(FGameplayEventData InPayload);
 
-	UFUNCTION()
 	void HandleEquipWeapon(AWarriorHeroWeapon* InWeaponToEquip);
 
-	UFUNCTION()
 	void UpdateUIAndCalRemainingTime(AWarriorHeroWeapon* InWeaponToEquip);
 
 private:

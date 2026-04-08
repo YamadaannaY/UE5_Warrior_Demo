@@ -12,16 +12,10 @@
 
 void UGA_Hero_LightAttack_Axe::WhileRageActive()
 {
-	UAbilityTask_WaitGameplayEvent* Task_WaitGameplayEvent=UAbilityTask_WaitGameplayEvent::
-	WaitGameplayEvent(
-		this,
-		WarriorGamePlayTags::Shared_Event_SpawnProjectile,
-		nullptr,
-		false,
-		true
-		);
-	Task_WaitGameplayEvent->EventReceived.AddUniqueDynamic(this,&ThisClass::SpawnProjectile);
-	Task_WaitGameplayEvent->ReadyForActivation();
+	UAbilityTask_WaitGameplayEvent* WaitSpawnProjectileEvent=UAbilityTask_WaitGameplayEvent::
+	WaitGameplayEvent(this,WarriorGamePlayTags::Shared_Event_SpawnProjectile);
+	WaitSpawnProjectileEvent->EventReceived.AddUniqueDynamic(this,&ThisClass::SpawnProjectile);
+	WaitSpawnProjectileEvent->ReadyForActivation();
 	
 }
 
@@ -37,7 +31,7 @@ void UGA_Hero_LightAttack_Axe::SpawnProjectile(FGameplayEventData InPayLoad)
 	FVector ForwardVector=GetHeroCharacterFromActorInfo()->GetActorForwardVector();
 	float ZValue=UKismetMathLibrary::MakeRotFromX(ForwardVector).Yaw;
 
-	float  BaseDamage=GetHeroCombatComponentFromActorInfo()->GetHeroCurrentEquippedWeaponDamageAtLevel(GetAbilityLevel());
+	float BaseDamage=GetHeroCombatComponentFromActorInfo()->GetHeroCurrentEquippedWeaponDamageAtLevel(GetAbilityLevel());
 	
 	UWorld* World=GetWorld();
 	FActorSpawnParameters SpawnParameters;
@@ -47,6 +41,6 @@ void UGA_Hero_LightAttack_Axe::SpawnProjectile(FGameplayEventData InPayLoad)
 
 	FVector SpawnLocation = WeaponTransform.GetLocation();
 	FRotator SpawnRotation = FRotator(0.0f,ZValue,WeaponTransform.Rotator().Roll);
-	AWarriorProjectileBase* SpawnedProjectile = World->SpawnActor<AWarriorProjectileBase>(HeroSlash, SpawnLocation,SpawnRotation,SpawnParameters);
+	AWarriorProjectileBase* SpawnedProjectile = World->SpawnActor<AWarriorProjectileBase>(HeroSlash, SpawnLocation,SpawnRotation,SpawnParameters);	
 	SpawnedProjectile->ProjectileDamageEffectSpecHandle=MakeHeroDamageEffectSpecHandle(GameplayEffectClass,BaseDamage,WarriorGamePlayTags::Player_SetByCaller_AttackType_Light,3);
 }

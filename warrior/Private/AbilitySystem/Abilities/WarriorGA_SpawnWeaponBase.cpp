@@ -1,6 +1,4 @@
 // Yu
-
-
 #include "AbilitySystem/Abilities/WarriorGA_SpawnWeaponBase.h"
 #include "Components/Combat/PawnCombatComponent.h"
 #include "Items/Weapon/WarriorWeaponBase.h"
@@ -41,7 +39,5 @@ void UWarriorGA_SpawnWeaponBase::ActivateAbility(const FGameplayAbilitySpecHandl
 	CombatComponent->RegisterSpawnedWeapon(WeaponTagToRegister,SpawnedWeapon,RegisterAsEquipped);
 
 	SpawnedWeapon->WeaponMesh->SetScalarParameterValueOnMaterials("DissolveAmount",0);
-
-	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), false, false);
-	
+	K2_EndAbility();
 }

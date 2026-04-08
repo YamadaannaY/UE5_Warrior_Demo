@@ -13,13 +13,7 @@
 void UGA_Hero_HeavyAttack_Axe::WhileRageActive()
 {
 	UAbilityTask_WaitGameplayEvent* Task_WaitGameplayEvent=UAbilityTask_WaitGameplayEvent::
-	WaitGameplayEvent(
-		this,
-		WarriorGamePlayTags::Shared_Event_SpawnProjectile,
-		nullptr,
-		false,
-		true
-		);
+	WaitGameplayEvent(this,WarriorGamePlayTags::Shared_Event_SpawnProjectile);
 	Task_WaitGameplayEvent->EventReceived.AddUniqueDynamic(this,&ThisClass::SpawnProjectile);
 	Task_WaitGameplayEvent->ReadyForActivation();
 	

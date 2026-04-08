@@ -25,7 +25,4 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly, Category="Abilities")
 	TArray<UAnimMontage*> MontageToPlay;
-
-	UFUNCTION()
-	void OnMontageFinished();
 };

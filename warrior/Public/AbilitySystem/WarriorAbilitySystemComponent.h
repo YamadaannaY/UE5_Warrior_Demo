@@ -21,11 +21,11 @@ public:
 	//适用于需要持续输入的IA结束时调用，取消其SpecHandle
 	void OnAbilityInputReleased(const FGameplayTag& InInputTag);
 
-	//生成所有EquipWeapon状态下能够实现的GASpecHandle并存储到数组中
+	//Give所有EquipWeapon状态下能够实现的GA,并存储Spec数组中
 	UFUNCTION(BlueprintCallable,Category="Warrior|Ability",meta=(ApplyLevel="1"))
 	void GrantHeroWeaponAbilities(const TArray<FWarriorHeroAbilitySet>& InDefaultWeaponAbilities,const TArray<FWarriorHeroSpecialAbilitySet>& InSpecialWeaponAbilities,int32 ApplyLevel,TArray<FGameplayAbilitySpecHandle>& OutGrantedAbilitySpecHandles);
 
-	//删除所有EquipWeapon状态下能够实现的能力，用于UnequipWeapon情景
+	//Clear所有EquipWeapon状态下被Give到ASC的能力，用于UnequipWeapon
 	UFUNCTION(BlueprintCallable,Category="Warrior|Ability")
 	void RemoveGrantedHeroWeaponAbilities(UPARAM(ref)TArray<FGameplayAbilitySpecHandle>& InSpecHandlesToRemove);
 

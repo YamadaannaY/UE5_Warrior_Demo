@@ -20,17 +20,11 @@ protected:
 
 	UFUNCTION()
 	void AddGameplayCueToOwnerWithParams(const FGameplayTag InGameplayTag) const ;
-
-	UFUNCTION()
+	
 	void ExecuteGameplayCueToOwnerWithParams(const FGameplayTag InGameplayTag) const;
-
-
-	UFUNCTION()
-	FGameplayCueParameters MakeBlockGamePlayCueParams() const ;
-
-	UFUNCTION()
+	
 	void PlayMontageAndDealFinished();
-
+	
 	UFUNCTION()
 	void OnMontageFinished();
 

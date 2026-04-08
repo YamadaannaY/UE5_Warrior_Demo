@@ -83,6 +83,7 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 			HeroUIComponent->OnCurrentRageChanged.Broadcast(GetCurrentRage()/GetMaxRage());
 		}
 	}
+	
 	//根据造成的伤害修改当前生命值，附加伤害计算后的死亡逻辑判断
 	if (Data.EvaluatedData.Attribute==GetDamageTakenAttribute())
 	{
@@ -93,16 +94,11 @@ void UWarriorAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffec
 		const float NewCurrentHealth=FMath::Clamp(OldHealth-DamageDone,0.f,GetMaxHealth());
 		SetCurrentHealth(NewCurrentHealth);
 		
-		/*const FString DebugString=FString::Printf(TEXT("Old Health:%f,Damage Done:%f,New Current Health:%f"),OldHealth,DamageDone,NewCurrentHealth);
-		Debug::Print(DebugString,FColor::Green);*/
-		
 		PawnUIComponent->OnCurrentHealthChanged.Broadcast(GetCurrentHealth()/GetMaxHealth());
 
-		//Death：触发GA_Dead
 		if (GetCurrentHealth()==0.f)
-		{	//将Tag添加到Data.Target.GetAvatarActor()即敌方单位上
-			UWarriorFunctionLibrary::AddGameplayTagToActorIfNone
-			(Data.Target.GetAvatarActor(),WarriorGamePlayTags::Shared_Status_Dead);
+		{	
+			UWarriorFunctionLibrary::AddGameplayTagToActorIfNone(Data.Target.GetAvatarActor(),WarriorGamePlayTags::Shared_Status_Dead);
 		}
 	}
 }

@@ -48,6 +48,4 @@ private:
 	void PlayMontageAndDealFinished();
 	UFUNCTION()
 	void PlayMontageInternal();
-	UFUNCTION()
-	void OnMontageFinished();
 };

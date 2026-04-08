@@ -23,10 +23,10 @@ struct FRotatorToFaceTargetTaskMemory
 	{
 		return OwingPawn.IsValid() && TargetActor.IsValid();
 	}
+	
 	//将弱指针释放，在成功将值传入HasReachingAnglePrecision时使用
 	void Reset()
 	{
-		// Reset the weak pointer back to the null state
 		OwingPawn.Reset();
 		TargetActor.Reset();
 		LastSafeDirection = FVector::ZeroVector;
@@ -39,8 +39,6 @@ class WARRIOR_API UBTTask_RotateToFaceTarget : public UBTTaskNode
 	GENERATED_BODY()
 
 	UBTTask_RotateToFaceTarget();
-
-	//~Begin UBTNode Interface
 	
 	//将FBlackboardKeySelector初始化
 	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
@@ -50,16 +48,12 @@ class WARRIOR_API UBTTask_RotateToFaceTarget : public UBTTaskNode
 	
 	//注解
 	virtual FString GetStaticDescription() const override;
-	//~End UBTNode Interface
-
-	//~Begin UBTTaskNode Interface
 	
 	//在Task被触发时执行的函数
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 	//在Task触发期间每帧执行的函数
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
-	//~End UBTTaskNode Interface
 
 	//设置朝向的角度精度
 	bool HasReachingAnglePrecision(APawn*QueryPawn,AActor* TargetActor) const;
@@ -90,9 +84,9 @@ protected:
 	float AdaptiveSpeedMultiplier = 2.0f; // 自适应速度倍数
 	
 	
-	void PerformSafeRotation(FRotatorToFaceTargetTaskMemory* Memory, float DeltaSeconds);
+	void PerformSafeRotation(FRotatorToFaceTargetTaskMemory* Memory, float DeltaSeconds) const ;
+	
 	float CalculateAdaptiveRotationSpeed(const FRotator& CurrentRot, const FRotator& TargetRot, float Distance) const;
+	
 	FRotator CalculateStableRotation(const FRotator& CurrentRot, const FRotator& TargetRot, float DeltaSeconds, float Speed) const;
-
-
 };

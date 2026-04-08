@@ -32,5 +32,4 @@ protected:
 
 	//工具函数：生成能力，将能力注册到ASC
 	static void GrantAbilities(const TArray<TSubclassOf<UWarriorGameplayAbility>> &InAbilitiesToGive,UWarriorAbilitySystemComponent* InASCToGive,int32 ApplyLevel);
-	
 };

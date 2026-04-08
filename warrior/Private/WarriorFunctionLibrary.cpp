@@ -26,8 +26,7 @@ void UWarriorFunctionLibrary::AddGameplayTagToActorIfNone(AActor* InActor, FGame
 
 	if (!ASC)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AddGameplayTagToActorIfNone: Failed to get ASC from actor %s"), 
-			*InActor->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("AddGameplayTagToActorIfNone: Failed to get ASC from actor %s"), *InActor->GetName());
 		return;
 	}
 	
@@ -43,7 +42,7 @@ void UWarriorFunctionLibrary::RemoveGameplayTagFromActorIfFound(AActor* InActor,
 	UWarriorAbilitySystemComponent* ASC=NativeGetWarriorASCFromActor(InActor);
 	if (ASC->HasMatchingGameplayTag(TagToRemove))
 	{
-		//完全由开发者代码控制的Tag，开发者具有完全自主权。引用计数逻辑
+		//完全由代码控制的Tag，具有完全自主权。引用计数逻辑
 		ASC->RemoveLooseGameplayTag(TagToRemove);
 	}
 }
@@ -58,7 +57,6 @@ bool UWarriorFunctionLibrary::NativeDoesActorHaveTag(AActor* InActor, FGameplayT
 void UWarriorFunctionLibrary::BP_DoesActorHaveTag(AActor* InActor, FGameplayTag TagToCheck,
 	EWarriorConfirmType& OutConfirmType)
 {
-	//输出引脚
 	OutConfirmType=NativeDoesActorHaveTag(InActor,TagToCheck) ? EWarriorConfirmType::Yes : EWarriorConfirmType::No;
 }
 
@@ -101,8 +99,6 @@ bool UWarriorFunctionLibrary::IsValidBlock(AActor* InAttacker, AActor* InDefende
 	check(InAttacker && InDefender);
 	//获得二者前向向量弧度值。从相对的-1到垂直的0都可以判定为成功阻挡
 	const float DotResult=FVector::DotProduct(InAttacker->GetActorForwardVector(),InDefender->GetActorForwardVector());
-	/*const FString DebugString=FString::Printf(TEXT("Dot Result:%f %s"),DotResult,DotResult<-0.1f ? TEXT("Valid Block") : TEXT("InValid Block"));
-	Debug::Print(DebugString,DotResult<-0.1f ? FColor::Green : FColor::Red);*/
 	
 	//0.1误差值，小于零即二者相对成立，格挡成功
 	return DotResult<-0.1f;
@@ -229,7 +225,6 @@ void UWarriorFunctionLibrary::SaveCurrentGameDifficulty(EWarriorGameDifficulty I
 			WarriorGamePlayTags::GameData_SaveGame_Slot_1.GetTag().ToString(), //存档槽位名称
 			0 //用户索引
 		);
-		/*Debug::Print(bWasSaved ? TEXT("DifficultySaved") : TEXT("DifficultyNotSaved"));*/
 	}
 }
 
@@ -247,11 +242,8 @@ bool UWarriorFunctionLibrary::TryLoadSavedGameDifficulty(EWarriorGameDifficulty&
 		if (const UWarriorSaveGame* WarriorSaveGameObject=Cast<UWarriorSaveGame>(SaveGameObject))
 		{
 			OutSaveDifficulty=WarriorSaveGameObject->SavedCurrentDifficulty;
-			/*Debug::Print(TEXT("Loading Successfully"),FColor::Green);*/
 			return true;
 		}
 	}
 	return false;
 }
-
-

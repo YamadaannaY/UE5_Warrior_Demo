@@ -5,7 +5,6 @@
 
 #include "Components/SphereComponent.h"
 
-// Sets default values
 AWarriorPickUpBase::AWarriorPickUpBase()
 {
 

@@ -10,22 +10,57 @@
 #include "Components/Input/WarriorInputComponent.h"
 #include  "WarriorGamePlayTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "MotionWarpingComponent.h"
 #include "WarriorDebugHelper.h"
 #include "WarriorFunctionLibrary.h"
 #include "Components/UI/HeroUIComponent.h"
 #include "DataAssets/StartUpData/DataAsset_StartUpDataBase.h"
 #include "Components/Combat/HeroCombatComponent.h"
 #include "GameMode/WarriorGameMode.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetMathLibrary.inl"
+
+AWarriorHeroCharacter::AWarriorHeroCharacter()
+{
+	//set Capsule 大小
+	GetCapsuleComponent()->InitCapsuleSize(42.f,96.f);
+	
+	//角色不跟随控制器（鼠标）旋转
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+	
+	CameraBoom=CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(GetRootComponent());
+	CameraBoom->TargetArmLength=200.f;
+	CameraBoom->SocketOffset=FVector(0.f,55.f,65.f);
+	CameraBoom->bUsePawnControlRotation=true;
+	
+	FollowCamera=CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom,USpringArmComponent::SocketName);
+	FollowCamera->bUsePawnControlRotation=false;
+
+	//设置角色朝向运动方向
+	GetCharacterMovement()->bOrientRotationToMovement=true;
+	//设置朝向旋转速度
+	GetCharacterMovement()->RotationRate=FRotator(0.0f,500.0f,0.0f);
+	//设置速度
+	GetCharacterMovement()->MaxWalkSpeed=500.f;
+	//设置加速度
+	GetCharacterMovement()->BrakingDecelerationWalking=2000.f;
+	
+	HeroCombatComponent=CreateDefaultSubobject<UHeroCombatComponent>(TEXT("HeroCombatComponent"));
+	HeroUIComponent=CreateDefaultSubobject<UHeroUIComponent>(TEXT("HeroUIComponent"));
+}
 
 
 void AWarriorHeroCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	
-	//若起始数据不为空
+	//起始数据不为空
 	if (!CharacterStartUpData.IsNull())
 	{
-		//由于Player一开始就被ControllerPossess，且十分重要，所以进行同步加载
 		if (UDataAsset_StartUpDataBase* LoadedData=CharacterStartUpData.LoadSynchronous())
 		{
 			AbilityApplyLevel=1;
@@ -36,19 +71,15 @@ void AWarriorHeroCharacter::PossessedBy(AController* NewController)
 				{
 				case EWarriorGameDifficulty::Easy:
 					AbilityApplyLevel=4;
-					/*Debug::Print(TEXT("easy"));*/
 					break;
 				case EWarriorGameDifficulty::Normal:
 					AbilityApplyLevel=3;
-					/*Debug::Print(TEXT("normal"));*/
 					break;
 				case EWarriorGameDifficulty::Hard:
 					AbilityApplyLevel=2;
-					/*Debug::Print(TEXT("hard"));*/
 					break;
 				case EWarriorGameDifficulty::VeryHard:
 					AbilityApplyLevel=1;
-					/*Debug::Print(TEXT("very hard"));*/
 					break;
 				default:
 					break;
@@ -68,8 +99,7 @@ void AWarriorHeroCharacter::BeginPlay()
 	
 	//延时0.1s加载ASC
 	FTimerHandle TimerHandle;
-	GetWorldTimerManager().SetTimer
-	(TimerHandle, this, &ThisClass::InitializeAttributeListener, 0.1f, false);
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &ThisClass::InitializeAttributeListener, 0.1f, false);
 }
 
 
@@ -81,7 +111,6 @@ void AWarriorHeroCharacter::InitializeAttributeListener()
 		return;
 	}
 	
-	// 使用ASC的直接委托避免GC问题
 	GetWarriorAbilitySystemComponent()->GetGameplayAttributeValueChangeDelegate(
 		UWarriorAttributeSet::GetStaminaAttribute()
 	).AddUObject(this, &AWarriorHeroCharacter::HandleStaminaChangeDirect);
@@ -124,6 +153,45 @@ void AWarriorHeroCharacter::HandleCurrentRageDirect(const FOnAttributeChangeData
 
 	//处理CurrentRage
 	HandleCurrentRageChange(UWarriorAttributeSet::GetCurrentRageAttribute(),NewValue, OldValue);
+}
+
+void AWarriorHeroCharacter::Multicast_SetRollData_Implementation(FVector InDirection,FVector InTarget)
+{
+	RollDirection = InDirection;
+	RollTargetLocation = InTarget;
+	ApplyWarpTargets();
+}
+
+/*------------------------------------------
+			 Apply Warp Targets
+  (Called on client + server after replication)
+--------------------------------------------*/
+void AWarriorHeroCharacter::ApplyWarpTargets()
+{
+	if (!MotionWarpingComponent) return;
+
+	FRotator RollRotation=UKismetMathLibrary::MakeRotFromX(RollDirection);
+	// 设置方向
+	if (!RollDirection.IsZero())
+	{
+		MotionWarpingComponent->AddOrUpdateWarpTargetFromLocationAndRotation(FName("RollingDirection"),FVector::ZeroVector,RollRotation);
+	}
+	else
+	{
+		Debug::Print("rotation value error !! ");
+	}
+	// 设置落点
+	if (!RollTargetLocation.IsZero())
+	{
+		MotionWarpingComponent->AddOrUpdateWarpTargetFromLocation(
+			FName("RollTargetLocation"),
+			RollTargetLocation
+		);
+	}
+	else
+	{
+		MotionWarpingComponent->RemoveWarpTarget(FName("RollTargetLocation"));
+	}
 }
 
 void AWarriorHeroCharacter::HandleStaminaChange(FGameplayAttribute ChangeAttribute,float NewValue, float OldValue) const 
@@ -268,8 +336,7 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		ETriggerEvent::Started,this,&ThisClass::Input_PickUp_Stone_Started);
 	
 	//Ability
-	WarriorInputComponent->BindAbilityInputAction
-	(InputConfigDataAsset,this,&ThisClass::Input_AbilityInputPressed,&ThisClass::Input_AbilityInputReleased);
+	WarriorInputComponent->BindAbilityInputAction(InputConfigDataAsset,this,&ThisClass::Input_AbilityInputPressed,&ThisClass::Input_AbilityInputReleased);
 }
 
 bool AWarriorHeroCharacter::CanProcessMovementInput() const
@@ -375,43 +442,6 @@ void AWarriorHeroCharacter::Input_AbilityInputReleased(FGameplayTag InInputTag)
 }
 #pragma endregion Input_Action
 
-
-AWarriorHeroCharacter::AWarriorHeroCharacter()
-{
-	//set Capsule 大小
-	GetCapsuleComponent()->InitCapsuleSize(42.f,96.f);
-	//角色不跟随控制器（鼠标）旋转
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
-	
-	CameraBoom=CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(GetRootComponent());
-	//ArmLength
-	CameraBoom->TargetArmLength=200.f;
-	//SocketOffset：相机臂尾部与连接的组件的距离
-	CameraBoom->SocketOffset=FVector(0.f,55.f,65.f);
-	//让角色控制器来带动相机臂旋转
-	CameraBoom->bUsePawnControlRotation=true;
-	
-	FollowCamera=CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom,USpringArmComponent::SocketName);
-	
-	//相机臂已设置旋转，不要重复，否则旋转叠加产生风险
-	FollowCamera->bUsePawnControlRotation=false;
-
-	//设置角色朝向运动方向
-	GetCharacterMovement()->bOrientRotationToMovement=true;
-	//设置朝向旋转速度
-	GetCharacterMovement()->RotationRate=FRotator(0.0f,500.0f,0.0f);
-	//设置速度
-	GetCharacterMovement()->MaxWalkSpeed=500.f;
-	//设置加速度
-	GetCharacterMovement()->BrakingDecelerationWalking=2000.f;
-	
-	HeroCombatComponent=CreateDefaultSubobject<UHeroCombatComponent>(TEXT("HeroCombatComponent"));
-	HeroUIComponent=CreateDefaultSubobject<UHeroUIComponent>(TEXT("HeroUIComponent"));
-}
 
 UPawnCombatComponent* AWarriorHeroCharacter::GetPawnCombatComponent() const
 {

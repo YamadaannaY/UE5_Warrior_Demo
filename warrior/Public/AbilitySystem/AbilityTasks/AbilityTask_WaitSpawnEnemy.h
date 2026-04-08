@@ -19,7 +19,7 @@ class WARRIOR_API UAbilityTask_WaitSpawnEnemy : public UAbilityTask
 	GENERATED_BODY()
 
 public:
-	//~Begin UGameplayTask Interface
+	//~Begin UGameplayTask 
 
 	//Task被激活时执行
 	virtual void Activate() override;
@@ -27,8 +27,6 @@ public:
 	//Task被摧毁时执行
 	virtual void OnDestroy(bool bInOwnerFinished) override;
 	
-	//~End UGameplayTask Interface
-
 	//静态工厂函数，蓝图中创建一个可调用的节点
 	UFUNCTION(BlueprintCallable,Category = "Ability|AbilityTasks",meta=(Displayname="Wait GamePlay Event And Spawn Enemies",HidePin="OwningAbility",DefaultToSelf="OwningAbility",BlueprintInternalUseOnly="true",NumToSpawn="1",RandomSpawnRadius="200"))
 	static UAbilityTask_WaitSpawnEnemy* WaitSpawnEnemy(

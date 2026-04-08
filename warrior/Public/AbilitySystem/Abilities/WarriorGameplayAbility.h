@@ -5,19 +5,20 @@
 #include "CoreMinimal.h" 
 #include "Abilities/GameplayAbility.h"
 #include "WarriorTypes/WarriorEnumType.h"
-#include "WarriorTypes/WarriorEnumType.h"
 #include "WarriorGameplayAbility.generated.h"
+
 class UPawnCombatComponent;
 class UWarriorAbilitySystemComponent;
 /**
  * 
  */
+
 UCLASS()
 class WARRIOR_API UWarriorGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 protected:
-	//GA触发方式，默认为Triggered
+	//自定义GA触发方式，默认为Triggered
 	UPROPERTY(EditDefaultsOnly,Category="Warrior|Ability")
 	EWarriorAbilityActivationPolicy AbilityActivationPolicy=EWarriorAbilityActivationPolicy::OnTriggered;
 
@@ -29,15 +30,11 @@ protected:
 	UFUNCTION(BlueprintPure,Category="Warrior|Ability")
 	UWarriorAbilitySystemComponent* GetWarriorAbilitySystemComponentFromActorInfo() const;
 	
-	//~ Begin UGameplayAbility Interface
-
-	//跟随GiveAbility触发，将Spec注册到ASC的ActivatableAbilities（相当于学会的技能而不是释放的技能）列表。
+	//在所有GA被加入到ActivatableGA列表之后选择其中的OnGiven能力直接激活
 	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override ;
-	//在能力完成时自动触发,如果是OnGiven类型的GA->ClearAbility(Spec),确保这个能力只在被赋予时触发
+	
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	
-	//~ End UGameplayAbility Interface
-
 	//将GE的SpecHandle传递给目标Actor，即作为施法者对目标造成影响
 	FActiveGameplayEffectHandle NativeApplyEffectSpecHandleToTarget(AActor* TargetActor,const FGameplayEffectSpecHandle& InSpecHandle) const;
 

@@ -12,7 +12,6 @@ void UPawnCombatComponent::RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegis
 	if (!InWeaponToRegister || !IsValid(InWeaponToRegister))
 		return;
 
-	//防止重复注册
 	if (CharacterCarriedWeaponMap.Contains(InWeaponTagToRegister))
 	{
 		Debug::Print(FString::Printf(TEXT("Weapon %s already registered"), *InWeaponTagToRegister.ToString()));

@@ -1,6 +1,5 @@
 // Yu
 
-
 #include "AI/BTService_OrientToTargetActor.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Conrtroller/WarriorAIController.h"
@@ -8,24 +7,22 @@
 #include "BehaviorTree/BlackboardData.h"
 
 UBTService_OrientToTargetActor::UBTService_OrientToTargetActor()
-{	//Service Name 
+{	
 	NodeName = TEXT("Native Orient Rotation To Target Actor ");
 	
 	INIT_SERVICE_NODE_NOTIFY_FLAGS();
-
 	
-	RotationInterSpeed=5.f;
-	Interval=0.f;			// 多久检查一次黑板键值是否满足条件
-	RandomDeviation=0.5f; //在interval之上加了随机值，使得各个AI判断条件具有浮动偏差，更加自然。
+	RotationInterSpeed=5.f; 
+	Interval=0.f;			//检查一次黑板键值是否满足条件的频率
+	RandomDeviation=0.5f;  //在interval之上加了随机值，使得各个AI判断条件具有浮动偏差，更加自然。
 	
-	//添加基础过滤器：KeySelector只能接受AActor类型对象
 	InTargetActorKey.AddObjectFilter(this,GET_MEMBER_NAME_CHECKED(ThisClass,InTargetActorKey),AActor::StaticClass());
 }
 
 void UBTService_OrientToTargetActor::InitializeFromAsset(UBehaviorTree& Asset)
 {
 	Super::InitializeFromAsset(Asset);
-	//获取所调用黑板的实例
+	
 	if (const UBlackboardData* BBAsset=GetBlackboardAsset())
 	{
 		//ResolveSelectedKey会查找UBlackboardData，把Key字面量解析成黑板Key的具体ID和类型。
@@ -58,7 +55,8 @@ void UBTService_OrientToTargetActor::TickNode(UBehaviorTreeComponent& OwnerComp,
 	{	
 		//指向TargetActor
 		const FRotator LookAtRot=UKismetMathLibrary::FindLookAtRotation(OwningPawn->GetActorLocation(),TargetActor->GetActorLocation());
-		//平滑旋转,RInterpTo类似于FMath::Lerp（线性插值），但是专门用于旋转，会处理角度wrap—around。（DeltaSeconds使得帧率不影响旋转表现）
+		
+		//插值优化实际表现
 		const FRotator TargetRot=FMath::RInterpTo(OwningPawn->GetActorRotation(),LookAtRot,DeltaSeconds,RotationInterSpeed);
 		OwningPawn->SetActorRotation(TargetRot);
 	}

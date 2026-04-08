@@ -20,36 +20,21 @@ class WARRIOR_API AWarriorBaseCharacter : public ACharacter,public IAbilitySyste
 public:
 	AWarriorBaseCharacter();
 	
-	//~ Begin IAbilitySystemInterface Interface
-	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override ;
-	
-	//~End IAbilitySystemInterface Interface
-	
-	//~Begin IPawnCombatInterface Interface**/
 	
 	virtual UPawnCombatComponent* GetPawnCombatComponent() const override;
 	
-	//~End IPawnCombatInterface Interface**/
-	
-	//~Begin IPawnUIInterface Interface**/
-	
 	virtual UPawnUIComponent* GetPawnUIComponent() const override;
 	
-	//~End IPawnCombatInterface Interface**/
 protected:
-	//~ Begin APawn Interface.
 	virtual void PossessedBy(AController* NewController) override;
-	//~ End APawn Interface.
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="AbilitySystem")
 	EGameplayEffectReplicationMode AscReplicationMode=EGameplayEffectReplicationMode::Mixed;
 
-	//ASC组件
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="AbilitySystem")
 	UWarriorAbilitySystemComponent* WarriorAbilitySystemComponent;
 
-	//属性集
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="AbilitySystem")
 	UWarriorAttributeSet* WarriorAttributeSet;
 
@@ -57,16 +42,14 @@ protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="MotionWarping")
 	UMotionWarpingComponent* MotionWarpingComponent;
 
-	//软引用的一个数据资产，存储角色初始数据（如不需要触发就拥有的OnGiven能力），
+	//软引用的一个数据资产，存储角色的基本ASC数据（GA,GE）
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="CharacterData",meta=(AllowPrivateAccess=true))
 	TSoftObjectPtr<UDataAsset_StartUpDataBase> CharacterStartUpData;
 
 public:
-	//Character下获得WarriorAbilitySystemComponent()
 	FORCEINLINE UWarriorAbilitySystemComponent* GetWarriorAbilitySystemComponent() const { return WarriorAbilitySystemComponent; }
-	//Character下获得AttributeSet
+	
 	FORCEINLINE UWarriorAttributeSet* GetWarriorAttributeSet() const { return WarriorAttributeSet; }
 
 	FORCEINLINE UMotionWarpingComponent* GetMotionWarpingComponent() const { return MotionWarpingComponent; }
-
 };

@@ -80,4 +80,3 @@ public:
 	UFUNCTION(BlueprintCallable,Category="Warrior|Function Library")
 	static bool TryLoadSavedGameDifficulty(EWarriorGameDifficulty& OutSaveDifficulty);
 };
-
