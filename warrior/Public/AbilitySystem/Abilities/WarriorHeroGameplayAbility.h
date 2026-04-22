@@ -38,7 +38,7 @@ public:
 	UFUNCTION(BlueprintPure,Category="Warrior|Ability")
 	FGameplayEffectSpecHandle MakeHeroDamageEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass,float InWeaponBaseDamage,FGameplayTag InCurrentAttackTypeTag,int32 InUsedComboCount);
 
-	//根据对应的CooldownTag找到SpecialGA，获得此GA的总冷却时间和剩余冷却时间
+	//根据对应的CooldownTag找到SpecialGA，利用EffectQuery获得此GA的总冷却时间和剩余冷却时间
 	UFUNCTION(BlueprintCallable,Category="Warrior|Ability")
 	bool GetAbilityRemainingCoolDownByTag(FGameplayTag InCooldownTag,float& TotalCooldownTime,float& RemainingCooldownTime);
 	

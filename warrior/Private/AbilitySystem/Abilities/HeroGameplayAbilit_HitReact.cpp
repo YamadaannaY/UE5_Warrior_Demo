@@ -1,6 +1,5 @@
 // Yu
 
-
 #include "AbilitySystem/Abilities/HeroGameplayAbilit_HitReact.h"
 #include "Characters/WarriorHeroCharacter.h"
 #include "WarriorFunctionLibrary.h"
@@ -19,7 +18,7 @@ void UHeroGameplayAbility_HitReact::ActivateAbility(const FGameplayAbilitySpecHa
 	TriggerData.TriggerSource=EGameplayAbilityTriggerSource::GameplayEvent;
 	AbilityTriggers.Add(TriggerData);
 	
-	SelectMontageAndPlay(*TriggerEventData);
+	SelectHitReactMontageAndPlay(*TriggerEventData);
 }
 
 void UHeroGameplayAbility_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle,const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,bool bReplicateEndAbility, bool bWasCancelled)
@@ -32,12 +31,7 @@ void UHeroGameplayAbility_HitReact::EndAbility(const FGameplayAbilitySpecHandle 
 	}
 }
 
-void UHeroGameplayAbility_HitReact::OnMontageFinished()
-{
-	CancelAbility(CurrentSpecHandle,CurrentActorInfo,CurrentActivationInfo,true);
-}
-
-void UHeroGameplayAbility_HitReact::SelectMontageAndPlay( const FGameplayEventData InPayLoad)
+void UHeroGameplayAbility_HitReact::SelectHitReactMontageAndPlay( const FGameplayEventData& InPayLoad)
 {
 	float OutDistance;
 	const FGameplayTag DirectionTag=ComputeHitReactDirectionTag(InPayLoad.Instigator.Get(),GetHeroCharacterFromActorInfo(),OutDistance);
@@ -65,10 +59,10 @@ void UHeroGameplayAbility_HitReact::SelectMontageAndPlay( const FGameplayEventDa
 	
 
 	UAbilityTask_PlayMontageAndWait* HitReact=UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,NAME_None, HitReactMontageToPlay);
-	HitReact->OnCompleted.AddUniqueDynamic(this,&ThisClass::OnMontageFinished);
-	HitReact->OnCancelled.AddUniqueDynamic(this,&ThisClass::OnMontageFinished);
-	HitReact->OnBlendOut.AddUniqueDynamic(this,&ThisClass::OnMontageFinished);
-	HitReact->OnInterrupted.AddUniqueDynamic(this,&ThisClass::OnMontageFinished);
+	HitReact->OnCompleted.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
+	HitReact->OnCancelled.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
+	HitReact->OnBlendOut.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
+	HitReact->OnInterrupted.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
 	HitReact->ReadyForActivation();
 	
 	if (USkeletalMeshComponent* SkeletalMeshComponent=GetOwningComponentFromActorInfo())

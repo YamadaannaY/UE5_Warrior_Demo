@@ -51,11 +51,6 @@ public:
 	//处理所有对属性的监听委托
 	void InitializeAttributeListener();
 private:
-	bool CanProcessMovementInput() const;
-	bool ProcessMovementInput(FVector2D& OutMovementVector) const;
-	FVector CalculateMovementDirection(const FVector2D& MovementVector) const;
-	
-private:
 #pragma region Components
 	//相机臂
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Camera",meta=(AllowPrivateAccess=true))
@@ -103,6 +98,10 @@ private:
 	void HandleStaminaChangeDirect(const FOnAttributeChangeData& Data) const;
 	void HandleCurrentHealthChangeDirect(const FOnAttributeChangeData& Data);
 	void HandleCurrentRageDirect(const FOnAttributeChangeData& Data) const;
+	
+	FVector GetLookFwdDir() const;
+	FVector GetMoveFwdDir() const;
+	FVector GetLookRightDir() const;
 
 public:
 	UFUNCTION(NetMulticast, Reliable)

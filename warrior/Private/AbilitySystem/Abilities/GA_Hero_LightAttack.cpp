@@ -22,15 +22,13 @@ void UGA_Hero_LightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 
 void UGA_Hero_LightAttack::PlayMontageAndDealFinished()
 {
-	UAbilityTask_PlayMontageAndWait* Task_PlayMontageAndWait=UAbilityTask_PlayMontageAndWait::
-	CreatePlayMontageAndWaitProxy(this,NAME_None,CurrentPlayingMontage);
+	UAbilityTask_PlayMontageAndWait* Task_PlayMontageAndWait=UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,NAME_None,CurrentPlayingMontage);
 	Task_PlayMontageAndWait->OnCompleted.AddUniqueDynamic(this,&ThisClass::OnMontagePlayingFinished);
 	Task_PlayMontageAndWait->ReadyForActivation();
-	
 }
 
 //设置一个定时器，GA是PerActor,会保存当前段数，在定时范围内再次激活GA可以激活下一段，同时每一段GA都会清除当前Timer
-// 否则ResetAttackComboCount
+//否则ResetAttackComboCount
 void UGA_Hero_LightAttack::OnMontagePlayingFinished()
 {
 	CancelAbility(GetCurrentAbilitySpecHandle(),GetCurrentActorInfo(),GetCurrentActivationInfo(),true);
@@ -52,7 +50,6 @@ void UGA_Hero_LightAttack::ClearTimer()
 	UWorld* World = GetWorld();
 	if (World && TimerHandle.IsValid())
 	{
-		//ClearAndInValidTimer
 		World->GetTimerManager().ClearTimer(TimerHandle);
 	}
 }
@@ -71,8 +68,8 @@ void UGA_Hero_LightAttack::FindIfSpecialTagAndSetMontage()
         return;
     }
 
+	//直接跳到最后一段
     bool bHaveSpecialTag = UWarriorFunctionLibrary::NativeDoesActorHaveTag(HeroCharacter, WarriorGamePlayTags::Player_Status_JumpToFinisher);
-
     if (bHaveSpecialTag)
     {
     	CurrentLayerAttackComboCount=LightAttackMontages.Num();
@@ -93,9 +90,7 @@ void UGA_Hero_LightAttack::FindIfSpecialTagAndSetMontage()
 void UGA_Hero_LightAttack::ApplyDamage()
 {
 	UAbilityTask_WaitGameplayEvent* Task_WaitGameplayEvent=UAbilityTask_WaitGameplayEvent::
-	WaitGameplayEvent
-	(this,WarriorGamePlayTags::Shared_Event_MeleeHit,nullptr,false,true);
-
+	WaitGameplayEvent(this,WarriorGamePlayTags::Shared_Event_MeleeHit);
 	Task_WaitGameplayEvent->EventReceived.AddUniqueDynamic(this,&ThisClass::HandleApplyDamage);
 	Task_WaitGameplayEvent->ReadyForActivation();
 }
@@ -142,6 +137,7 @@ FGameplayCueParameters UGA_Hero_LightAttack::MakeBlockGamePlayCueParams() const
 
 void UGA_Hero_LightAttack::HandleComboCount()
 {
+	//普攻第四段，重置回第一段
 	if (CurrentLayerAttackComboCount==LightAttackMontages.Num())
 	{
 		ResetAttackComboCount();
@@ -151,7 +147,8 @@ void UGA_Hero_LightAttack::HandleComboCount()
 		if (CurrentLayerAttackComboCount==LightAttackMontages.Num()-1)
 		{
 			//此时轻击位于第三段，赋予角色特殊Tag，此时触发轻击重击都可以直接激活最后一段攻击
-			UWarriorFunctionLibrary::AddGameplayTagToActorIfNone(GetHeroCharacterFromActorInfo(),WarriorGamePlayTags::Player_Status_JumpToFinisher);
+			UWarriorFunctionLibrary::AddGameplayTagToActorIfNone
+			(GetHeroCharacterFromActorInfo(),WarriorGamePlayTags::Player_Status_JumpToFinisher);
 		}
 		CurrentLayerAttackComboCount++;
 	}
@@ -167,6 +164,7 @@ void UGA_Hero_LightAttack::SpecialAttackWithRage()
 
 void UGA_Hero_LightAttack::WhileRageActive()
 {
+	//
 }
 
 

@@ -47,7 +47,6 @@ void UWarriorInputComponent::BindNativeInputAction(const UDataAsset_InputConfig*
 	}
 }
 
-
 //将IA与CallBackFunc进行绑定，触发时机由ETriggerEven判定，Func带有Tag参数，封装了ASC以Tag触发GA的功能函数
 template <class UserObject, typename CallbackFunc>
 void UWarriorInputComponent:: BindAbilityInputAction(const UDataAsset_InputConfig* InInputConfig,

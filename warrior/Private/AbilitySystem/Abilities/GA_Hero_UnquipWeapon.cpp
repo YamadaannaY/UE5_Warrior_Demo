@@ -20,7 +20,16 @@ void UGA_Hero_UnequipWeapon::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	PlayMontageAndWaitEventUnEquip();
+	UAbilityTask_PlayMontageAndWait* PlayAttachMontage=UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,NAME_None,PlayUnequipMontage);
+	PlayAttachMontage->OnCompleted.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
+	PlayAttachMontage->OnInterrupted.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
+	PlayAttachMontage->OnBlendOut.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
+	PlayAttachMontage->OnCancelled.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
+	PlayAttachMontage->ReadyForActivation();
+
+	UAbilityTask_WaitGameplayEvent* WaitAttachWeapon=UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this,EventUnEquipWeaponTag);
+	WaitAttachWeapon->EventReceived.AddUniqueDynamic(this,&ThisClass::AttachWeapon);
+	WaitAttachWeapon->ReadyForActivation();
 	
 }
 
@@ -33,25 +42,9 @@ void UGA_Hero_UnequipWeapon::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UGA_Hero_UnequipWeapon::PlayMontageAndWaitEventUnEquip()
-{
-	UAbilityTask_PlayMontageAndWait* PlayAttachMontage=UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,NAME_None,PlayUnequipMontage);
-	PlayAttachMontage->OnCompleted.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
-	PlayAttachMontage->OnInterrupted.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
-	PlayAttachMontage->OnBlendOut.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
-	PlayAttachMontage->OnCancelled.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
-	PlayAttachMontage->ReadyForActivation();
-
-	UAbilityTask_WaitGameplayEvent* WaitAttachWeapon=UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this,EventUnEquipWeaponTag);
-	WaitAttachWeapon->EventReceived.AddUniqueDynamic(this,&ThisClass::AttachWeapon);
-	WaitAttachWeapon->ReadyForActivation();
-}
 
 void UGA_Hero_UnequipWeapon::OnTimerFinished()
 {
-	//取消动画层,由于蓝图动画更新顺序与cpp不同，蓝图在动画层取消链接之后重新编译状态机，过渡完毕后再更新视觉，但是cpp
-	//会先更新视觉，在下一帧才重新编译状态机，不可避免有一帧的僵直。
-	
 	GetOwningComponentFromActorInfo()->UnlinkAnimClassLayers(GetHeroCombatComponentFromActorInfo()->GetHeroCarriedWeaponByTags(CarriedWeaponTagToUse)->HeroWeaponData.WeaponAnimLayerToLink.Get());
 }
 
@@ -75,6 +68,7 @@ void UGA_Hero_UnequipWeapon::AttachWeapon(FGameplayEventData InPayload)
 		
 		//背部Socket点
 		HeroWeapon->AttachToComponent(SkeletalMeshComponent,AttachmentRules,SocketName);
+		
 		HandleUnEquipWeapon(HeroWeapon);
 	}
 	else

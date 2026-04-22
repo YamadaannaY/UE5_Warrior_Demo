@@ -1,4 +1,4 @@
-// Yu
+// 轻击派生技能
 
 #pragma once
 
@@ -15,7 +15,7 @@ class WARRIOR_API UGA_Hero_SpecialAbility_Light_Axe : public UGA_Hero_SpecialAbi
 	GENERATED_BODY()
 	
 protected:
-	//ApplyDamageGE,同时发送EventTag触发HitReact
+	//ApplyDamageGE,同时发送EventTag触发目标HitReact
 	virtual void HandleEventReceived(FGameplayEventData InPayLoad) override;
 	
 private: 

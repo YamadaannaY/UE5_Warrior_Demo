@@ -1,6 +1,5 @@
 // Yu
 
-
 #include "AbilitySystem/Abilities/HeroGameplayAbility_PickUpStone.h"
 #include"WarriorGamePlayTags.h"
 #include "AbilitySystem/AbilityTasks/AbilityTask_ExecuteOnTick.h"
@@ -56,7 +55,7 @@ void UHeroGameplayAbility_PickUpStone::CollectStones(float DeltaTime)
 		 StoneTraceChannel,
 		 false,
 		 TArray<AActor*>(),
-		 bDrawDebugShape? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None,
+		 bDrawDebugShape? EDrawDebugTrace::ForOneFrame: EDrawDebugTrace::None,
 		 TraceHits,
 		 true
 		 );
@@ -76,11 +75,7 @@ void UHeroGameplayAbility_PickUpStone::CollectStones(float DeltaTime)
 	if (StoneNum==0)
 	{
 		CollectedStones.Empty();
-	}
-
-	if (CollectedStones.IsEmpty())
-	{
-		CancelAbility(GetCurrentAbilitySpecHandle(),GetCurrentActorInfo(),GetCurrentActivationInfo(),true);
+		K2_CancelAbility();
 	}
 }
 
@@ -88,10 +83,10 @@ void UHeroGameplayAbility_PickUpStone::ConsumeStones(FGameplayEventData EventDat
 {
 	if (CollectedStones.IsEmpty())
 	{
-		CancelAbility(GetCurrentAbilitySpecHandle(),GetCurrentActorInfo(),GetCurrentActivationInfo(),true);
+		K2_CancelAbility();
 		return;
 	}
-
+	
 	//对所有数组中的Stone调用Consume（应用GE）,其中Destroy所有Actor，即自动清空数组
 	for (AWarriorStoneBase* Stone:CollectedStones)
 	{

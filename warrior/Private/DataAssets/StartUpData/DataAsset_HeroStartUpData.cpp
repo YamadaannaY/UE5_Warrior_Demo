@@ -19,8 +19,6 @@ void UDataAsset_HeroStartUpData::GiveToAbilitySystemComponent(UWarriorAbilitySys
 		FGameplayAbilitySpec AbilitySpec(AbilitySet.AbilityToGrant);
 		AbilitySpec.SourceObject=InASCToGive->GetAvatarActor();
 		AbilitySpec.Level=ApplyLevel;
-		
-		//Dynamic Source Tags 是运行时附加到ability上的tag集合，可以通过AddTag加上标签
 		AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.InputTag);
 		
 		InASCToGive->GiveAbility(AbilitySpec);

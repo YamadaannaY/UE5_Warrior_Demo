@@ -54,7 +54,7 @@ struct FWarriorHeroWeaponData
 
 	//要Add的IMC，此Context拥有所有用武器才能实现IA，优先级设置为1高于默认IMC，在装备武器时进行覆盖
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
-	UInputMappingContext* WeaponInputMappingContext;
+	UInputMappingContext* WeaponInputMappingContext = nullptr;
 
 	//存储所有在EquipWeapon状态下角色应该拥有的GA
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(TitleProperty="InputTag"))
@@ -64,8 +64,7 @@ struct FWarriorHeroWeaponData
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,meta=(TitleProperty="InputTag"))
 	TArray<FWarriorHeroSpecialAbilitySet> SpecialWeaponAbilities;
 
-	//FScalableFloat 是 Unreal Engine 的一个封装浮点数类型，它不仅存储一个普通的浮点值，还支持 数据表（DataTable）/曲线表（Curve
-	//用于曲线表中
+	//FScalableFloat支持数据表（DataTable）/曲线表（Curve
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	FScalableFloat WeaponBaseDamage;
 	
@@ -83,7 +82,7 @@ struct FWarriorInputActionConfig
 	FGameplayTag InputTag;
 	
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
-	UInputAction* InputAction;
+	UInputAction* InputAction=nullptr;
 
 	bool IsValid() const
 	{

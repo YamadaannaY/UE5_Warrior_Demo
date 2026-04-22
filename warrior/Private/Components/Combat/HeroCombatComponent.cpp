@@ -39,9 +39,11 @@ void UHeroCombatComponent::OnHitTargetActor(AActor* HitActor)
 	Data.Target=HitActor;
 	
 	//触发GameEvent MeleeHit,造成伤害
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetMyOwningPawn(),WarriorGamePlayTags::Shared_Event_MeleeHit,Data);
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor
+	(GetMyOwningPawn(),WarriorGamePlayTags::Shared_Event_MeleeHit,Data);
 	//FGameplayEventData()默认构造，因为这个Event作用于自己，不需要额外的Data
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetMyOwningPawn(),WarriorGamePlayTags::Player_Event_HitPause,FGameplayEventData());
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor
+	(GetMyOwningPawn(),WarriorGamePlayTags::Player_Event_HitPause,FGameplayEventData());
 
 }
 

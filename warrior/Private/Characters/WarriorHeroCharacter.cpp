@@ -43,7 +43,7 @@ AWarriorHeroCharacter::AWarriorHeroCharacter()
 	//设置角色朝向运动方向
 	GetCharacterMovement()->bOrientRotationToMovement=true;
 	//设置朝向旋转速度
-	GetCharacterMovement()->RotationRate=FRotator(0.0f,500.0f,0.0f);
+	GetCharacterMovement()->RotationRate=FRotator(0.0f,720.f,0.0f);
 	//设置速度
 	GetCharacterMovement()->MaxWalkSpeed=500.f;
 	//设置加速度
@@ -107,7 +107,6 @@ void AWarriorHeroCharacter::InitializeAttributeListener()
 {
 	if (!GetWarriorAbilitySystemComponent() || !GetWarriorAttributeSet())
 	{
-		Debug::Print(TEXT("ASC or AttributeSet not ready!"));
 		return;
 	}
 	
@@ -178,15 +177,12 @@ void AWarriorHeroCharacter::ApplyWarpTargets()
 	}
 	else
 	{
-		Debug::Print("rotation value error !! ");
+		UE_LOG(LogTemp,Warning,TEXT("RollDirection Not Found"))
 	}
 	// 设置落点
 	if (!RollTargetLocation.IsZero())
 	{
-		MotionWarpingComponent->AddOrUpdateWarpTargetFromLocation(
-			FName("RollTargetLocation"),
-			RollTargetLocation
-		);
+		MotionWarpingComponent->AddOrUpdateWarpTargetFromLocation(FName("RollTargetLocation"),RollTargetLocation);
 	}
 	else
 	{
@@ -253,7 +249,7 @@ void AWarriorHeroCharacter::HandleCurrentHealthChange(FGameplayAttribute Attribu
 			{
 				
 				GetWarriorAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
-			},1.0f,false); // 1秒，不循环
+			},1.0f,false);
 		}
 	}
 	else
@@ -286,7 +282,7 @@ void AWarriorHeroCharacter::HandleCurrentRageChange(FGameplayAttribute Attribute
 			GetWorldTimerManager().SetTimer(TimerHandle, [this,SpecHandle]()
 			{
 				GetWarriorAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
-			},1.0f,false); // 1秒，不循环
+			},1.0f,false);
 		}
 	}
 	else
@@ -338,59 +334,32 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	//Ability
 	WarriorInputComponent->BindAbilityInputAction(InputConfigDataAsset,this,&ThisClass::Input_AbilityInputPressed,&ThisClass::Input_AbilityInputReleased);
 }
-
-bool AWarriorHeroCharacter::CanProcessMovementInput() const
-{
-	return
-	   Controller &&
-	   Controller->IsLocalController() &&
-	   !bIsMovementDisabled;
-}
-
-bool AWarriorHeroCharacter::ProcessMovementInput(FVector2D& OutMovementVector) const
-{
-	// 应用死区过滤
-	const float DeadZone = 0.1f;
-	if (FMath::Abs(OutMovementVector.X) < DeadZone) OutMovementVector.X = 0.f;
-	if (FMath::Abs(OutMovementVector.Y) < DeadZone) OutMovementVector.Y = 0.f;
-
-	// 检查是否有有效输入
-	return !OutMovementVector.IsNearlyZero(DeadZone);
-}
-
-FVector AWarriorHeroCharacter::CalculateMovementDirection(const FVector2D& MovementVector) const
-{
-	const FRotator ControlRotation = Controller->GetControlRotation();
-	const FRotator MovementRotation(0.f, ControlRotation.Yaw, 0.f);
-    
-	const FVector ForwardDirection = FRotationMatrix(MovementRotation).GetUnitAxis(EAxis::X);
-	const FVector RightDirection = FRotationMatrix(MovementRotation).GetUnitAxis(EAxis::Y);
-    
-	// 组合移动方向并标准化
-	FVector MovementDirection = (ForwardDirection * MovementVector.Y) + (RightDirection * MovementVector.X);
-
-	return MovementDirection.GetSafeNormal();
-}
-
 #pragma region Input_Action
 
 void AWarriorHeroCharacter::Input_Move(const FInputActionValue& InputActionValue)
 {
-	// 输入验证
-	if (!CanProcessMovementInput())
-	{
-		return;
-	}
+	//W+D 组合输入时会是 (1,1)，向量长度 √2,也就是输入值比直线更快，通过归一化获取单位向量进行避免
+	FVector2D InputVal=InputActionValue.Get<FVector2d>();
+	InputVal.Normalize();
 
-	// 获取并处理输入
-	FVector2D MovementVector = InputActionValue.Get<FVector2D>();
-	if (!ProcessMovementInput(MovementVector))
-	{
-		return;
-	}
+	//将摄像机的坐标系作为位移方向参考，添加映射实现位移
+	AddMovementInput(GetMoveFwdDir()*InputVal.Y+GetLookRightDir()*InputVal.X);
+}
 
-	// 应用移动
-	AddMovementInput(CalculateMovementDirection(MovementVector), 1.0f);
+FVector AWarriorHeroCharacter::GetLookRightDir() const
+{
+	return FollowCamera->GetRightVector();
+}
+
+FVector AWarriorHeroCharacter::GetLookFwdDir() const
+{
+	return FollowCamera->GetForwardVector();
+}
+
+FVector AWarriorHeroCharacter::GetMoveFwdDir() const
+{
+	//左手定则,以大拇指为A，食指为B，中指即结果Vector
+	return FVector::CrossProduct(GetLookRightDir(),FVector::UpVector);
 }
 
 void AWarriorHeroCharacter::Input_Look(const FInputActionValue& InputActionValue)
@@ -426,9 +395,8 @@ void AWarriorHeroCharacter::Input_SwitchTargetCompleted(const FInputActionValue&
 
 void AWarriorHeroCharacter::Input_PickUp_Stone_Started(const FInputActionValue& InputActionValue)
 {
-	FGameplayEventData Data;
 	//输入映射会触发WaitGamePlayEvent，将Stone的效果GE赋予Player
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this,WarriorGamePlayTags::Player_Event_ConsumeStones,Data);
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this,WarriorGamePlayTags::Player_Event_ConsumeStones,FGameplayEventData());
 }
 
 void AWarriorHeroCharacter::Input_AbilityInputPressed(FGameplayTag InInputTag)

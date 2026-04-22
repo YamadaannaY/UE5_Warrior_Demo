@@ -3,7 +3,6 @@
 
 #include "Components/Combat/PawnCombatComponent.h"
 #include "Items/Weapon/WarriorWeaponBase.h"
-#include  "WarriorDebugHelper.h"
 #include "Components/BoxComponent.h"
 
 void UPawnCombatComponent::RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegister,
@@ -14,7 +13,6 @@ void UPawnCombatComponent::RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegis
 
 	if (CharacterCarriedWeaponMap.Contains(InWeaponTagToRegister))
 	{
-		Debug::Print(FString::Printf(TEXT("Weapon %s already registered"), *InWeaponTagToRegister.ToString()));
 		return;
 	}
 	

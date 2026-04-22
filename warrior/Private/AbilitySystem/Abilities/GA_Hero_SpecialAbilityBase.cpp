@@ -12,37 +12,25 @@ void UGA_Hero_SpecialAbilityBase::ActivateAbility(const FGameplayAbilitySpecHand
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	PlayMontageAndDealFinished();
-	CallCooldown();
-}
-
-void UGA_Hero_SpecialAbilityBase::PlayMontageAndDealFinished()
-{
 	UAbilityTask_PlayMontageAndWait* Task_PlayMontageAndWait=UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy
-	(this,NAME_None,SpecialWeaponAbilityMontage);
+(this,NAME_None,SpecialWeaponAbilityMontage);
 	Task_PlayMontageAndWait->OnCompleted.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
 	Task_PlayMontageAndWait->ReadyForActivation();
 	
 	UAbilityTask_WaitGameplayEvent* Task_WaitGameplayEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this,WaitEventTag);
-	if (Task_WaitGameplayEvent)
-	{
-		Task_WaitGameplayEvent->EventReceived.AddDynamic(this, &ThisClass::HandleEventReceived);
-		Task_WaitGameplayEvent->ReadyForActivation();
-	}
-}
-
-void UGA_Hero_SpecialAbilityBase::HandleEventReceived(FGameplayEventData InPayLoad)
-{
-	//override in child class 
-}
-
-void UGA_Hero_SpecialAbilityBase::CallCooldown()
-{
+	Task_WaitGameplayEvent->EventReceived.AddDynamic(this, &ThisClass::HandleEventReceived);
+	Task_WaitGameplayEvent->ReadyForActivation();
+	
 	K2_CommitAbility();
 
 	//调用UI的Cooldown
 	GetHeroCharacterFromActorInfo()->GetHeroUIComponent()->OnAbilityCooldownBegin.Broadcast
 	(CooldownAbilityInputTag,GetCooldownTimeRemaining(),GetCooldownTimeRemaining());
+}
+
+void UGA_Hero_SpecialAbilityBase::HandleEventReceived(FGameplayEventData InPayLoad)
+{
+	//override in child class 
 }
 
 

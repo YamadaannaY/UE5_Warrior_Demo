@@ -37,28 +37,21 @@ class WARRIOR_API UGA_Hero_LightAttack : public UWarriorHeroGameplayAbility
     void FindIfSpecialTagAndSetMontage();
    
     // 伤害GE赋予
-    UFUNCTION()
     void ApplyDamage();
    
-    //
     UFUNCTION()
     void HandleApplyDamage(FGameplayEventData InPayLoad);
    
     //只执行一次的GameplayCue
-    UFUNCTION()
     void ExecuteGameplayCueToOwnerWithParams(const FGameplayTag InGameplayTag) const;
    
     //CueParams：选择将Cue绑定到Mesh上
-    UFUNCTION()
     FGameplayCueParameters MakeBlockGamePlayCueParams() const ;
 
-	UFUNCTION()
 	void HandleComboCount();
 
-	UFUNCTION()
 	void SpecialAttackWithRage();
 
-	UFUNCTION()
 	virtual void WhileRageActive();
 
 private:

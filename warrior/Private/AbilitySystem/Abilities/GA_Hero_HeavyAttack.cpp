@@ -15,20 +15,38 @@ void  UGA_Hero_HeavyAttack::ActivateAbility(const FGameplayAbilitySpecHandle Han
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	ClearTimer();
+	UWorld* World = GetWorld();
+	if (World && TimerHandle.IsValid())
+	{
+		//ClearAndInValidTimer
+		World->GetTimerManager().ClearTimer(TimerHandle);
+		TimerHandle.Invalidate();
+	}
+	
+	//判断CurrentPlayingMontage
 	FindIfSpecialTagAndSetMontage();
-	PlayMontageAndDealFinished();
-	SpecialAttackWithRage();
-	ApplyDamage();
-	HandleComboCount();
-}
-
-void UGA_Hero_HeavyAttack::PlayMontageAndDealFinished()
-{
+	
 	UAbilityTask_PlayMontageAndWait* Task_PlayMontageAndWait=UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,NAME_None,CurrentPlayingMontage,1,NAME_None);
 	Task_PlayMontageAndWait->OnCompleted.AddUniqueDynamic(this,&ThisClass::OnMontagePlayingFinished);
 	Task_PlayMontageAndWait->ReadyForActivation();
 	
+	if (UWarriorFunctionLibrary::NativeDoesActorHaveTag(GetHeroCharacterFromActorInfo(),WarriorGamePlayTags::Player_Status_Rage_Active))
+	{
+		WhileRageActive();
+	}
+	
+	UAbilityTask_WaitGameplayEvent* Task_WaitGameplayEvent=UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this,WarriorGamePlayTags::Shared_Event_MeleeHit,nullptr,false,true);
+	Task_WaitGameplayEvent->EventReceived.AddUniqueDynamic(this,&ThisClass::HandleApplyDamage);
+	Task_WaitGameplayEvent->ReadyForActivation();
+	
+	if (CurrentLayerAttackComboCount==HeavyAttackMontages.Num())
+	{
+		ResetAttackComboCount();
+	}
+	else
+	{
+		CurrentLayerAttackComboCount++;
+	}
 }
 
 //设置一个定时器，GA是PerActor,会保存当前段数，在定时范围内再次激活GA可以激活下一段，同时每一段GA都会清除当前Timer
@@ -45,19 +63,7 @@ void UGA_Hero_HeavyAttack::OnMontagePlayingFinished()
 	
 	FTimerDelegate TimerDelegate;
 	TimerDelegate.BindUObject(this,&ThisClass::ResetAttackComboCount);
-
 	World->GetTimerManager().SetTimer(TimerHandle, TimerDelegate,ResetComboTime, false);
-}
-
-void UGA_Hero_HeavyAttack::ClearTimer()
-{
-	UWorld* World = GetWorld();
-	if (World && TimerHandle.IsValid())
-	{
-		//ClearAndInValidTimer
-		World->GetTimerManager().ClearTimer(TimerHandle);
-		TimerHandle.Invalidate();
-	}
 }
 
 void UGA_Hero_HeavyAttack::FindIfSpecialTagAndSetMontage()
@@ -83,6 +89,7 @@ void UGA_Hero_HeavyAttack::FindIfSpecialTagAndSetMontage()
     {
     	CurrentLayerAttackComboCount=HeavyAttackMontages.Num();
     }
+	
     UseComboCount = CurrentLayerAttackComboCount;
 	
     if (HeavyAttackMontages.Contains(CurrentLayerAttackComboCount))
@@ -97,16 +104,6 @@ void UGA_Hero_HeavyAttack::FindIfSpecialTagAndSetMontage()
         UE_LOG(LogTemp, Error, TEXT("Key %d not found in HeavyAttackMontages map!"), CurrentLayerAttackComboCount);
     	CurrentPlayingMontage= nullptr;
     }
-}
-
-void UGA_Hero_HeavyAttack::ApplyDamage()
-{
-	UAbilityTask_WaitGameplayEvent* Task_WaitGameplayEvent=UAbilityTask_WaitGameplayEvent::
-	WaitGameplayEvent
-	(this,WarriorGamePlayTags::Shared_Event_MeleeHit,nullptr,false,true);
-
-	Task_WaitGameplayEvent->EventReceived.AddUniqueDynamic(this,&ThisClass::HandleApplyDamage);
-	Task_WaitGameplayEvent->ReadyForActivation();
 }
 
 void UGA_Hero_HeavyAttack::HandleApplyDamage(FGameplayEventData InPayLoad)
@@ -126,7 +123,7 @@ void UGA_Hero_HeavyAttack::HandleApplyDamage(FGameplayEventData InPayLoad)
 
 void UGA_Hero_HeavyAttack::ResetAttackComboCount()
 {
-	//超过Combo判定时间或者段数达到最后一段，回到第一段
+	//超过Combo判定时间或者段数达到最后一段，此时计数回到第一段
 	CurrentLayerAttackComboCount=1;
 	UWarriorFunctionLibrary::RemoveGameplayTagFromActorIfFound(GetHeroCharacterFromActorInfo(),WarriorGamePlayTags::Player_Status_JumpToFinisher);
 }
@@ -149,28 +146,9 @@ FGameplayCueParameters UGA_Hero_HeavyAttack::MakeBlockGamePlayCueParams() const
 	return CueParams;
 }
 
-void UGA_Hero_HeavyAttack::HandleComboCount()
-{
-	if (CurrentLayerAttackComboCount==HeavyAttackMontages.Num())
-	{
-		ResetAttackComboCount();
-	}
-	else
-	{
-	CurrentLayerAttackComboCount++;
-	}
-}
-
-void UGA_Hero_HeavyAttack::SpecialAttackWithRage()
-{
-	if (UWarriorFunctionLibrary::NativeDoesActorHaveTag(GetHeroCharacterFromActorInfo(),WarriorGamePlayTags::Player_Status_Rage_Active))
-	{
-		WhileRageActive();
-	}
-}
-
 void UGA_Hero_HeavyAttack::WhileRageActive()
 {
+	//override
 }
 
 

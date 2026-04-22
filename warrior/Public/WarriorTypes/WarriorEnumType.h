@@ -1,5 +1,4 @@
 #pragma once
-//纯c++ 枚举变量
 
 UENUM()
 enum class EWarriorConfirmType :uint8

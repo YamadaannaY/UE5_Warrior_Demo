@@ -18,11 +18,7 @@ void UGA_Hero_EquipWeapon::ActivateAbility(const FGameplayAbilitySpecHandle Hand
                                            const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	PlayMontageAndWaitEventEquip();
-}
-
-void UGA_Hero_EquipWeapon::PlayMontageAndWaitEventEquip()
-{
+	
 	UAbilityTask_PlayMontageAndWait* Task_PlayMontageAndWait=UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,NAME_None,PlayMontage);
 	Task_PlayMontageAndWait->OnCompleted.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
 	Task_PlayMontageAndWait->OnInterrupted.AddUniqueDynamic(this,&ThisClass::K2_EndAbility);
@@ -42,6 +38,7 @@ void UGA_Hero_EquipWeapon::AttachWeapon(FGameplayEventData InPayload)
 
 	FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget,EAttachmentRule::KeepRelative,EAttachmentRule::KeepWorld,true);
 	HeroWeapon->AttachToComponent(SkeletalMeshComponent,AttachmentRules,SocketName);
+	
 	HandleEquipWeapon(HeroWeapon);
 }
 
@@ -53,7 +50,6 @@ void UGA_Hero_EquipWeapon::HandleEquipWeapon(AWarriorHeroWeapon* InWeaponToEquip
 	
 	const ULocalPlayer* LocalPlayer=GetHeroControllerFromActorInfo()->GetLocalPlayer();
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem=ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
-
 	InputSubsystem->AddMappingContext(CacheWeaponData.WeaponInputMappingContext,1);
 
 	TArray<FGameplayAbilitySpecHandle> OutGrantedAbilitySpecHandles;

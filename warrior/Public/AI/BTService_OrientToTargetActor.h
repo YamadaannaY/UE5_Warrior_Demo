@@ -6,9 +6,6 @@
 #include "BehaviorTree/BTService.h"
 #include "BTService_OrientToTargetActor.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class WARRIOR_API UBTService_OrientToTargetActor : public UBTService
 {

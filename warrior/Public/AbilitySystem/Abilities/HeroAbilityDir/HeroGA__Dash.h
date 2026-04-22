@@ -1,4 +1,5 @@
-//实现一次以最后一次输入为朝向的Dash，如果没有输入触发则默认为向后
+//Dash：无移动下默认触发为向后，移动下向移动方向触发
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -16,6 +17,7 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 private:
+	//获取Dash方向
 	FVector GetDashDirection();
 
 	UPROPERTY(EditDefaultsOnly)
@@ -27,7 +29,7 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	FGameplayTag DashGameplayCueTag;
 
-	//配置ApplyRootMotionTask实现一次冲刺
+	//ApplyRootMotionTask实现一次冲刺
 	void Dashing();
 	
 	//在Task完成后移除Cue，结束GA

@@ -17,7 +17,6 @@ class WARRIOR_API UWarriorGA_SpawnWeaponBase : public UWarriorGameplayAbility
 	GENERATED_BODY()
 
 protected:
-	//能力激活时自动调用
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 private:

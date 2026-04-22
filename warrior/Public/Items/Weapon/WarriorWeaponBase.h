@@ -8,7 +8,6 @@
 
 class UBoxComponent;
 
-//自定义一个带AActor*参数，委托名为FOnTargetInteractedDelegate的Delegate
 DECLARE_DELEGATE_OneParam(FOnTargetInteractedDelegate,AActor*);
 
 UCLASS()

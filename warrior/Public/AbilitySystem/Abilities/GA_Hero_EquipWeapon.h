@@ -1,4 +1,4 @@
-// 将武器装备到手中
+//将武器装备到手中的GA
 
 #pragma once
 
@@ -17,15 +17,15 @@ class UGA_Hero_EquipWeapon : public UWarriorHeroGameplayAbility
 
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-
-	//播放Montage并进行装备
-	void PlayMontageAndWaitEventEquip();
 	
+	//切换绑定的Socket点
 	UFUNCTION()
 	void AttachWeapon(FGameplayEventData InPayload);
 
+	//Equip之后的AnimLayer切换、从Combat组件取出Weapon并处理WeaponData
 	void HandleEquipWeapon(AWarriorHeroWeapon* InWeaponToEquip);
 
+	//更新UI显示，每次重新计算冷却时间以防止冷却中GA在重新Equip后图标显示可释放
 	void UpdateUIAndCalRemainingTime(AWarriorHeroWeapon* InWeaponToEquip);
 
 private:

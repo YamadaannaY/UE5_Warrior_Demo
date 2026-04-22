@@ -1,4 +1,4 @@
-//Yu
+//Enemy的近战攻击GA_Base模板
 
 #pragma once
 
@@ -6,7 +6,6 @@
 #include "AbilitySystem/Abilities/WarriorEnemyGameplayAbility.h"
 #include "GA_Enemy_MeleeAttack_Base.generated.h"
 
-// GA_Enemy_MeleeAttack_Base.h
 UCLASS()
 class UGA_Enemy_MeleeAttack_Base : public UWarriorEnemyGameplayAbility
 {
@@ -38,14 +37,11 @@ protected:
 	float UnblockableAttackWarningSpawnOffset = 0.0f;
 
 private:
+	//给自己添加一个表示不可阻挡的Cue
 	void ExecuteGameplayCueToOwnerWithParams(const FGameplayTag InGameplayTag) const;
-	FGameplayCueParameters MakeBlockGamePlayCueParams() const;
-    
-	void WaitEventAndDealDamage();
+	
 	UFUNCTION()
 	void HandleApplyDamage(FGameplayEventData InPayLoad);
-    UFUNCTION()
-	void PlayMontageAndDealFinished();
-	UFUNCTION()
+
 	void PlayMontageInternal();
 };

@@ -161,13 +161,7 @@ void UHeroGameplayAbility_Block::PlayMontageAndDealFinished()
 	//魔法盾出现
 	AddGameplayCueToOwnerWithParams(GameplayCueShieldTag);
 
-	WaitEventTask =UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-	  this,                                          
-	  WarriorGamePlayTags::Player_Event_SuccessfulBlock,
-	  nullptr,                                       
-	  false,                                         
-	  true                                          
-  );
+	WaitEventTask =UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this,WarriorGamePlayTags::Player_Event_SuccessfulBlock);
 	if (WaitEventTask)
 	{
 		WaitEventTask->EventReceived.AddUniqueDynamic(this,&ThisClass::DealSuccessfulBlock);

@@ -38,7 +38,7 @@ private:
 
 	//Dynamic
 	UPROPERTY(EditDefaultsOnly)
-	TArray<TEnumAsByte<	EObjectTypeQuery> > StoneTraceChannel;
+	TArray<TEnumAsByte<EObjectTypeQuery>> StoneTraceChannel;
 
 	UPROPERTY(EditDefaultsOnly)
 	bool bDrawDebugShape=false;

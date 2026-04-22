@@ -1,4 +1,4 @@
-// Yu
+// 轻击技能基础类
 
 #pragma once
 
@@ -17,12 +17,8 @@ class WARRIOR_API UGA_Hero_SpecialAbilityBase : public UWarriorHeroGameplayAbili
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	
-	void PlayMontageAndDealFinished();
-	
 	UFUNCTION()
 	virtual void HandleEventReceived(FGameplayEventData InPayLoad);
-	
-	void CallCooldown();
 
 private:
 	UPROPERTY(EditDefaultsOnly)

@@ -20,7 +20,8 @@ void UGA_Hero_SpecialAbility_Light_Axe::HandleEventReceived(FGameplayEventData I
 	ASC->ExecuteGameplayCue(GameplayCueTag,CueParams);
 	
 	const float InWeaponBaseDamage=GetHeroCombatComponentFromActorInfo()->GetHeroCurrentEquippedWeaponDamageAtLevel(GetAbilityLevel());
-	FGameplayEffectSpecHandle DamageSpecHandle=MakeHeroDamageEffectSpecHandle(DamageGameplayEffectClass,InWeaponBaseDamage,WarriorGamePlayTags::Player_SetByCaller_AttackType_Light,UseComboCount);
+	FGameplayEffectSpecHandle DamageSpecHandle=MakeHeroDamageEffectSpecHandle
+	(DamageGameplayEffectClass,InWeaponBaseDamage,WarriorGamePlayTags::Player_SetByCaller_AttackType_Light,UseComboCount);
 
 	if (!DamageSpecHandle.IsValid())
 	{

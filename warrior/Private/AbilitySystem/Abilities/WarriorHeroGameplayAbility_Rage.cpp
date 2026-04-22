@@ -45,7 +45,7 @@ void UWarriorHeroGameplayAbility_Rage::RageActivating()
 	Task_PlayMontageAndWait->OnBlendOut.AddUniqueDynamic(this,&ThisClass::OnTaskCompleted);
 	Task_PlayMontageAndWait->ReadyForActivation();
 
-	UAbilityTask_WaitGameplayEvent* Task_WaitGameplayEvent=UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this,WarriorGamePlayTags::Player_Event_ActivateRage,nullptr,false,                                         true                                          );
+	UAbilityTask_WaitGameplayEvent* Task_WaitGameplayEvent=UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this,WarriorGamePlayTags::Player_Event_ActivateRage,nullptr,false,true);
 	if (Task_WaitGameplayEvent)
 	{
 		Task_WaitGameplayEvent->EventReceived.AddUniqueDynamic(this,&ThisClass::OnGameplayEventReceived);

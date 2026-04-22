@@ -1,4 +1,4 @@
-// Yu
+// Axe轻击GA
 
 #pragma once
 
@@ -14,13 +14,14 @@ UCLASS()
 class WARRIOR_API UGA_Hero_LightAttack_Axe : public UGA_Hero_LightAttack
 {
 	GENERATED_BODY()
-
-private:
+	
+	//具体Rage逻辑
 	virtual void WhileRageActive() override;
 
+	//产生刃气
 	UFUNCTION()
 	void SpawnProjectile(FGameplayEventData InPayLoad);
-private:
+	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UGameplayEffect> GameplayEffectClass;
 

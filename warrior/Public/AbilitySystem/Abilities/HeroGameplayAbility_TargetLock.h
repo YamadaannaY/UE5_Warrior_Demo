@@ -127,4 +127,7 @@ private:
 	
 	UPROPERTY()
 	UAbilityTask_ExecuteOnTick* ExecuteOnTick;
+	
+	UFUNCTION()
+	void SwitchTargetReceived(FGameplayEventData PayLoad);
 };

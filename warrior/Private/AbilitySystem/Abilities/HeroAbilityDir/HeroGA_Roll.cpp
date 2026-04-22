@@ -1,4 +1,4 @@
-// 实现一个翻滚GA，服务器计算方向和落点，利用MotionWrap改变动画
+// 实现一个翻滚GA，服务器计算方向和落点，利用MotionWrap改变动画，默认前滚
 
 #include "AbilitySystem/Abilities/HeroAbilityDir/HeroGA_Roll.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
@@ -19,12 +19,12 @@ void UHeroGA_Roll::ActivateAbility(const FGameplayAbilitySpecHandle Handle,const
         ComputeRotateDirection();
     }
     
-    UAbilityTask_PlayMontageAndWait* Task =UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,NAME_None,RollMontage);
-    Task->OnCompleted.AddDynamic(this, &ThisClass::K2_EndAbility);
-    Task->OnCancelled.AddDynamic(this, &ThisClass::K2_EndAbility);
-    Task->OnInterrupted.AddDynamic(this, &ThisClass::K2_EndAbility);
-    Task->OnBlendOut.AddDynamic(this,&ThisClass::K2_EndAbility);
-    Task->ReadyForActivation();
+    UAbilityTask_PlayMontageAndWait* MontageTask =UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,NAME_None,RollMontage);
+    MontageTask->OnCompleted.AddDynamic(this, &ThisClass::K2_EndAbility);
+    MontageTask->OnCancelled.AddDynamic(this, &ThisClass::K2_EndAbility);
+    MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::K2_EndAbility);
+    MontageTask->OnBlendOut.AddDynamic(this,&ThisClass::K2_EndAbility);
+    MontageTask->ReadyForActivation();
 }
 
 /*-------------------------------------------
@@ -56,7 +56,7 @@ void UHeroGA_Roll::ComputeRotateDirection()
         RollLineTraceObjectType,
         false,
         TArray<AActor*>(),
-        EDrawDebugTrace::None,
+        EDrawDebugTrace::ForDuration,
         Hit,
         true
     );

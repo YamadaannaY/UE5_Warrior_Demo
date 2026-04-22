@@ -21,28 +21,53 @@ void UGA_Enemy_MeleeAttack_Base::ActivateAbility(const FGameplayAbilitySpecHandl
         return;
     }
     
-    WaitEventAndDealDamage();
+    UAbilityTask_WaitGameplayEvent* WaitEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this,WarriorGamePlayTags::Shared_Event_MeleeHit);
+    WaitEventTask->EventReceived.AddDynamic(this, &UGA_Enemy_MeleeAttack_Base::HandleApplyDamage);
+    WaitEventTask->ReadyForActivation();
     
     // 播放Montage
-    PlayMontageAndDealFinished();
+    if (!PlayMontage)
+    {
+        K2_EndAbility();
+        return;
+    }
+
+    // 检查不可阻挡状态
+    bool bIsUnBlockable = UWarriorFunctionLibrary::NativeDoesActorHaveTag(GetEnemyCharacterFromActorInfo(), WarriorGamePlayTags::Enemy_Status_UnBlockable);
+
+    if (bIsUnBlockable)
+    {
+        // 播放不可阻挡警告特效
+        ExecuteGameplayCueToOwnerWithParams(WarningGameplayCueTag);
+        
+        FTimerHandle WarningTimer;
+        GetWorld()->GetTimerManager().SetTimer(WarningTimer, this, &UGA_Enemy_MeleeAttack_Base::PlayMontageInternal, 0.2f, false);
+    }
+    else
+    {
+        
+        UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this,("EnemyPlayMontage"),PlayMontage);
+    
+        if (PlayMontageTask)
+        {
+            PlayMontageTask->OnCompleted.AddDynamic(this, &UGA_Enemy_MeleeAttack_Base::K2_EndAbility);
+            PlayMontageTask->OnBlendOut.AddDynamic(this, &UGA_Enemy_MeleeAttack_Base::K2_EndAbility);
+            PlayMontageTask->OnInterrupted.AddDynamic(this, &ThisClass::K2_EndAbility);
+            PlayMontageTask->OnCancelled.AddDynamic(this, &UGA_Enemy_MeleeAttack_Base::K2_EndAbility);
+            PlayMontageTask->ReadyForActivation();
+        }
+    }
 }
 
 void UGA_Enemy_MeleeAttack_Base::ExecuteGameplayCueToOwnerWithParams(const FGameplayTag InGameplayTag) const
 {
     UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
     if (!ASC) return;
-    ASC->ExecuteGameplayCue(InGameplayTag, MakeBlockGamePlayCueParams());
-}
-
-void UGA_Enemy_MeleeAttack_Base::WaitEventAndDealDamage()
-{
-    UAbilityTask_WaitGameplayEvent* WaitEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this,WarriorGamePlayTags::Shared_Event_MeleeHit);
     
-    if (WaitEventTask)
-    {
-        WaitEventTask->EventReceived.AddDynamic(this, &UGA_Enemy_MeleeAttack_Base::HandleApplyDamage);
-        WaitEventTask->ReadyForActivation();
-    }
+    FGameplayCueParameters CueParams;
+    CueParams.RawMagnitude = UnblockableAttackWarningSpawnOffset;
+    
+    ASC->ExecuteGameplayCue(InGameplayTag, CueParams);
 }
 
 void UGA_Enemy_MeleeAttack_Base::HandleApplyDamage(FGameplayEventData InPayLoad)
@@ -60,38 +85,11 @@ void UGA_Enemy_MeleeAttack_Base::HandleApplyDamage(FGameplayEventData InPayLoad)
         NativeApplyEffectSpecHandleToTarget(const_cast<AActor*>(LocalTargetActor), DamageSpecHandle);
     }
 
-    // 播放音效
+    // 播放音效Cue
     ExecuteGameplayCueToOwnerWithParams(WeaponHitSoundGameplayCueTag);
     
-    // 发送受击反应事件
+    // 给目标发送受击反应Event触发HitReactGA
     UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(const_cast<AActor*>(LocalTargetActor), WarriorGamePlayTags::Shared_Event_HitReact, InPayLoad);
-}
-
-void UGA_Enemy_MeleeAttack_Base::PlayMontageAndDealFinished()
-{
-    if (!PlayMontage)
-    {
-        K2_EndAbility();
-        return;
-    }
-
-    // 检查不可阻挡状态
-    bool bIsUnBlockable = UWarriorFunctionLibrary::NativeDoesActorHaveTag(GetEnemyCharacterFromActorInfo(), WarriorGamePlayTags::Enemy_Status_UnBlockable);
-
-    if (bIsUnBlockable)
-    {
-        // 播放警告特效
-        ExecuteGameplayCueToOwnerWithParams(WarningGameplayCueTag);
-        
-        // 延迟播放Montage
-        FTimerHandle WarningTimer;
-        GetWorld()->GetTimerManager().SetTimer(WarningTimer, this, &UGA_Enemy_MeleeAttack_Base::PlayMontageInternal, 0.2f, false);
-    }
-    else
-    {
-        // 立即播放Montage
-        PlayMontageInternal();
-    }
 }
 
 void UGA_Enemy_MeleeAttack_Base::PlayMontageInternal()
@@ -106,11 +104,4 @@ void UGA_Enemy_MeleeAttack_Base::PlayMontageInternal()
         PlayMontageTask->OnCancelled.AddDynamic(this, &UGA_Enemy_MeleeAttack_Base::K2_EndAbility);
         PlayMontageTask->ReadyForActivation();
     }
-}
-
-FGameplayCueParameters UGA_Enemy_MeleeAttack_Base::MakeBlockGamePlayCueParams() const 
-{
-    FGameplayCueParameters CueParams;
-    CueParams.RawMagnitude = UnblockableAttackWarningSpawnOffset;
-    return CueParams;
 }

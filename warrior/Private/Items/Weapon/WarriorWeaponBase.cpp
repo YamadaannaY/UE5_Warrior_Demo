@@ -34,7 +34,6 @@ void AWarriorWeaponBase::OnCollisionBoxBeginOverlap(UPrimitiveComponent* Overlap
 
 	if (APawn* HitPawn = Cast<APawn>(OtherActor))
 	{
-		//不让Enemy能够伤害彼此，所以需要id不同，Controller中通过TeamID判断
 		if (UWarriorFunctionLibrary::IsTargetPawnHostile(WeaponOwningPawn,HitPawn))
 		{
 			OnWeaponHitTarget.ExecuteIfBound(OtherActor);
@@ -56,7 +55,6 @@ void AWarriorWeaponBase::OnCollisionBoxEndOverlap(UPrimitiveComponent* Overlappe
 	{
 		if (UWarriorFunctionLibrary::IsTargetPawnHostile(WeaponOwningPawn,HitPawn))
 		{
-			//不让Enemy能够伤害彼此，所以需要id不同。
 			OnWeaponPulledFromTarget.ExecuteIfBound(OtherActor);
 		}
 	}

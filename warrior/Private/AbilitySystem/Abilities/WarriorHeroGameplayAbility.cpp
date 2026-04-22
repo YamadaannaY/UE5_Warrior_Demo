@@ -57,8 +57,7 @@ FGameplayEffectSpecHandle UWarriorHeroGameplayAbility::MakeHeroDamageEffectSpecH
 	FGameplayEffectSpecHandle EffectSpecHandle=GetWarriorAbilitySystemComponentFromActorInfo()
 	->MakeOutgoingSpec(EffectClass,GetAbilityLevel(),ContextHandle);
 	
-	//SetSetByCallerMagnitude实现动态赋值，在蓝图中传入特定值。Tag作为键值进行检索
-	//在GEE中调用这些被设置值
+	//将WeaponBaseDamage作为值保留在Handle中，GEE中取出作为数据
 	EffectSpecHandle.Data->SetSetByCallerMagnitude(WarriorGamePlayTags::Shared_SetByCaller_BaseDamage,InWeaponBaseDamage);
 
 	if (InCurrentAttackTypeTag.IsValid())
@@ -74,11 +73,10 @@ bool UWarriorHeroGameplayAbility::GetAbilityRemainingCoolDownByTag(FGameplayTag 
 	check(InCooldownTag.IsValid());
 	
 	// 1. 创建冷却效果查询
-	FGameplayEffectQuery CooldownQuery=FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags
-	(InCooldownTag.GetSingleTagContainer());
+	FGameplayEffectQuery CooldownQuery=FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(InCooldownTag.GetSingleTagContainer());
 	// 2. 获取所有匹配的冷却效果的时间和持续时间
 	TArray<TPair<float,float>> TimeRemainingAndDuration=GetAbilitySystemComponentFromActorInfo()->GetActiveEffectsTimeRemainingAndDuration(CooldownQuery);
-	// 3. 调用获得的两个时间值作输出引脚传给cooldown委托
+	// 3. 调用获得的两个时间值作输出引脚传给CoolDown委托
 	if (!TimeRemainingAndDuration.IsEmpty())
 	{
 		RemainingCooldownTime=TimeRemainingAndDuration[0].Key;

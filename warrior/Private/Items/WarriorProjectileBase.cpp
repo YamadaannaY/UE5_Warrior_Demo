@@ -111,7 +111,10 @@ void AWarriorProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* Overl
 
 void AWarriorProjectileBase::HandleApplyProjectileDamage(APawn* InHitPawn,const FGameplayEventData& InPayLoad)
 {
-	checkf(ProjectileDamageEffectSpecHandle.IsValid(),TEXT("Forgot to assign a valid spec to handle the projectile:%s"),*GetActorNameOrLabel());
+	if (!ProjectileDamageEffectSpecHandle.IsValid())
+	{
+		return ;
+	}
 	
 	const bool bWasApplied=UWarriorFunctionLibrary::ApplyGameplayEffectSpecHandleToTargetActor(GetInstigator(),InHitPawn,ProjectileDamageEffectSpecHandle);
 	if (bWasApplied)

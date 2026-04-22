@@ -123,7 +123,6 @@ void UWarriorFunctionLibrary::CountDown(const UObject* WorldContextObject, float
 {
 	UWorld* World=nullptr;
 	
-	//获得传入WorldContextObject对应的World
 	if (GEngine)
 	{
 		World=GEngine->GetWorldFromContextObject(WorldContextObject,EGetWorldErrorMode::LogAndReturnNull);
@@ -209,9 +208,8 @@ void UWarriorFunctionLibrary::ToggleInputMode(const UObject* WorldContextObject,
 
 void UWarriorFunctionLibrary::SaveCurrentGameDifficulty(EWarriorGameDifficulty InDifficultyToSave)
 {
-	//使用UClass中的数据创建SaveGame实例
-	USaveGame* SaveGameObject=UGameplayStatics::CreateSaveGameObject
-	(UWarriorSaveGame::StaticClass());
+	//创建SaveGame实例
+	USaveGame* SaveGameObject=UGameplayStatics::CreateSaveGameObject(UWarriorSaveGame::StaticClass());
 	
 	//安全判断，防止SaveGame创建失败
 	if (UWarriorSaveGame* WarriorSaveGameObject=Cast<UWarriorSaveGame>(SaveGameObject))

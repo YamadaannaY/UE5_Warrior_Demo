@@ -11,6 +11,7 @@
 #include "Conrtroller/WarriorHeroController.h"
 #include "WarriorFunctionLibrary.h"
 #include "WarriorGamePlayTags.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Components/SizeBox.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -30,6 +31,10 @@ void UHeroGameplayAbility_TargetLock::ActivateAbility(const FGameplayAbilitySpec
 		ExecuteOnTick->OnAbilityTaskTick.AddUniqueDynamic(this,&ThisClass::OnTargetLockTick);
 		ExecuteOnTick->ReadyForActivation();
 	}
+		
+	UAbilityTask_WaitGameplayEvent* WaitSwitchTargetTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, FGameplayTag::RequestGameplayTag("Player_Event_SwitchTarget"),nullptr,false,false);
+	WaitSwitchTargetTask->EventReceived.AddDynamic(this,&ThisClass::SwitchTargetReceived);
+	WaitSwitchTargetTask->ReadyForActivation();
 }
 
 void UHeroGameplayAbility_TargetLock::EndAbility(const FGameplayAbilitySpecHandle Handle,
@@ -230,7 +235,7 @@ void UHeroGameplayAbility_TargetLock::GetAvailableActorsAroundTarget(TArray<AAct
 		
 		const FVector CrossResult=FVector::CrossProduct(PlayerToCurrentNormalized,PlayerToAvailableNormalized);
 
-		//向量数学叉积概念，当z轴在上，则B在A的右边，否则B在A的左边
+		//向量叉积，当z轴在上，则B在A的右边，否则B在A的左边
 		if (CrossResult.Z>0.f)
 		{
 			OutActorsOnRight.AddUnique(AvailableActor);
@@ -320,4 +325,9 @@ void UHeroGameplayAbility_TargetLock::ResetTargetLockMappingContext()
 
 	check(Subsystem);
 	Subsystem->RemoveMappingContext(TargetLockMappingContext);
+}
+
+void UHeroGameplayAbility_TargetLock::SwitchTargetReceived(FGameplayEventData PayLoad)
+{
+	SwitchTarget(PayLoad.EventTag);
 }

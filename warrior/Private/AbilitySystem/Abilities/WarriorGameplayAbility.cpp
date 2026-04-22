@@ -14,7 +14,6 @@ UPawnCombatComponent* UWarriorGameplayAbility::GetPawnCombatComponentFromActorIn
 
 UWarriorAbilitySystemComponent* UWarriorGameplayAbility::GetWarriorAbilitySystemComponentFromActorInfo() const
 {
-	//当前持有GA的Actor会自带FGameplayAbilityActorInfo：CurrentActorInfo：Actor*, MovementComponent*, AnimInstance, etc.
 	return Cast<UWarriorAbilitySystemComponent>(CurrentActorInfo->AbilitySystemComponent);
 }
 

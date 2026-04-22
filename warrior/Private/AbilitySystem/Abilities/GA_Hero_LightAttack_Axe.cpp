@@ -16,7 +16,6 @@ void UGA_Hero_LightAttack_Axe::WhileRageActive()
 	WaitGameplayEvent(this,WarriorGamePlayTags::Shared_Event_SpawnProjectile);
 	WaitSpawnProjectileEvent->EventReceived.AddUniqueDynamic(this,&ThisClass::SpawnProjectile);
 	WaitSpawnProjectileEvent->ReadyForActivation();
-	
 }
 
 void UGA_Hero_LightAttack_Axe::SpawnProjectile(FGameplayEventData InPayLoad)

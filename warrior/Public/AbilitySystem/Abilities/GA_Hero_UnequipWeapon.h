@@ -19,8 +19,7 @@ protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	
-	void PlayMontageAndWaitEventUnEquip();
-	
+	//移除Layer
 	void OnTimerFinished();
 
 	//将武器绑定到Socket上
@@ -30,6 +29,7 @@ protected:
 	//取消武器手持后处理的逻辑，主要为移除UI图标、IMC、WeaponAbilities...
 	void HandleUnEquipWeapon(AWarriorHeroWeapon* InWeaponToUnEquip);
 
+	//更新UI
 	void UpdateUI(AWarriorHeroWeapon* InWeaponToUnEquip);
 
 private:

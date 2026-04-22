@@ -33,13 +33,13 @@ void UEnemyCombatComponent::OnHitTargetActor(AActor* HitActor)
 	
 	if (bIsValidBlock)
 	{
-		//将格挡成功Tag返回。
+		//触发目标的SuccessBlockTag
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor,WarriorGamePlayTags::Player_Event_SuccessfulBlock,EventData);
 	}
 	
 	else
 	{
-		//没有进行格挡或格挡失败，触发Shared_Event_MeleeHit
+		//没有进行格挡或格挡失败，触发自己的Shared_Event_MeleeHitTag，ApplyDamage
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetMyOwningPawn(),WarriorGamePlayTags::Shared_Event_MeleeHit,EventData);
 	}
 }

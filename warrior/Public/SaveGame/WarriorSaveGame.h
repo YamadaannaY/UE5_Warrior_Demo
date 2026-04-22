@@ -18,6 +18,4 @@ class WARRIOR_API UWarriorSaveGame : public USaveGame
 public:
 	UPROPERTY(BlueprintReadOnly)
 	EWarriorGameDifficulty SavedCurrentDifficulty;
-	
-	
 };

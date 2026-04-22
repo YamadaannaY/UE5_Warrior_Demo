@@ -20,7 +20,7 @@ void UAbilityTask_ExecuteOnTick::TickTask(float DeltaTime)
 	
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{
-		//自定义委托将帧时间进行广播
+		//自定义委托将帧时间进行广播，实现Tick级别的AbilityTask
 		OnAbilityTaskTick.Broadcast(DeltaTime);
 	}
 	else

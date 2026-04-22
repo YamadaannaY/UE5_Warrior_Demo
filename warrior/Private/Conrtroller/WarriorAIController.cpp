@@ -56,10 +56,8 @@ ETeamAttitude::Type AWarriorAIController::GetTeamAttitudeTowards(const AActor& O
 
 	if (OtherTeamAgent && OtherTeamAgent->GetGenericTeamId()< GetGenericTeamId())
 	{
-		//高优先级
 		return ETeamAttitude::Hostile;
 	}
-	//低检测优先级
 	return ETeamAttitude::Friendly;
 }
 
